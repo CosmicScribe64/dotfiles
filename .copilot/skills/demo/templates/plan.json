@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "title": "Feature verification",
+  "workspace": ".",
+  "secretEnv": [],
+  "allowedOrigins": [],
+  "steps": [
+    {
+      "id": "feature-check", "kind": "command", "title": "Run the feature check",
+      "rationale": "Replace this version probe with the narrow behavioral check for the feature.",
+      "argv": ["node", "--version"], "expectExit": 0, "timeoutMs": 30000,
+      "edgeCases": ["A successful version probe does not verify application behavior."]
+    }
+  ]
+}

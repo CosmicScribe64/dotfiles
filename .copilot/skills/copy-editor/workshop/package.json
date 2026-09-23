@@ -1,0 +1,11 @@
+{
+  "name": "copy-editor-workshop",
+  "version": "4.0.0",
+  "private": true,
+  "scripts": {
+    "build": "node build.mjs"
+  },
+  "devDependencies": {
+    "tailwindcss": "4.1.10"
+  }
+}
