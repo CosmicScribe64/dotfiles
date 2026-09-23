@@ -1,0 +1,72 @@
+{
+  "version": 1,
+  "title": "Task filtering: visual and technical verification",
+  "workspace": ".",
+  "steps": [
+    {
+      "id": "desktop", "kind": "ui", "title": "Filter tasks and retain edits", "rationale": "Check the visible task list, then reload to verify browser-local persistence.",
+      "url": "http://127.0.0.1:4173", "viewport": { "width": 1280, "height": 800 }, "video": true, "sanitized": true,
+      "edgeCases": ["The fixture contains synthetic tasks only.", "UI edits are stored in localStorage, not in the API or database fixture."],
+      "callouts": [{ "type": "selector", "selector": "#task-list", "label": "Visible task rows" }],
+      "actions": [
+        { "op": "expectText", "selector": "#summary", "text": "2 open" },
+        { "op": "check", "selector": "input[name=filter][value=open]" },
+        { "op": "expectText", "selector": "#task-count", "text": "2 tasks" },
+        { "op": "snapshot", "label": "Open tasks only" },
+        { "op": "fill", "selector": "#task-title", "value": "Send the release note" },
+        { "op": "click", "selector": "button[type=submit]" },
+        { "op": "expectText", "selector": "#task-count", "text": "3 tasks" },
+        { "op": "click", "selector": "#task-list li:first-child input" },
+        { "op": "expectText", "selector": "#task-count", "text": "2 tasks" },
+        { "op": "reload" },
+        { "op": "expectText", "selector": "#task-count", "text": "4 tasks" },
+        { "op": "expectText", "selector": "#summary", "text": "2 open" }
+      ]
+    },
+    {
+      "id": "mobile", "kind": "ui", "title": "Empty results and a long title on mobile", "rationale": "Use a fresh browser context at 390px width to check the empty filtered view and a long task title.",
+      "url": "http://127.0.0.1:4173", "viewport": { "width": 390, "height": 844 },
+      "edgeCases": ["A fresh context starts from the three seeded tasks.", "Screenshots document layout; automated text checks do not establish overall accessibility."],
+      "callouts": [{ "type": "selector", "selector": "#task-list", "label": "Task list at mobile width" }],
+      "actions": [
+        { "op": "expectText", "selector": "#summary", "text": "2 open" },
+        { "op": "check", "selector": "input[name=filter][value=done]" },
+        { "op": "expectText", "selector": "#task-count", "text": "1 task" },
+        { "op": "click", "selector": "#task-list input" },
+        { "op": "expectVisible", "selector": "#empty" },
+        { "op": "snapshot", "label": "Empty filtered view" },
+        { "op": "check", "selector": "input[name=filter][value=all]" },
+        { "op": "fill", "selector": "#task-title", "value": "Review the release checklist with the client and verify every mobile acceptance criterion" },
+        { "op": "click", "selector": "button[type=submit]" },
+        { "op": "expectText", "selector": "#task-count", "text": "4 tasks" },
+        { "op": "expectText", "selector": "#summary", "text": "4 open" }
+      ]
+    },
+    {
+      "id": "api", "kind": "api", "title": "Inspect the seeded API response", "rationale": "Check HTTP success and one seeded record independently of the browser.",
+      "url": "http://127.0.0.1:4173/api/tasks", "expectStatus": 200,
+      "jsonEquals": [{ "pointer": "/tasks/0/id", "equals": "task-1" }, { "pointer": "/tasks/2/completed", "equals": true }],
+      "edgeCases": ["This read-only endpoint returns the seed, not browser-local edits."]
+    },
+    {
+      "id": "cli", "kind": "command", "title": "Assert the filtering rules", "rationale": "Run the same filter function used by the UI against seeded database rows, including empty and invalid-filter inputs.",
+      "argv": ["node", "fixture-cli.mjs", "--verify"], "expectExit": 0,
+      "stdoutIncludes": ["PASS: all, open, done, empty, and invalid-filter assertions"],
+      "callouts": [{ "type": "lines", "start": 1, "end": 1, "label": "All five filtering assertions completed" }]
+    },
+    {
+      "id": "database", "kind": "command", "title": "Snapshot read-only database rows", "rationale": "Query an isolated SQLite fixture with an explicit column list, stable ordering, and a row limit.",
+      "argv": ["node", "fixture-cli.mjs", "--rows"], "format": "json", "expectExit": 0,
+      "jsonEquals": [{ "pointer": "/0/id", "equals": "task-1" }, { "pointer": "/2/completed", "equals": 1 }],
+      "edgeCases": ["SQLite stores completion as 0/1; the browser uses booleans."]
+    },
+    {
+      "id": "build-artifact", "kind": "json", "title": "Check the generated verification artifact", "rationale": "Capture the actual report produced by the CLI check, then validate its result fields.",
+      "file": "build/verification.json", "jsonEquals": [{ "pointer": "/passed", "equals": true }, { "pointer": "/assertions", "equals": 5 }]
+    },
+    {
+      "id": "diff", "kind": "diff", "title": "Inspect the filtering implementation", "rationale": "Compare the implemented filter against the deliberately incomplete baseline in an isolated Git fixture.",
+      "paths": ["filter.mjs"], "edgeCases": ["A diff records code state; it does not establish runtime correctness."]
+    }
+  ]
+}

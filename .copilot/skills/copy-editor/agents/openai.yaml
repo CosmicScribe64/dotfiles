@@ -1,0 +1,6 @@
+interface:
+  display_name: "Copy Editor"
+  short_description: "Run passes anywhere; keep results in the workbench"
+  default_prompt: "Use $copy-editor to open a blank document or my existing template when requested, or run the requested pass on my draft without rewrites or praise. Save findings to my local workbench when accessible, or return an importable result for my exported packet. Leave all publishable wording to me."
+policy:
+  allow_implicit_invocation: false

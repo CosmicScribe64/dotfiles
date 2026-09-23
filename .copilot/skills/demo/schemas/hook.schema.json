@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:demonstration:hook",
+  "type": "object", "additionalProperties": false,
+  "required": ["version", "tool", "occurredAt", "step"],
+  "properties": {
+    "version": { "const": 1 },
+    "tool": { "type": "string", "minLength": 1, "maxLength": 160 },
+    "occurredAt": { "type": "string", "format": "date-time" },
+    "step": {
+      "type": "object",
+      "allOf": [
+        { "$ref": "urn:demonstration:plan#/$defs/step" },
+        { "properties": { "kind": { "const": "artifact" } } }
+      ]
+    }
+  }
+}

@@ -1,0 +1,61 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:demonstration:run",
+  "type": "object", "additionalProperties": false,
+  "required": ["version", "title", "state", "startedAt", "finishedAt", "planSha256", "repository", "steps"],
+  "properties": {
+    "version": { "const": 1 }, "title": { "type": "string", "minLength": 1, "maxLength": 160 },
+    "state": { "enum": ["running", "complete"] },
+    "startedAt": { "type": "string", "format": "date-time" }, "finishedAt": { "type": "string", "format": "date-time" },
+    "planSha256": { "$ref": "#/$defs/hash" },
+    "repository": {
+      "type": "object", "additionalProperties": false, "required": ["before", "after"],
+      "properties": { "before": { "$ref": "#/$defs/git" }, "after": { "$ref": "#/$defs/git" } }
+    },
+    "steps": { "type": "array", "minItems": 1, "maxItems": 100, "items": { "$ref": "#/$defs/step" } }
+  },
+  "$defs": {
+    "hash": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "git": {
+      "type": "object", "additionalProperties": false, "required": ["head", "dirty", "capturedAt"],
+      "properties": { "head": { "type": ["string", "null"], "pattern": "^[a-f0-9]{40,64}$" }, "dirty": { "type": ["boolean", "null"] }, "capturedAt": { "type": "string", "format": "date-time" } }
+    },
+    "check": {
+      "type": "object", "additionalProperties": false, "required": ["label", "passed"],
+      "properties": { "label": { "type": "string" }, "passed": { "type": "boolean" }, "expected": {}, "actual": {} }
+    },
+    "artifact": {
+      "type": "object", "additionalProperties": false,
+      "required": ["id", "type", "file", "bytes", "sha256", "savedAt", "label", "phase", "callouts"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-z][a-z0-9-]{0,79}$" },
+        "type": { "enum": ["text", "json", "diff", "image", "video"] },
+        "file": { "type": "string", "pattern": "^artifacts/[a-z][a-z0-9-]*\\.(txt|json|diff|png|webm)$" },
+        "bytes": { "type": "integer", "minimum": 0, "maximum": 16777216 }, "sha256": { "$ref": "#/$defs/hash" },
+        "savedAt": { "type": "string", "format": "date-time" },
+        "label": { "type": "string", "maxLength": 200 },
+        "phase": { "enum": ["before", "after", "failure", "output", "recording", "imported"] },
+        "callouts": {
+          "type": "array", "maxItems": 20,
+          "items": { "type": "object", "allOf": [ { "$ref": "urn:demonstration:plan#/$defs/callout" }, { "properties": { "type": { "enum": ["box", "lines", "tag"] } } } ] }
+        }
+      }
+    },
+    "step": {
+      "type": "object", "additionalProperties": false,
+      "required": ["id", "title", "rationale", "edgeCases", "kind", "startedAt", "finishedAt", "status", "source", "checks", "artifacts"],
+      "properties": {
+        "id": { "$ref": "urn:demonstration:plan#/$defs/id" },
+        "title": { "type": "string", "minLength": 1, "maxLength": 160 },
+        "rationale": { "type": "string", "minLength": 1, "maxLength": 2000 },
+        "edgeCases": { "$ref": "urn:demonstration:plan#/$defs/strings" },
+        "kind": { "enum": ["command", "api", "json", "diff", "artifact", "ui"] },
+        "startedAt": { "type": "string", "format": "date-time" }, "finishedAt": { "type": "string", "format": "date-time" },
+        "status": { "enum": ["passed", "failed", "observed"] },
+        "source": { "type": "object" }, "error": { "type": "string" },
+        "checks": { "type": "array", "maxItems": 100, "items": { "$ref": "#/$defs/check" } },
+        "artifacts": { "type": "array", "minItems": 1, "maxItems": 60, "items": { "$ref": "#/$defs/artifact" } }
+      }
+    }
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "id": "database-rows", "kind": "command", "title": "Read a bounded database snapshot",
+  "rationale": "Export an explicit column list from a read-only SQLite connection and compare a known record.",
+  "argv": ["sqlite3", "-readonly", "-json", "fixture.db", "SELECT id, completed FROM tasks ORDER BY id LIMIT 20;"],
+  "format": "json", "expectExit": 0, "timeoutMs": 10000,
+  "jsonEquals": [{ "pointer": "/0/id", "equals": "task-1" }],
+  "edgeCases": ["Requires the sqlite3 CLI. Replace the database path, query, and expected record with approved fixture values.", "Use a read-only account for remote databases and pass credentials through the native client's environment."]
+}

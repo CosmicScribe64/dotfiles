@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Fieldwork | Tasks</title>
+  <style>
+    @font-face { font-family: 'Public Sans'; src: url('/font.woff2') format('woff2'); font-weight: 100 900; font-display: swap; }
+    :root { --ink: #262b2e; --muted: #616a70; --rule: #d2dcda; --green: #086859; --paper: #fbfdfc; }
+    * { box-sizing: border-box; letter-spacing: 0; }
+    body { margin: 0; font: 16px/1.5 'Public Sans', sans-serif; color: var(--ink); background: var(--paper); }
+    header { padding: 22px 32px; display: flex; align-items: center; justify-content: space-between; gap: 20px; border-bottom: 1px solid var(--rule); }
+    .brand { display: flex; gap: 12px; align-items: center; font-size: 21px; font-weight: 750; }
+    .brand-mark { width: 18px; height: 24px; border-left: 7px solid var(--green); border-right: 7px solid #d4a62c; transform: skewY(-14deg); }
+    .workspace { font-size: 13px; color: var(--muted); }
+    main { max-width: 920px; margin: 0 auto; padding: 52px 32px; }
+    .page-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; margin-bottom: 34px; }
+    h1 { margin: 0; font-size: 34px; line-height: 1.2; }
+    .eyebrow { margin: 0 0 10px; font-size: 13px; color: var(--green); font-weight: 650; text-transform: uppercase; }
+    #summary { margin: 12px 0 0; color: var(--muted); font-size: 15px; }
+    .date { margin: 5px 0 0; color: var(--muted); font-size: 13px; white-space: nowrap; }
+    form { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px; margin-bottom: 28px; }
+    input, button { font: inherit; }
+    input[type="text"] { min-width: 0; width: 100%; height: 46px; padding: 10px 14px; border: 1px solid #9cabaa; border-radius: 4px; color: var(--ink); background: #fff; }
+    button { min-height: 46px; padding: 10px 18px; border: 1px solid var(--green); border-radius: 4px; color: #fff; background: var(--green); cursor: pointer; font-size: 14px; font-weight: 650; white-space: nowrap; }
+    .toolbar { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 16px 0; border-block: 1px solid var(--rule); }
+    fieldset { display: inline-flex; margin: 0; padding: 0; border: 0; gap: 3px; }
+    fieldset label { display: block; position: relative; cursor: pointer; }
+    fieldset input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+    fieldset span { display: inline-block; min-width: 55px; padding: 6px 12px; text-align: center; font-size: 13px; border-radius: 3px; }
+    fieldset input:checked + span { background: #dceee8; color: #004e42; font-weight: 650; }
+    #task-count { font-size: 13px; color: var(--muted); white-space: nowrap; }
+    ul { margin: 0; padding: 0; list-style: none; }
+    li { border-bottom: 1px solid var(--rule); }
+    li label { display: flex; align-items: flex-start; gap: 14px; padding: 22px 4px; cursor: pointer; }
+    li input { width: 20px; height: 20px; margin: 2px 0 0; flex: 0 0 20px; accent-color: var(--green); }
+    li span { min-width: 0; overflow-wrap: anywhere; }
+    li input:checked + span { text-decoration: line-through; color: var(--muted); }
+    #empty { margin: 0; padding: 50px 14px; text-align: center; color: var(--muted); border-bottom: 1px solid var(--rule); background: repeating-linear-gradient(135deg, #edf3f1 0, #edf3f1 1px, #fbfdfc 1px, #fbfdfc 12px); }
+    #error { color: #af3026; font-size: 14px; }
+    :focus-visible { outline: 3px solid #d4a62c; outline-offset: 3px; }
+    fieldset input:focus-visible + span { outline: 3px solid #d4a62c; outline-offset: 1px; }
+    .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+    @media (max-width: 600px) {
+      header { padding: 18px 20px; }
+      main { padding: 30px 20px; }
+      h1 { font-size: 28px; }
+      .date { display: none; }
+      .page-heading { margin-bottom: 26px; }
+      form { grid-template-columns: minmax(0, 1fr); }
+      button { width: 100%; }
+      fieldset span { min-width: 48px; padding: 6px 10px; }
+      li label { padding-block: 20px; }
+    }
+  </style>
+</head>
+<body>
+  <header><div class="brand"><span class="brand-mark" aria-hidden="true"></span>Fieldwork</div><span class="workspace">Product team</span></header>
+  <main>
+    <div class="page-heading"><div><p class="eyebrow">Release / 01</p><h1>Team tasks</h1><p id="summary" aria-live="polite">Loading</p></div><p class="date">Wednesday, September 16</p></div>
+    <form id="new-task"><label class="sr-only" for="task-title">Task title</label><input id="task-title" type="text" placeholder="New task" maxlength="160" required autocomplete="off"><button type="submit">Add task</button></form>
+    <div class="toolbar"><fieldset aria-label="Task filter"><legend class="sr-only">Task filter</legend><label><input type="radio" name="filter" value="all" checked><span>All</span></label><label><input type="radio" name="filter" value="open"><span>Open</span></label><label><input type="radio" name="filter" value="done"><span>Done</span></label></fieldset><span id="task-count" aria-live="polite"></span></div>
+    <ul id="task-list" aria-label="Tasks"></ul><p id="empty" hidden>No tasks in this view.</p><p id="error" role="alert" hidden></p>
+  </main>
+  <script type="module">
+    import { filterTasks } from '/filter.mjs';
+    const list = document.querySelector('#task-list');
+    const input = document.querySelector('#task-title');
+    const error = document.querySelector('#error');
+    let tasks = [];
+    function render() {
+      const status = document.querySelector('input[name="filter"]:checked').value;
+      const visible = filterTasks(tasks, status);
+      list.replaceChildren(...visible.map((task) => {
+        const row = document.createElement('li');
+        const label = document.createElement('label');
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.checked = task.completed;
+        checkbox.addEventListener('change', () => { task.completed = checkbox.checked; save(); });
+        const title = document.createElement('span');
+        title.textContent = task.title;
+        label.append(checkbox, title);
+        row.append(label);
+        return row;
+      }));
+      document.querySelector('#summary').textContent = `${filterTasks(tasks, 'open').length} open`;
+      document.querySelector('#task-count').textContent = `${visible.length} ${visible.length === 1 ? 'task' : 'tasks'}`;
+      document.querySelector('#empty').hidden = visible.length > 0;
+    }
+    function save() {
+      try { localStorage.setItem('fieldwork-tasks', JSON.stringify(tasks)); }
+      catch { error.hidden = false; error.textContent = 'Changes could not be saved.'; }
+      render();
+    }
+    document.querySelector('#new-task').addEventListener('submit', (event) => {
+      event.preventDefault();
+      const title = input.value.trim();
+      if (!title) return;
+      tasks.push({ id: crypto.randomUUID(), title, completed: false });
+      input.value = '';
+      save();
+      input.focus();
+    });
+    document.querySelector('fieldset').addEventListener('change', render);
+    try {
+      const response = await fetch('/api/tasks');
+      if (!response.ok) throw new Error('Tasks could not be loaded.');
+      tasks = (await response.json()).tasks;
+      const saved = localStorage.getItem('fieldwork-tasks');
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          if (Array.isArray(parsed) && parsed.every((task) => typeof task.id === 'string' && typeof task.title === 'string' && typeof task.completed === 'boolean')) tasks = parsed;
+        } catch { localStorage.removeItem('fieldwork-tasks'); }
+      }
+      render();
+    } catch (failure) { error.hidden = false; error.textContent = failure.message; }
+  </script>
+</body>
+</html>

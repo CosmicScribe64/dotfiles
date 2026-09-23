@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "tool": "screenshot_page",
+  "occurredAt": "2026-09-16T00:00:00.000Z",
+  "step": {
+    "id": "external-ui", "kind": "artifact", "title": "External UI checkpoint",
+    "rationale": "Import the actual PNG saved by the browser tool after inspecting it for sensitive data.",
+    "file": "scratch/checkpoint.png", "media": "image", "sanitized": true,
+    "callouts": [{ "type": "box", "label": "Verified region", "x": 0.1, "y": 0.1, "width": 0.3, "height": 0.2 }],
+    "edgeCases": ["An imported screenshot is an observation, not an executed assertion."]
+  }
+}

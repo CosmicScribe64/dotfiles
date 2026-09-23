@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="workshop-token" content="__TOKEN__">
+  <meta name="htmx-config" content='{"allowEval":false,"allowScriptTags":false,"includeIndicatorStyles":false,"historyEnabled":false}'>
+  <title>Voice Workshop</title>
+  <link rel="stylesheet" href="/static/styles.css">
+  __HTMX__
+  <script src="/static/anchors.js" defer></script>
+  <script src="/static/app.js" defer></script>
+</head>
+<body>
+  <header class="app-header flex items-center justify-between px-6">
+    <div class="flex items-center gap-3"><span class="brand-mark" aria-hidden="true">w.</span><div><strong>Voice Workshop</strong></div></div>
+    <div class="flex items-center gap-3"><span id="provider-badge" class="pill">Local workbench</span><button id="help-btn" class="quiet">Help</button></div>
+  </header>
+  <nav class="library-navigation" aria-label="Workspace"><button id="toggle-library" class="quiet" aria-expanded="true" aria-controls="document-library">☰ <span>Documents</span></button></nav>
+  <div id="notice" role="status" aria-live="polite" hidden><span id="notice-text"></span><button id="reconnect-btn" class="secondary" hidden>Reconnect</button></div>
+  <main class="workspace">
+    <aside class="library" id="document-library">
+      <div id="library-resize" class="sidebar-resize library-resize" role="separator" tabindex="0" aria-label="Resize document sidebar" aria-controls="document-library" aria-orientation="vertical" aria-valuemin="200" aria-valuemax="360" aria-valuenow="240" title="Drag to resize; use left and right arrow keys"></div>
+      <div class="section-label flex justify-between items-center"><span>Documents</span><span id="doc-count">0</span></div>
+      <div class="flex gap-2 mb-5"><button id="new-doc" class="primary flex-1">+ New</button><button id="import-doc" class="secondary">Import</button><input id="file-input" type="file" accept=".txt,.md,.markdown,text/plain,text/markdown" hidden></div>
+      <nav id="documents" aria-label="Documents" hx-get="/fragments/documents" hx-trigger="load, documentsChanged from:body" hx-swap="innerHTML"></nav>
+    </aside>
+    <section class="writing-pane">
+      <div id="empty-state" class="empty-state"><h1>No document selected</h1></div>
+      <div id="document-workspace" hidden>
+        <header class="editor-toolbar">
+          <div class="editor-title"><label for="title">Document title</label><textarea id="title" rows="1" maxlength="300" placeholder="Untitled" title="Edit document title"></textarea></div>
+          <div class="editor-controls"><div class="segmented" role="group" aria-label="Document view"><button id="write-mode" class="active">Write</button><button id="review-mode">Annotated snapshot</button></div><div class="flex items-center gap-2"><button id="compare-versions" class="secondary" aria-haspopup="dialog" aria-controls="history-dialog">Compare versions</button><span id="save-status" class="muted text-xs" role="status">Saved locally</span><details class="actions-menu"><summary aria-label="Document actions" title="Document actions">⋯</summary><div class="actions-panel"><button id="snapshot-btn" class="quiet">Save snapshot</button><button id="history-btn" class="quiet">Saved snapshots</button><button id="export-btn" class="quiet">Export</button></div></details></div></div>
+        </header>
+        <div class="pass-toolbar">
+          <div class="pass-picker"><label class="sr-only" for="pass">Editing pass</label><select id="pass"></select></div>
+          <button id="run-review" class="primary">Review externally</button>
+          <details class="actions-menu"><summary aria-label="Review actions" title="Review actions">⋯</summary><div class="actions-panel"><button id="external-import-open" class="quiet" aria-haspopup="dialog">Import results</button><button id="prev-pass" class="quiet" aria-label="Previous editing pass">Previous pass</button><button id="next-pass" class="quiet" aria-label="Next editing pass">Next pass</button></div></details>
+        </div>
+        <div id="review-note" class="review-note" hidden></div>
+        <div class="paper">
+          <div id="editor-surface" class="editor-surface"><div id="draft-highlights" class="prose-editor draft-highlights" aria-hidden="true" hidden></div><label for="editor" class="sr-only">Your draft</label><textarea id="editor" class="prose-editor" spellcheck="true" maxlength="300000" placeholder="Your draft"></textarea></div>
+          <div id="annotated" class="prose-editor annotated" hidden aria-label="Annotated immutable review snapshot" tabindex="0"></div>
+        </div>
+        <div class="paper-footer"><span id="word-count">0 words</span><span id="revision-label">Working draft</span></div>
+      </div>
+    </section>
+    <aside class="review-pane" id="review-sidebar">
+      <details class="context-details"><summary><h2 class="context-title">Writing context</h2><span class="context-optional">optional</span></summary><div class="context-grid"><label>Audience<textarea id="audience" rows="2" maxlength="4000" placeholder="Who is this for?"></textarea></label><label>Purpose<textarea id="purpose" rows="2" maxlength="4000" placeholder="What should the reader understand or do?"></textarea></label></div></details>
+      <button id="passes-btn" class="quiet" aria-haspopup="dialog" aria-controls="passes-dialog">All passes <span id="pass-progress">0 / 30 run</span></button>
+      <h2 id="selected-pass-title" class="selected-pass-title">Choose an editing pass</h2>
+      <div id="selected-pass-state" class="pass-state"></div>
+      <details class="pass-instructions"><summary>Scope & exceptions</summary><p id="selected-pass-summary" class="pass-summary"></p><p id="pass-focus"></p><p id="pass-exceptions"></p><p id="pass-task"></p></details>
+      <div id="jobs" aria-live="polite"></div>
+      <div class="review-divider"></div>
+      <div class="findings-toolbar flex items-center justify-between"><label class="text-xs"><input type="checkbox" id="open-only" checked> Open only</label><span id="finding-count" class="muted text-xs">0 findings</span><div class="flex gap-1"><button id="prev-issue" class="nav-btn" aria-label="Previous finding">←</button><button id="next-issue" class="nav-btn" aria-label="Next finding">→</button></div></div>
+      <div id="findings-source" class="finding-source"></div>
+      <details class="review-details"><summary>Pass reviews</summary><label class="section-label" for="review-select">Review history for this pass</label><select id="review-select" class="w-full"><option value="">No reviews yet</option></select><p id="review-scope" class="muted text-xs"></p><p id="review-provider" class="muted text-xs"></p></details>
+      <div id="findings"><p class="empty-small muted">No review yet.</p></div>
+      <div id="review-resize" class="sidebar-resize review-resize" role="separator" tabindex="0" aria-label="Resize review sidebar" aria-controls="review-sidebar" aria-orientation="vertical" aria-valuemin="280" aria-valuemax="520" aria-valuenow="360" title="Drag to resize; use left and right arrow keys"></div>
+    </aside>
+  </main>
+  <dialog id="passes-dialog" class="pass-drawer" aria-labelledby="passes-heading">
+    <div class="drawer-header"><div><h2 id="passes-heading">Editing passes</h2></div><button data-close="passes-dialog" class="quiet" aria-label="Close editing passes">✕</button></div>
+    <div class="drawer-progress"><strong id="checklist-count">0 of 30 run</strong><span id="checklist-scope-label">Working draft</span><progress id="checklist-bar" max="30" value="0" aria-label="Editing passes run on this draft"></progress><p id="checklist-explanation">Reviewed input, not resolved findings.</p></div>
+    <div class="drawer-controls"><label>Show checks for<select id="checklist-scope"><option value="">Working draft · live</option></select></label><div class="drawer-search"><label class="sr-only" for="pass-search">Search editing passes</label><input id="pass-search" type="search" placeholder="Find a check…"><label class="sr-only" for="pass-filter">Filter editing passes</label><select id="pass-filter"><option value="all">All passes</option><option value="to-run">Needs a run</option><option value="current">Run on this draft</option><option value="history">Has history</option></select></div></div>
+    <div id="pass-list" class="pass-list"></div>
+    <footer class="drawer-footer">Broad reviews and demo fixtures do not count toward these checks.</footer>
+  </dialog>
+  <dialog id="external-dialog" class="external-dialog" aria-labelledby="external-heading">
+    <div class="external-heading"><div><h2 id="external-heading">Review externally</h2></div><button data-close="external-dialog" class="quiet" aria-label="Close external review">✕</button></div>
+    <div id="external-status" class="external-status" role="status" aria-live="polite" hidden></div>
+    <section class="external-step"><h3><span>1</span> Send for review</h3>
+      <strong id="external-pass-label"></strong><label>Draft to review<select id="external-snapshot"><option value="">Working draft · save an exact snapshot</option></select></label>
+      <div class="handoff-option"><strong>Agent on this computer</strong><button id="external-copy-agent" class="primary">Copy agent prompt</button><p class="muted">Local paths and snapshot details only. The agent reads the skill and saves findings here.</p></div>
+      <div class="handoff-option"><strong>Remote chat</strong><div class="handoff-actions"><button id="external-copy-packet" class="secondary">Copy packet JSON</button><button id="external-export" class="quiet">Download pass packet</button></div><p class="muted">Includes your draft, context, declined findings, and pass instructions. Share only with your intended evaluator.</p></div>
+      <div id="external-copy-ready" hidden><label id="external-copy-label" for="external-copy-text">Copyable handoff</label><textarea id="external-copy-text" readonly rows="5" spellcheck="false"></textarea></div>
+      <div id="external-packet-ready" hidden><p id="external-packet-label"></p><label>Chat instruction<textarea id="external-chat-instruction" readonly rows="4"></textarea></label></div>
+    </section>
+    <section class="external-step"><h3><span>2</span> Import result</h3>
+      <p>Results go to the original document, snapshot, and pass, regardless of the current selection.</p>
+      <button id="external-choose-file" class="secondary">Choose result file</button><input id="external-result-file" type="file" accept=".json,application/json" hidden>
+      <details id="external-paste-details"><summary>Paste JSON</summary><label class="sr-only" for="external-result-text">Complete returned JSON</label><textarea id="external-result-text" rows="5" placeholder="Complete result JSON, including request metadata"></textarea><button id="external-preview-text" class="secondary">Check result</button></details>
+      <div id="external-preview" class="external-preview" hidden></div><button id="external-confirm-import" class="primary" hidden>Import into workbench</button>
+    </section>
+    <details class="external-local"><summary>Local agents</summary><p>A local agent can run the pass and import into this database directly, without another model call or manual transfer. This window refreshes automatically.</p><p>Remote chats need the packet and result files; they cannot access this database.</p></details>
+    <section class="external-history"><h3>Exported packets</h3><div id="external-request-list"></div></section>
+  </dialog>
+  <dialog id="snapshot-dialog"><form id="snapshot-form"><h2>Save snapshot</h2><label>Revision note<input id="snapshot-note" maxlength="1000" placeholder="Optional"></label><label class="check-row"><input id="snapshot-major" type="checkbox"> Major revision</label><div class="dialog-actions"><button type="button" data-close="snapshot-dialog" class="quiet">Cancel</button><button class="primary" type="submit">Save snapshot</button></div></form></dialog>
+  <dialog id="history-dialog" class="wide-dialog" aria-labelledby="history-heading">
+    <div class="flex items-center justify-between gap-4 flex-wrap"><div><h2 id="history-heading">Saved snapshots</h2><p id="history-summary" class="muted text-xs"></p></div><div class="flex gap-2"><button id="history-view-switch" type="button" class="quiet">Compare versions</button><button data-close="history-dialog" class="quiet">Close</button></div></div>
+    <div class="history-layout"><div id="history-list"></div><pre id="revision-preview" class="revision-preview">No snapshot selected.</pre></div>
+    <details class="comparison-builder"><summary>Choose versions</summary>
+      <div class="flex flex-wrap gap-3"><label>First version<select id="compare-first"></select></label><label>Second version<select id="compare-second"></select></label></div>
+      <p id="compare-prerequisite" class="muted text-xs" hidden>These versions have the same text. Revise your draft or choose a different saved snapshot.</p>
+      <details id="comparison-context" class="comparison-context">
+        <summary>Comparison context<span class="context-optional">optional</span></summary>
+        <div class="comparison-context-fields">
+          <label>Shared audience / purpose<input id="compare-context" maxlength="8000" placeholder="Context common to both versions"></label>
+          <label>Criteria<input id="compare-criteria" maxlength="4000" placeholder="e.g. Clarity and coherence for the stated audience"></label>
+        </div>
+      </details>
+      <p class="muted text-xs">Current working draft is saved as an exact snapshot when you copy or export. The packet randomizes A/B and omits editing history. Send only the packet to a fresh evaluator.</p>
+      <div class="flex flex-wrap gap-2"><button id="compare-copy-agent" class="primary">Copy agent prompt</button><button id="compare-packet" class="secondary">Export fresh-evaluator packet</button><button id="compare-import" class="quiet">Import result</button><input id="compare-json" type="file" accept=".json,application/json" hidden></div>
+      <div id="compare-copy-ready" hidden><label id="compare-copy-label" for="compare-copy-text">Copyable handoff</label><textarea id="compare-copy-text" class="w-full" readonly rows="5" spellcheck="false"></textarea></div>
+      <label class="mt-3">Comparison for result import<select id="comparison-target"></select></label>
+    </details>
+    <div id="comparison-results"></div>
+  </dialog>
+  <dialog id="help-dialog" class="wide-dialog">
+    <h2>Help</h2>
+    <details><summary>Drafts and findings</summary><p>Plain text/Markdown with browser spellcheck, undo, autosave, and snapshots; not a rich-text or collaborative editor. Findings highlight the reviewed snapshot and any identical working draft. Edit this passage selects existing words without changing them. Resolved and Declined change only finding status.</p></details>
+    <details><summary>Review freshness</summary><p>Changing text, audience, or purpose hides draft highlights and requires new checks. Earlier findings remain on their snapshots. Restoring identical input reuses matching checks; changing a title or major-revision flag does not invalidate them.</p><p>Checks record successful passes on exact input, not resolved findings. Zero findings count; failed jobs, demo fixtures, and broad reviews do not complete individual checks. Saved snapshots have their own checklist.</p></details>
+    <details><summary>External reviews and comparisons</summary><p>Review externally copies a local-agent prompt or exports a complete packet. Import results returns findings to the reviewed snapshot. Local agents can import directly. Remote chats have no database access or cloud sync.</p><p>Comparison packets contain randomized candidates without revision metadata. Use a fresh evaluator with no editing history; importing JSON cannot verify its independence.</p></details>
+    <details><summary>Privacy</summary><p>Drafts and history stay in local SQLite; the server listens on 127.0.0.1. Sharing a packet sends its text to your chosen evaluator, which may consume usage. Copying or exporting does not call a model. No analytics or browser CDN requests.</p><p id="data-location" class="muted text-xs"></p></details>
+    <details><summary>Model limits</summary><p>Prompts prohibit praise and rewrites. Schemas reject replacement fields and validate quotations, but cannot guarantee compliant advice. Nothing auto-applies; you can reject findings.</p></details>
+    <details class="exchange"><summary>Legacy manual exchange (v2/v3)</summary><p>For v2/v3 packets only.</p><button id="packet-btn" class="secondary w-full">Export review packet</button><button id="import-review-btn" class="quiet w-full">Import findings JSON</button><input id="review-json" type="file" accept=".json,application/json" hidden><label class="mt-2">Import into snapshot<select id="import-revision"></select></label><p class="text-xs muted">Match the exported snapshot and pass.</p></details>
+    <div class="dialog-actions"><button data-close="help-dialog" class="primary">Close</button></div>
+  </dialog>
+</body>
+</html>
