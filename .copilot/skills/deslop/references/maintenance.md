@@ -38,12 +38,17 @@ decision; keep the rest of their context fixed.
 | S25  | Unpushed commits on the default branch                                             | Use the established remote-default ref, not the current branch as its own base.                                                            |
 | S26  | Direct two-ref / explicit triple-dot comparison                                    | Use snapshot / merge-base comparison respectively; pin commits once.                                                                       |
 | S27  | Removed workaround comment or deleted documentation                                | Inspect the base for lost meaning/references; do not silently restore a deliberate deletion.                                               |
-| S28  | Explicit staged-only rewrite                                                       | No fallback or implicit index update; verify the authorized destination or propose a patch.                                                |
+| S28  | Explicit staged-only rewrite                                                       | No fallback or implicit index update; verify the authorized destination or propose a patch. Inside an authorized commit, pre-commit fixes may be restaged. |
 | S29  | Validation would change shared systems or tracked outputs during audit             | Use non-mutating checks or isolated fixtures; otherwise report the limitation or seek authorization.                                       |
 | S30  | Use deslop to explain this code to me                                              | Explain directly in plain language; no draft required, audit report, or file edits. Preserve technical meaning and uncertainty.             |
 | S31  | Use deslop to audit this explanation                                               | Audit the supplied explanation; do not substitute a new explanation or edit files.                                                         |
 | S32  | Use ISO plain-language principles to explain this topic in depth                   | Give the requested depth with relevant, findable, understandable, usable content; no certification or reader-validation claim.               |
 | S33  | Use deslop for this answer / for the rest of this conversation                      | Apply the style for the requested scope; neither request authorizes file edits or a permanent preference change.                            |
+| S34  | Pre-commit review includes a new agent-authored README repeating header contracts, with no distinct reader task | Identify the unnecessary document before line editing; remove it only within authorized cleanup scope. Formatting and passing tests do not establish usefulness. |
+| S35  | PR description was reviewed, but staged comments or documentation were not | Review the exact staged writing and full new documents; do not count the description review or loading the skill as a pre-commit pass. |
+| S36  | Staged writing changes after its deslop review, or a reviewed file differs in the working tree | Recheck the actual staged content before committing; do not silently substitute a different version or alter unrelated staged changes. |
+| S37  | A new document is explicitly required, user-authored, or contains unique operational guidance | Preserve protected content and requirements; explain the necessity or duplication concern and seek approval where needed, not blanket deletion. |
+| S38  | Mandatory pre-commit deslop finds no prose changes, or cannot finish its review | Report the checked scope and no-prose result in the first case. In the second, stop before commit and report the blocker; neither case authorizes code cleanup. |
 
 ## Maintenance checks
 

@@ -1,13 +1,12 @@
 ---
-description: "Personal defaults for focused changes, Git scope, operational evidence, and C++ work."
+description: "Personal defaults for focused changes, mandatory pre-commit deslop, Git scope, operational evidence, and C++ work."
 applyTo: "**"
 ---
 
 # Agent Instructions
 
 ## Core Defaults
-- Make the smallest clear, maintainable change that fully addresses the request. Do not add abstractions, optimizations, refactors, or scope without a concrete need.
-- Avoid over-engineering for hypothetical future requirements. Prefer a direct local solution until current complexity or demonstrated duplication justifies a broader design.
+- Make the smallest clear, maintainable change that fully addresses the request. Prefer a direct local solution; add abstractions, optimizations, refactors, or scope only when current complexity or demonstrated duplication justifies them, not for hypothetical future requirements.
 - Write plainly and concisely in accordance with the plain-language principles in ISO 24495-1. State assumptions, evidence, tradeoffs, and unresolved risks directly; omit filler and repeated summaries.
 - Preserve unrelated user changes. If they affect the task, work with them; if they make the task unsafe or impossible, stop and ask.
 - Read the controlling code and nearby tests before editing. Validate the changed behavior with the narrowest useful check, and report checks you could not run.
@@ -22,6 +21,13 @@ applyTo: "**"
 - Treat explicit exclusions and words such as "just" and "only" as hard scope boundaries.
 - Ask before expanding scope or taking an external action the user has not requested. Approval of wording does not authorize posting, committing, or pushing it.
 
+## Before Every Commit
+- Before every commit, including amendments and review-fix commits, follow the `deslop` skill's pre-commit review on the exact staged content. It covers comments and docstrings in source and build files, and it checks whether each new document is needed before its wording is polished. Loading the skill earlier or reviewing only the PR description does not count.
+- Within the authorized scope, remove unnecessary agent-authored documents. Ask before edits or deletions outside that scope.
+- Restage only the intended changes. Recheck the staged writing after any later edit or staging change.
+- Before committing, briefly report the reviewed scope and the fixes or remaining findings, or confirm there is no prose change. Formatter, lint, link, and test results do not replace this review. Stop before committing if the review cannot run or a material finding needs resolution or approval.
+- The review covers writing only. It does not authorize code cleanup, commits, or pushes, and it does not need a report file.
+
 ## Git Completion
 Before claiming that commit, push, or pull-request work is complete:
 1. Recheck the current branch and worktree with `git status --short --branch`.
@@ -35,11 +41,15 @@ Before claiming that commit, push, or pull-request work is complete:
 - Before claiming a runtime fix or success, verify the running artifact and configuration and collect end-to-end evidence at the failing boundary. A successful build, render, push, or deploy alone is not runtime proof.
 
 ## Manual Command Output
-- When the user must run a diagnostic command, provide one paste-and-run block rather than a script file or a sequence of separate commands.
-- Capture both stdout and stderr in a report under `/tmp`. Read the report directly when tools can access it; never ask the user to paste its contents.
-- Make probes bounded and non-interactive. Use `timeout` for network probes and prevent repeated SSH commands from consuming stdin with `ssh -n` or `</dev/null`.
-- End with the exact report path outside the redirected group, for example `Connectivity report: /tmp/connectivity-check.txt`.
-Adapt this template to the task:
+When the user must run a diagnostic command:
+- Provide one paste-and-run block, not a script file or a sequence of separate commands.
+- Send stdout and stderr to a report under `/tmp`. Read the report yourself when tools can access it; never ask the user to paste its contents.
+- Keep probes bounded and non-interactive. Use `timeout` for network probes, and `ssh -n` or `</dev/null` so repeated SSH commands do not consume stdin. `ssh -n` cannot be combined with a heredoc-fed remote script.
+- Put `REPORT` and tunable variables at the top, and validate required variables and files immediately before use.
+- Use `set -uo pipefail` for best-effort diagnostics and `set -euo pipefail` for fail-fast build, push, or deploy blocks.
+- Print relevant resolved identifiers in the report, and end with greppable `key=true` or `key=false` verdicts when practical.
+
+Adapt this template. It starts with `date -Is`, guards expected probe failures with `|| true`, and prints the exact report path outside the redirected group:
 
 ```bash
 export REPORT=/tmp/<topic>-check.txt
@@ -60,16 +70,9 @@ export <ANY_OTHER_VARS_THE_BLOCK_NEEDS>=...
 printf '<Topic> report: %s\n' "$REPORT"
 ```
 
-- Keep `REPORT` and tunable variables at the top; validate required variables/files immediately before use.
-- Use `set -uo pipefail` for best-effort diagnostics. Use `set -euo pipefail` for fail-fast build, push, or deploy blocks.
-- Start reports with `date -Is`, guard expected probe failures with `|| true`, and finish with greppable `key=true` or `key=false` verdicts when practical.
-- Resolve and print relevant identifiers in the report. Keep the final `printf` outside the redirected group.
-- `ssh -n` cannot be used with a heredoc-fed remote script; use one or the other.
-
 ## Generated Working Documents
 - Store AI-generated plans, specs, TODOs, research, and similar working documents in the repository's top-level `scratch/` directory.
 - Before creating one, verify that the top-level `scratch/` directory is ignored. If it is not, add `/scratch/` to the repository-local `.git/info/exclude`; do not modify a tracked `.gitignore` solely for generated working documents.
-- Write generated working documents in accordance with the plain-language principles in ISO 24495-1.
 
 ## Repository Conventions
 - Follow the repository's release and dependency policies. Avoid unrelated version bumps and lockfile changes.
@@ -85,10 +88,8 @@ printf '<Topic> report: %s\n' "$REPORT"
 - Document every function declaration in headers, including private helpers. Group override declarations under one comment only when that comment accurately defines each contract.
 - Mark computed values `const` unless later mutated.
 
-## Updating PR Descriptions
+## PR Descriptions
 - Use `gh api` whenever updating a pull-request description; other methods have caused errors.
-
-### PR Description Format
 - Use this structure when drafting or updating a PR description. Fill it with verified facts; leave test boxes unchecked unless those steps were actually completed. Include screenshots or recordings only when useful and safe to share.
 - For stacked PRs, append the required Stack navigation section after this structure.
 
