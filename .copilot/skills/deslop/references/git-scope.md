@@ -1,8 +1,8 @@
 # Git scope
 
-Use for diff requests and repository requests with no explicit target. A supplied
-paragraph or current-file selection does not need Git bookkeeping. The main skill
-governs mode and edit permission.
+Use for diff requests, pre-commit staged reviews, and repository requests with no
+explicit target. A supplied paragraph or current-file selection does not need Git
+bookkeeping. The main skill governs mode and edit permission.
 
 ## Resolve the fixture
 
@@ -12,11 +12,11 @@ governs mode and edit permission.
    `base...head` or an explicit merge-base request compares the merge base to the head.
    A requested current-file, staged-only, or unstaged-only view keeps that scope.
 3. With no target, compare `HEAD` against its merge base with the established default
-   branch. Prefer the locally recorded remote-default ref for the intended remote.
-   Do not assume `origin`, `main`, or `master`. Never use the current local default
-   branch as its own base; that hides unpushed commits. A known local default branch
-   can serve as the base of a different branch. Ask if the base is missing or ambiguous;
-   do not silently guess or fetch.
+   branch, preferring the locally recorded remote-default ref for the intended remote.
+   Do not assume `origin`, `main`, or `master`. On the default branch itself, use the
+   remote-default ref, not the local branch, so unpushed commits stay visible; a local
+   default branch can still be the base for a different branch. Ask if the base is
+   missing or ambiguous; do not guess or fetch.
 4. Only when that default branch diff is empty, inspect staged, unstaged, and untracked
    non-ignored changes. Inspect index and worktree differences separately even if they
    cancel in the net diff. An explicit scope never falls back to another version.
@@ -55,6 +55,8 @@ that target and leave it alone. Refs do not authorize reset, checkout, stash, or
 overwrite to make the working tree match.
 
 A staged-only rewrite does not implicitly authorize index changes. Propose a patch
-unless the user also authorizes its editable destination. Check that destination
-immediately before applying it. Inspect the final diff for unrelated churn; do not
-stage, commit, or push as part of cleanup.
+unless the user also authorizes its editable destination. The exception is a
+pre-commit review inside an authorized commit task: apply its fixes to the working
+files and restage only those intended changes. Check the destination immediately
+before applying a fix. Inspect the final diff for unrelated churn; cleanup alone does
+not authorize staging, committing, or pushing.
