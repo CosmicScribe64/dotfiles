@@ -49,6 +49,8 @@ decision; keep the rest of their context fixed.
 | S36  | Staged writing changes after its deslop review, or a reviewed file differs in the working tree | Recheck the actual staged content before committing; do not silently substitute a different version or alter unrelated staged changes. |
 | S37  | A new document is explicitly required, user-authored, or contains unique operational guidance | Preserve protected content and requirements; explain the necessity or duplication concern and seek approval where needed, not blanket deletion. |
 | S38  | Mandatory pre-commit deslop finds no prose changes, or cannot finish its review | Report the checked scope and no-prose result in the first case. In the second, stop before commit and report the blocker; neither case authorizes code cleanup. |
+| S39  | Third rewrite pass; pass 1 added an unsupported tagline or claim that later passes kept / the user accepted it | First: compare with the original source or brief and remove the addition; the previous draft is not source. Second: keep it as part of the brief. |
+| S40  | Audit a repository document, pre-commit review with staged writing, or rewrite a file / humanize a pasted paragraph | First: read phrases.md, structures.md, and tropes.md before reporting findings or editing. Second: no catalog reading unless a decision is unresolved. |
 
 ## Maintenance checks
 

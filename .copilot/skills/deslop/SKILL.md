@@ -89,7 +89,7 @@ reader need.
 
 Use this when requested or required by instructions.
 
-1. Read the exact staged content with [git-scope.md](./references/git-scope.md):
+1. Read [git-scope.md](./references/git-scope.md), then read the exact staged content:
    added, changed, and removed writing, including comments in code and build files,
    and every new document in full. The working tree or the PR description alone does
    not count.
@@ -121,10 +121,12 @@ preference, and authorizes no file edits.
    conditions and warnings beside the actions they govern. Keep procedural steps in
    execution order. Preserve suspense, fragments, humor, and asides when they serve a
    narrative; do not invent a call to action.
-3. Find the actual problem: filler, editorial commentary, repetition, vague claims,
-   inflated importance, staged candor, unraised objections, stale history, or
-   unnecessary formatting. Prefer
-   concrete subjects, direct verbs, consistent terms, and precise quantities. Explain
+3. Find the actual problem: filler, chatbot residue, editorial commentary, repetition,
+   vague claims, inflated importance, borrowed authority, staged candor, forced
+   punchlines, tacked-on analysis, invented concept labels, strained metaphors,
+   speculative gap-filling, unraised objections, stale history, or unnecessary
+   formatting. Prefer concrete subjects, direct verbs, consistent terms, and precise
+   quantities. Explain
    unfamiliar terms for the audience without replacing useful domain terminology.
 4. Delete redundant framing; compress around the constraint or reason; consolidate
    duplicated facts where readers need them. Move actionable history only to an
@@ -132,6 +134,9 @@ preference, and authorizes no file edits.
    replacing words mechanically. Draft from the brief and evidence when no source exists.
 5. Compare the result with the source or brief. Check claims, names, numbers, units,
    citations, conditions, obligations, and uncertainty; account for authorized omissions.
+   On later passes, compare with the original source or brief, not the previous draft;
+   remove unsupported details, claims, or framing that an earlier pass introduced
+   unless the user accepted them.
    Read for voice, rhythm, and continuity, then stop when the request and relevant checks
    are satisfied. Do not keep searching for defects to justify more edits.
 
@@ -145,11 +150,18 @@ meaningful qualifiers and deliberate repetition. Match punctuation to the sample
 format; do not normalize quotation marks or dashes inside protected content. Apply
 language-specific grammar to that language, not universally.
 
-Consult a catalog only for an unresolved decision: [phrases.md](./references/phrases.md)
-for wording, [structures.md](./references/structures.md) for organization and comments,
-[tropes.md](./references/tropes.md) for claims and presentation, or
-[examples.md](./references/examples.md) for boundary examples. An obvious edit needs
-no additional reference reading.
+Polish, dryness, mixed registers, typography, missing citations, and publication dates
+do not establish authorship. Judge the reader problem. Do not flag wording merely
+quoted or discussed as an example, and do not inject errors to make prose seem human.
+
+For audits, pre-commit reviews with staged writing, and rewrites of files or diffs,
+read [phrases.md](./references/phrases.md) (wording),
+[structures.md](./references/structures.md) (organization and comments), and
+[tropes.md](./references/tropes.md) (claims and presentation) before reporting
+findings or editing. Read [examples.md](./references/examples.md) when a change
+involves a length target, evidence gap, requirement, comment, narrative voice, or
+runtime guard. For responses and short pasted rewrites, consult a catalog only for an
+unresolved decision.
 
 For formal plain-language or reader-outcome assessments, use
 [plain-language.md](./references/plain-language.md). For explicit ISO work or claims
