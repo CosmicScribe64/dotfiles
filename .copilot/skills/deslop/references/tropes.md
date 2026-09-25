@@ -46,12 +46,6 @@ invent an explanation to replace a vague metaphor.
 | Curly quotes                 | Follow format and language conventions; do not alter a direct quotation blindly.                                       |
 | Hyphenated compounds         | Follow grammar and established terms, not a rule that every pair is hyphenated or every predicative hyphen disappears. |
 
-## False positives
-
-Polish, dryness, mixed registers, typography, missing citations, and publication dates
-do not establish authorship. Judge the reader problem. Do not flag wording merely
-quoted or discussed as an example, and do not inject errors to make prose seem human.
-
 ## Source provenance
 
 The inherited catalog credited [tropes.fyi](https://tropes.fyi) by
