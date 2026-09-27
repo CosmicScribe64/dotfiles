@@ -36,7 +36,7 @@ skills locally. Setup does not fetch dependencies or initialize submodules.
 | --- | --- |
 | [copy-editor](.copilot/skills/copy-editor/) | Local writing workbench with diagnostic reviews and fresh-agent version comparisons. You write; agents review without rewriting. |
 | [demo](.copilot/skills/demo/) | Capture real evidence and build a feature demonstration. |
-| [deslop](.copilot/skills/deslop/) | Draft, rewrite, or audit prose; optionally apply its plain-language style to answers and explanations. Simplify code only when explicitly requested. |
+| [deslop](.copilot/skills/deslop/) | Draft, rewrite, or audit prose; optionally apply its plain-language style to answers and explanations. Includes `scripts/find_tells.py`, which lists likely AI-writing tells for review. Simplify code only when explicitly requested. |
 | [test-suite-auditor](.copilot/skills/test-suite-auditor/) | Find weak assertions, missing coverage, and flaky tests. |
 
 ## Adding Configuration

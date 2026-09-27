@@ -8,7 +8,7 @@ bookkeeping. The main skill governs mode and edit permission.
 
 1. Record the repository root, current `HEAD`, requested refs, and resolved commit
    hashes. Pin commits once; branch movement must not change the source mid-review.
-2. Use explicit refs exactly: two refs or `base..head` compare snapshots directly;
+2. Use explicit refs exactly. Two refs or `base..head` compare snapshots directly;
    `base...head` or an explicit merge-base request compares the merge base to the head.
    A requested current-file, staged-only, or unstaged-only view keeps that scope.
 3. With no target, compare `HEAD` against its merge base with the established default
@@ -56,7 +56,7 @@ overwrite to make the working tree match.
 
 A staged-only rewrite does not implicitly authorize index changes. Propose a patch
 unless the user also authorizes its editable destination. The exception is a
-pre-commit review inside an authorized commit task: apply its fixes to the working
-files and restage only those intended changes. Check the destination immediately
+pre-commit review inside an authorized commit task, which applies its fixes to the
+working files and restages only those intended changes. Check the destination immediately
 before applying a fix. Inspect the final diff for unrelated churn; cleanup alone does
 not authorize staging, committing, or pushing.

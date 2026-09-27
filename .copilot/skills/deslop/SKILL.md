@@ -89,7 +89,8 @@ reader need.
 
 Use this when requested or required by instructions.
 
-1. Read [git-scope.md](./references/git-scope.md), then read the exact staged content:
+1. Read [git-scope.md](./references/git-scope.md), run `scripts/find_tells.py --staged`,
+   then read the exact staged content:
    added, changed, and removed writing, including comments in code and build files,
    and every new document in full. The working tree or the PR description alone does
    not count.
@@ -105,8 +106,8 @@ quality or authority to publish.
 
 ## Writing workflow
 
-For **respond**, use this workflow to compose the answer, not to audit the question:
-the user is the reader and their question is the purpose. Lead with the answer and add
+For **respond**, use this workflow to compose the answer, not to audit the question.
+The user is the reader and their question is the purpose. Lead with the answer and add
 examples where they help. Plain language does not mean short; keep necessary technical
 detail and uncertainty, and do not force an explanation into steps. A requested
 response style applies only to the scope the user names, does not set a permanent
@@ -151,7 +152,12 @@ do not establish authorship. Judge the reader problem. Do not flag wording merel
 quoted or discussed as an example, and do not inject errors to make prose seem human.
 
 For audits, pre-commit reviews with staged writing, and rewrites of files or diffs,
-read [phrases.md](./references/phrases.md) (wording),
+first run this skill's `scripts/find_tells.py` on the target: paths, `--staged`, or
+`--diff BASE..HEAD`. It lists mechanical tells with rule ids and never edits. Treat
+each hit as a lead. Confirm it against these rules and the protected-text boundaries,
+and skip wording that is quoted or discussed. The script cannot judge forced triples,
+feelings standing in for mechanisms, synonym cycling, or diluted arguments, and a clean
+run is not a pass. Then read [phrases.md](./references/phrases.md) (wording),
 [structures.md](./references/structures.md) (organization and comments), and
 [tropes.md](./references/tropes.md) (claims and presentation) before reporting
 findings or editing. Read [examples.md](./references/examples.md) when a change

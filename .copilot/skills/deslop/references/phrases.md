@@ -2,7 +2,8 @@
 
 Use when a wording decision remains unclear. The core governs preservation and scope.
 Apply these replacements by default; keep the original only when it carries a technical
-meaning or sits in protected text.
+meaning or sits in protected text. The full pattern list, including words not named
+here, is in [tells.json](../scripts/tells.json); `find_tells.py --list-rules` prints it.
 
 ## Announcements before the point
 

@@ -58,11 +58,17 @@ decision; keep the rest of their context fixed.
 | S45  | Passive sentence with a known actor / with an unknown or irrelevant actor | First: rewrite with the actor as subject. Second: keep passive; invent no actor. |
 | S46  | Bullets whose bold labels restate the line / reference list of fields with bold names and new detail | First: convert to prose. Second: keep the labels. |
 | S47  | Product copy that names a feeling ("types that follow your schema") with a mechanism in the source | Rewrite around the mechanism or number from the source; if the source gives none, flag it rather than inventing one. |
+| S48  | find_tells.py flags words inside a quotation, an example table, or a discussion of tells | Leave the quoted or discussed wording unchanged; a hit is a lead, not an instruction to edit. |
+| S49  | find_tells.py reports no hits on a staged change or file | Still read the writing and apply the judgment rules; a clean run is not a pass. |
+| S50  | Audit request on a file with many script hits | Report confirmed findings only; the script run does not authorize edits, and weak hits need confirmation before reporting. |
 
 ## Maintenance checks
 
 Validate discovery YAML, local links, Markdown structure, and the installed reference
-paths. Inspect examples for unsupported claims or lost qualifiers. Measure entry-point
+paths. When changing `scripts/tells.json`, keep it the only copy of the pattern lists,
+compile-check it with `find_tells.py --list-rules`, and run the script on a sample of
+known tells and on this skill's own files to compare hit counts before and after. Mark
+a rule `weak` when ordinary technical prose triggers it. Inspect examples for unsupported claims or lost qualifiers. Measure entry-point
 and total words separately; relocation is not deletion. No word count proves quality.
 
 Check that conditional references do not contradict the core or require routine tasks
