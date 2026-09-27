@@ -39,15 +39,18 @@ invent an explanation to replace a vague metaphor.
 
 | Feature                      | Decision                                                                                                               |
 | ---------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
-| Dashes or overloaded asides  | Reduce distracting pauses; preserve ranges, minus signs, command flags, and purposeful sample punctuation.             |
-| Bold text or labeled bullets | Remove competing emphasis, not labels that help readers find fields or warnings.                                       |
-| Heading capitalization       | Follow house style and preserve acronyms, titles, and stable anchors.                                                  |
-| Emojis or arrows             | Remove visual noise; keep requested voice, meaningful notation, and directional information.                           |
-| Curly quotes                 | Follow format and language conventions; do not alter a direct quotation blindly.                                       |
+| Em dashes                    | Remove from prose; use a period or comma, not parentheses or en dashes. Keep ranges, minus signs, and command flags.   |
+| Colons                       | Keep before lists, examples, quotations, and labels; rewrite colons that join two clauses.                             |
+| Bold text or labeled bullets | Remove competing emphasis and restating labels; keep labels that help readers find fields or warnings.                 |
+| Heading capitalization       | Sentence case unless a documented house style says otherwise; preserve proper nouns, acronyms, and stable anchors.     |
+| Emojis or arrows             | Remove from headings, bullets, and prose; keep meaningful notation and directional information in diagrams or tables.  |
+| Curly quotes                 | Straighten, except where the language or format requires other marks or the text is protected.                        |
 | Hyphenated compounds         | Follow grammar and established terms, not a rule that every pair is hyphenated or every predicative hyphen disappears. |
 
 ## Source provenance
 
+The strict default rules paraphrase the `unslop` skill in
+[cursor/plugins](https://github.com/cursor/plugins/tree/main/pstack/skills/unslop).
 The inherited catalog credited [tropes.fyi](https://tropes.fyi) by
 [ossama.is](https://ossama.is); humanizer credited Wikipedia's
 [Signs of AI writing](https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing),

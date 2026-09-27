@@ -1,7 +1,8 @@
 # Phrase checks
 
-Use when a wording decision remains unclear. The core governs preservation and scope;
-these are contextual alternatives, not replacements to apply automatically.
+Use when a wording decision remains unclear. The core governs preservation and scope.
+Apply these replacements by default; keep the original only when it carries a technical
+meaning or sits in protected text.
 
 ## Announcements before the point
 
@@ -22,21 +23,29 @@ promise or admission. Mid-sentence "honestly" is not inherently a staged hook.
 
 ## Filler with direct alternatives
 
-| Wording               | Possible revision                           |
-| --------------------- | ------------------------------------------- |
-| In order to           | To                                          |
-| Due to the fact that  | Because                                     |
-| At this point in time | Now                                         |
-| In the event that     | If                                          |
-| Has the ability to    | Can                                         |
-| Conduct an evaluation | Evaluate                                    |
-| When it comes to      | Name the subject                            |
-| Moving forward        | Name the next action or period, if supplied |
+| Wording                      | Revision                                    |
+| ---------------------------- | ------------------------------------------- |
+| In order to                  | To                                          |
+| Due to the fact that         | Because                                     |
+| At this point in time        | Now                                         |
+| In the event that            | If                                          |
+| Has the ability to           | Can                                         |
+| Conduct an evaluation        | Evaluate                                    |
+| When it comes to             | Name the subject                            |
+| Moving forward               | Name the next action or period, if supplied |
+| It is important to note that | Delete                                      |
+| Utilize, leverage            | Use                                         |
+| Facilitate                   | Help, or the actual action                  |
+| Numerous                     | Many                                        |
+| Serves as, stands as         | Is                                          |
+| Boasts, features             | Has                                         |
 
 ## Abstract or promotional vocabulary
 
-Inspect clusters such as "delve," "tapestry," "landscape," "pivotal," "showcase,"
-"underscore," "testament," and "vibrant." Ask what action or property is meant.
+Replace "additionally," "crucial," "delve," "enduring," "enhance," "fostering,"
+"garner," "interplay," "intricate," "landscape," "pivotal," "showcase," "tapestry,"
+"testament," "underscore," and "vibrant" with the action or property meant. A single
+occurrence is enough; do not wait for a cluster.
 "Use" may replace figurative "leverage" or "harness"; "address" may replace
 "navigate challenges." Do not exchange one vague synonym for another.
 
@@ -44,22 +53,43 @@ Technical meanings survive: financial leverage, robust regression, logic gates, 
 named framework are not filler. "Align" might mean agreement or compatibility;
 "double down" might mean a larger commitment. Context determines the revision.
 
+## Metaphor nouns in technical writing
+
+"Substrate," "wedge," "vector," "locus," "vantage," "nexus," "bedrock," "modality,"
+"paradigm," "endgame," "north star," and "flywheel" sound technical but usually stand
+in for a plain word: "base," "add," "way," "last phase," "goal." Figurative
+"primitive," "surface," "harness," "scaffolding," "ratchet," "gold-plating," and
+"evacuate" (for moving code) get the same treatment. Keep the word when it names the
+real thing: a language primitive, a UI surface in a graphics API, a test harness, an
+attack vector, or build scaffolding a tool generates.
+
+## Colons joining clauses
+
+"If you're coming from cron: instead of schedules, you describe conditions" uses the
+colon as a hinge between two thoughts. Rewrite as a plain statement, usually without
+the comparison: "Describe when the job should run in plain English." Keep colons before
+lists, examples, quotations, labels, and times.
+
 ## Simple verbs and hidden actors
 
-"Serves as" may mean "is," and "boasts" may mean "has." A proxy that represents a
-value is not that value, so the substitution is not universal. Active wording needs a
-known actor; do not invent "we," "you," or a team to supply one.
+"Serves as" becomes "is," and "boasts" becomes "has," unless the substitution changes
+meaning: a proxy that represents a value is not that value. Rewrite passive voice with
+its actor when the actor is known and matters ("the compiler validates queries"). Keep
+passive when the actor is unknown or irrelevant; do not invent "we," "you," or a team.
 
 ## Adverbs, qualifiers, and scope
 
-Compress stacked emphasis or overlapping hedges: "could potentially affect" may become
-"may affect," not "affects." "Only," "approximately," "automatically," "atomically,"
+Compress stacked emphasis or overlapping hedges: "could potentially affect" becomes
+"may affect," not "affects." Replace an adverb that props up a weak verb: "runs
+quickly" becomes "is fast" or the measured number; "significantly improves" becomes the
+measured change, or a flag if none is supplied. "Only," "approximately," "automatically," "atomically,"
 "not yet," and "at least" can define behavior, timing, or confidence. Even "just" may
 denote recency or a strict limit. "No evidence of harm" is not "evidence of no harm."
 
 ## Chatbot residue
 
-Remove "Certainly!," "great question," "I hope this helps," and generic follow-up
-offers from standalone deliverables. A letter salutation, requested call to action,
+Remove "Certainly!," "Of course!," "great question," "you're absolutely right," "I hope
+this helps," progress exclamations such as "found it!," and generic follow-up offers
+from standalone deliverables. A letter salutation, requested call to action,
 quoted transcript, or actual conversation may need them. End with the last useful
 content, not replacement boilerplate.

@@ -27,7 +27,7 @@ decision; keep the rest of their context fixed.
 | S14  | Selected comment beside unrelated dirty code                                       | Change only the authorized writing; preserve other edits and recheck the target.                                                           |
 | S15  | Headings/tables versus stable anchors, metadata, commands, doctests, or quotations | Improve ordinary presentation; preserve data and protected syntax. Retain stable anchors or obtain approval for link-breaking changes.     |
 | S16  | Real prerequisites, repeated warnings, or numerical qualifiers                     | Keep necessary information despite stylistic patterns.                                                                                     |
-| S17  | Voice sample with dashes, fragments, suspense, or an aside                         | Preserve purposeful voice and narrative order; no fabricated procedure or personal experience.                                             |
+| S17  | Voice sample with dashes, fragments, suspense, or an aside                         | Preserve purposeful fragments, asides, and narrative order; still replace em dashes. No fabricated procedure or personal experience.       |
 | S18  | Scientific claim lacks a mechanism, number, or citation                            | Improve harmless wording and flag the gap; invent no specificity and do not stall unrelated edits.                                         |
 | S19  | ISO or reader-success claim without underlying study/rendering evidence            | Editorial assessment only; distinguish source claims from reader evidence and report untested limits.                                      |
 | S20  | Approved clause, dosage, formula, or warning                                       | Keep operative text and placement; explanation alongside; appropriate review before use.                                                   |
@@ -51,6 +51,13 @@ decision; keep the rest of their context fixed.
 | S38  | Mandatory pre-commit deslop finds no prose changes, or cannot finish its review | Report the checked scope and no-prose result in the first case. In the second, stop before commit and report the blocker; neither case authorizes code cleanup. |
 | S39  | Third rewrite pass; pass 1 added an unsupported tagline or claim that later passes kept / the user accepted it | First: compare with the original source or brief and remove the addition; the previous draft is not source. Second: keep it as part of the brief. |
 | S40  | Audit a repository document, pre-commit review with staged writing, or rewrite a file / humanize a pasted paragraph | First: read phrases.md, structures.md, and tropes.md before reporting findings or editing. Second: no catalog reading unless a decision is unresolved. |
+| S41  | Rewrite or respond in ordinary prose / text with em dashes inside a quotation, command, or code block | First: no em dashes, hinge colons, curly quotes, Title Case headings, or decorative emojis in the output. Second: leave protected text unchanged. |
+| S42  | Documented house style requires Title Case headings, or the user asks to keep em dashes | Follow the house style or instruction; the default style rules yield to both. A voice sample alone does not. |
+| S43  | "Leverage," "serves as," "delve," or "north star" in prose / "attack vector," "test harness," or "language primitive" | First: replace with the plain word even when it appears once. Second: keep the established technical term. |
+| S44  | Notes with arrows, dropped articles, and abbreviations in a README / the same notation in a changelog table | First: expand to whole sentences without losing limits or mechanisms. Second: keep the table's convention. |
+| S45  | Passive sentence with a known actor / with an unknown or irrelevant actor | First: rewrite with the actor as subject. Second: keep passive; invent no actor. |
+| S46  | Bullets whose bold labels restate the line / reference list of fields with bold names and new detail | First: convert to prose. Second: keep the labels. |
+| S47  | Product copy that names a feeling ("types that follow your schema") with a mechanism in the source | Rewrite around the mechanism or number from the source; if the source gives none, flag it rather than inventing one. |
 
 ## Maintenance checks
 
