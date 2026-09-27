@@ -82,7 +82,9 @@ Source: "I waited. Nothing. Then the second reply arrived. (I nearly missed it.)
 
 Keep the suspense, fragments, and aside when they fit the writer's purpose. Do not
 force an answer-first sequence, invent a next step, or add the reader's supposed
-experience. A narrative can be effective without being a procedure.
+experience. A narrative can be effective without being a procedure. The default style
+rules still apply: if the sample read "Nothing — then the second reply arrived," the
+dash becomes a period.
 
 ## 8. Keep a guard when the runtime contract is unknown
 
@@ -98,3 +100,26 @@ export function upperCaseName(name: string): string {
 "Deslop this file" permits writing edits only. Even in explicit code mode, the type
 annotation does not constrain untyped consumers. The guard defines rejection and an
 error message. Keep it without boundary evidence and a passing focused baseline.
+
+## 9. Replace dashes and hinge colons
+
+Before: "The cache is invalidated on deploy — every node drops its entries. The fix is
+simple: warm the cache before traffic shifts."
+
+After: "Each deploy clears the cache on every node. Warm the cache before shifting
+traffic."
+
+The em dash becomes a sentence break, the passive "is invalidated" gets its actor, and
+"the fix is simple:" announces a point instead of making it. A colon before a list of
+steps would stay.
+
+## 10. Expand over-compressed notes
+
+Before: "Retry w/ backoff → max 5, then DLQ. No dup writes (idempotency key)."
+
+After: "The worker retries with backoff up to five times, then sends the message to the
+dead-letter queue. An idempotency key prevents duplicate writes."
+
+Spell out the arrow, "w/," and "DLQ" in prose. Keep the limit and the mechanism. The
+original notation may stay in a table cell or commit subject where that style is the
+convention.

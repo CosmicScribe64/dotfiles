@@ -26,14 +26,16 @@ same person. Repeated labels can improve scanning and consistency.
 
 ## Forced groupings
 
-Abstract slogans such as "innovation, inspiration, and insight" may add no analysis.
-Three actual prerequisites still need all three items. Fix padding, not list length.
+Abstract slogans such as "innovation, inspiration, and insight" add no analysis. When
+a list has exactly three items, check whether the third exists to complete the rhythm;
+use the natural number. Three actual prerequisites still need all three items.
 
 ## Agency, passive voice, and distance
 
-"The decision emerged" may hide responsibility. An inanimate subject can also be
-accurate: a server rejects a request and uncertainty increases. Passive voice can
-foreground the affected object or reflect an unknown actor. Direct address must not
+"The decision emerged" may hide responsibility. Default to active voice with the real
+actor when it is known: "the loader parses the file," not "the file is parsed by the
+loader." An inanimate subject can be accurate, as when a server rejects a request.
+Passive voice stays when the actor is unknown or does not matter. Direct address must not
 assign the writer's experience to the reader. Ordinary "When" or "What" openings
 are not defects by themselves.
 
@@ -55,13 +57,25 @@ Remove empty "I'm not saying" defenses and "a tempting approach would be" setups
 Keep named objections, real options, corrections, and scope limits. A rejected option
 may reveal a failure mode; state that consequence directly instead of discarding it.
 
+## Dense and over-compressed sentences
+
+Split a sentence the reader must reread, or drop its clauses, so each carries one
+idea. The opposite failure is prose compressed into notes: dropped articles, verbless
+fragments, arrows, and symbols. "Parser rejects bad date → exit 2, no write" becomes
+"The parser rejects a bad date, exits with code 2, and writes nothing." Spell out
+abbreviations the reader may not know. Terse notation stays in tables, code, commit
+subjects, and changelogs where it is the convention.
+
 ## Headings, lists, and navigation
 
 Remove an opening that only repeats its heading. Turn "the first... the second..."
 paragraphs into a real list when they enumerate, or connected prose when they argue.
-An authorized rewrite may improve ordinary headings and tables under the core's anchor,
-data, and numbering protections. Neither template structure nor bold labels alone
-justify converting scannable information into a dense paragraph.
+Convert inline-header bullets whose bold label and colon restate the line
+("**Performance:** Performance improved...") into prose. A lead-in that names the item
+and is followed by genuinely new detail ("**Schema in TypeScript.** Tables live in one
+file.") is fine. An authorized rewrite may improve ordinary headings and tables under
+the core's anchor, data, and numbering protections. Do not flatten scannable reference
+information, such as fields or options, into a dense paragraph.
 
 ## Repeated summaries and diluted arguments
 
@@ -73,7 +87,12 @@ be replaced by generic optimism.
 ## Metaphors and analogies
 
 Keep analogies that clarify a needed relationship. Cut decoration or a metaphor that
-takes more explanation than the concept. A hypothetical illustration is not evidence;
+takes more explanation than the concept. Mannered prose goes too: aphorisms ("wire it or
+delete it"), rhetorical fragments for effect, personified code ("the plan holds it"),
+and figurative verbs ("rides along," "stands on") when a literal phrase exists. Name
+what the code or process does. Ask what a sentence tells the reader to do or know; if it
+names a feeling ("SQL you can read") rather than a mechanism or number ("`.toSQL()`
+returns the exact query string"), rewrite it or cut it. A hypothetical illustration is not evidence;
 expanding one does not permit invented facts about a real person or study.
 
 ## Comments, docstrings, and implementation history
