@@ -9,6 +9,7 @@ Usage:
   find_tells.py -                  scan stdin
   find_tells.py --staged           scan lines added in the index
   find_tells.py --diff REF         scan lines added since REF (or in A..B)
+  find_tells.py --commits RANGE    scan commit messages in RANGE (for example main..HEAD)
 Options: --no-weak, --skip ID[,ID], --json, --list-rules
 """
 
@@ -34,6 +35,7 @@ FENCE = re.compile(r"^\s*(```|~~~)")
 BREAK = re.compile(r"^\s*(?:-\s*){3,}$|^\s*(?:\*\s*){3,}$|^\s*(?:_\s*){3,}$")
 SENTENCE_END = re.compile(r"(?<=[.!?])[\"')\]]*\s+(?=[A-Z0-9\"'(\[])")
 WORD = re.compile(r"[A-Za-z][A-Za-z'-]*")
+ORDINAL = re.compile(r"(?:(?:The|A|My|Our) (?:first|second|third|fourth|fifth|sixth|final|last) \w+|(?:First|Second|Third|Fourth|Fifth|Finally|Lastly),)")
 
 
 # ---------------------------------------------------------------- masking
@@ -49,11 +51,23 @@ def mask_spans(text, pattern, group=0):
     return text
 
 
-def mask_prose(text):
+def mask_prose(text, ext=".md"):
     """Return (base, full) masks. base hides code, URLs, and markup; full also hides quotations."""
     lines = text.split("\n")
     out, in_fence, in_front = [], False, bool(lines and lines[0].strip() == "---")
+    literal_indent = None  # reStructuredText literal block after "::" or a code directive
     for i, line in enumerate(lines):
+        if ext == ".rst":
+            indent = len(line) - len(line.lstrip())
+            if literal_indent is not None:
+                if not line.strip() or indent > literal_indent:
+                    out.append(" " * len(line))
+                    continue
+                literal_indent = None
+            if line.rstrip().endswith("::") or re.match(r"\s*\.\. ", line):
+                literal_indent = indent
+                out.append(" " * len(line) if line.lstrip().startswith("..") else line)
+                continue
         if in_front:
             out.append(" " * len(line))
             if i > 0 and line.strip() == "---":
@@ -130,7 +144,7 @@ class Scanner:
 
     def scan(self, text, ext):
         if ext in PROSE_EXTS or ext not in HASH_EXTS | SLASH_EXTS:
-            base, full = mask_prose(text)
+            base, full = mask_prose(text, ext)
             prose = True
         else:
             base, full = mask_code(text, ext)
@@ -157,6 +171,8 @@ class Scanner:
                          "match": " ".join(text[start:end].split())[:80], "hint": hint})
 
         for rule, pat in self.rules:
+            if rule.get("scope") == ("prose" if not prose else "comments"):
+                continue
             source = base if rule["id"] == "curly-quote" else full
             for m in pat.finditer(source):
                 if m.end() == m.start():
@@ -165,9 +181,9 @@ class Scanner:
                     continue
                 hit(rule["id"], m.start(), m.end(), rule["hint"], rule.get("weak"))
 
-        if prose:
+        if prose and ext not in (".rst", ".adoc"):
             self.structure(text, hit)
-        self.sentences(full, hit)
+        self.sentences(full, hit, prose)
         return hits, len(WORD.findall(full))
 
     def structure(self, text, hit):
@@ -202,6 +218,12 @@ class Scanner:
                     hit("title-case-heading", off, off + len(line), c["title-case-heading"]["hint"], c["title-case-heading"].get("weak"))
                 if self.enabled("wh-heading") and re.match(r"(Where|What|Why|How)\s+\w+(\s+\w+){1,}", title) and not title.endswith("?"):
                     hit("wh-heading", off, off + len(line), c["wh-heading"]["hint"], c["wh-heading"].get("weak"))
+                if self.enabled("conclusion-heading") and re.fullmatch(
+                        r"(?i)(in )?(conclusion|summary|final thoughts|key takeaways|wrapping up|closing thoughts|"
+                        r"future (outlook|prospects|directions)|challenges and .*)", title.strip()):
+                    hit("conclusion-heading", off, off + len(line), c["conclusion-heading"]["hint"], c["conclusion-heading"].get("weak"))
+                if self.enabled("colon-heading") and re.match(r"[^:`]{2,50}: \S", title) and not re.match(r"(?i)(step|part|phase|appendix|example|note|faq)\b", title):
+                    hit("colon-heading", off, off + len(line), c["colon-heading"]["hint"], c["colon-heading"].get("weak"))
                 if self.enabled("heading-skip") and prev_level and level > prev_level + 1:
                     hit("heading-skip", off, off + len(line), c["heading-skip"]["hint"], c["heading-skip"].get("weak"))
                 prev_level = level
@@ -231,7 +253,7 @@ class Scanner:
             if self.enabled("empty-heading") and nlevel > level and all(not lines[k].strip() for k in range(i + 1, j)):
                 hit("empty-heading", offsets[i], offsets[i] + len(lines[i]), c["empty-heading"]["hint"], c["empty-heading"].get("weak"))
 
-    def sentences(self, full, hit):
+    def sentences(self, full, hit, prose):
         c = self.checks
         seen = {}
         pos = 0
@@ -256,11 +278,15 @@ class Scanner:
                 if self.enabled("long-sentence") and len(words) > 40:
                     hit("long-sentence", body_start + s, body_start + e, c["long-sentence"]["hint"], c["long-sentence"].get("weak"))
                 key = " ".join(w.lower() for w in words)
-                if len(words) >= 6 and self.enabled("duplicate-sentence"):
+                if prose and len(words) >= 6 and self.enabled("duplicate-sentence"):
                     if key in seen:
                         hit("duplicate-sentence", body_start + s, body_start + e, c["duplicate-sentence"]["hint"], c["duplicate-sentence"].get("weak"))
                     else:
                         seen[key] = True
+            ordinals = [(s, e) for s, e, w in info if w and ORDINAL.match(full[s:e].lstrip())]
+            if self.enabled("ordinal-enumeration") and len(ordinals) >= 3:
+                check = c["ordinal-enumeration"]
+                hit("ordinal-enumeration", ordinals[0][0], ordinals[0][1], check["hint"], check.get("weak"))
             self.runs(info, "fragment-run", lambda w: 0 < len(w) <= 4, hit)
             self.runs(info, "anaphora", lambda w: len(w) >= 3, hit,
                       key=lambda w: " ".join(x.lower() for x in w[:2]))
@@ -334,6 +360,7 @@ def main():
     ap.add_argument("paths", nargs="*", help="files or directories; '-' reads stdin")
     ap.add_argument("--staged", action="store_true", help="scan lines added in the git index")
     ap.add_argument("--diff", metavar="REF", help="scan lines added since REF, or between A..B")
+    ap.add_argument("--commits", metavar="RANGE", help="scan commit messages in RANGE, such as main..HEAD")
     ap.add_argument("--no-weak", action="store_true", help="hide noisy rules marked weak")
     ap.add_argument("--skip", default="", help="comma-separated rule ids to skip")
     ap.add_argument("--json", action="store_true", help="print hits as JSON")
@@ -348,7 +375,17 @@ def main():
     scanner = Scanner(data, not args.no_weak, {s.strip() for s in args.skip.split(",") if s.strip()})
 
     targets = []  # (display path, text, ext, allowed lines or None)
-    if args.staged or args.diff:
+    if args.commits:
+        try:
+            log = git("log", "--format=%h%x00%B%x01", args.commits)
+        except subprocess.CalledProcessError as e:
+            sys.exit(f"find_tells: git failed: {e.stderr.strip()}")
+        for entry in log.split("\x01"):
+            if "\x00" in entry:
+                sha, msg = entry.strip("\n").split("\x00", 1)
+                msg = "\n".join(l for l in msg.splitlines() if not re.match(r"(?i)(co-authored-by|signed-off-by):", l))
+                targets.append((f"commit {sha}", msg, ".txt", None))
+    elif args.staged or args.diff:
         if args.paths:
             sys.exit("find_tells: use paths or --staged/--diff, not both")
         try:
@@ -393,7 +430,7 @@ def main():
     all_hits.sort(key=lambda h: (h["path"], h["line"], h["col"], h["rule"]))
 
     if args.json:
-        print(json.dumps({"words": words, "hits": all_hits}, indent=2))
+        print(json.dumps({"words": words, "files": len(targets), "hits": all_hits}, indent=2))
         return 0
     for h in all_hits:
         weak = " (weak)" if h["weak"] else ""
@@ -403,7 +440,8 @@ def main():
         counts[h["rule"]] = counts.get(h["rule"], 0) + 1
     top = ", ".join(f"{k} {v}" for k, v in sorted(counts.items(), key=lambda kv: -kv[1]))
     strong = sum(1 for h in all_hits if not h["weak"])
-    print(f"\n{len(all_hits)} hits ({strong} strong) in {len(targets)} file(s), {words} words scanned."
+    rate = f" {1000 * strong / words:.1f} strong hits per 1,000 words." if words >= 200 else ""
+    print(f"\n{len(all_hits)} hits ({strong} strong) in {len(targets)} file(s), {words} words scanned.{rate}"
           + (f" By rule: {top}." if top else ""))
     print("Hits are leads. Judge each one with the deslop skill; a clean run is not a pass.")
     return 0

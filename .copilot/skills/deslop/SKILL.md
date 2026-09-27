@@ -152,8 +152,9 @@ do not establish authorship. Judge the reader problem. Do not flag wording merel
 quoted or discussed as an example, and do not inject errors to make prose seem human.
 
 For audits, pre-commit reviews with staged writing, and rewrites of files or diffs,
-first run this skill's `scripts/find_tells.py` on the target: paths, `--staged`, or
-`--diff BASE..HEAD`. It lists mechanical tells with rule ids and never edits. Treat
+first run this skill's `scripts/find_tells.py` on the target: paths, `--staged`,
+`--diff BASE..HEAD`, or `--commits RANGE` for commit messages. It lists mechanical
+tells with rule ids and never edits. Treat
 each hit as a lead. Confirm it against these rules and the protected-text boundaries,
 and skip wording that is quoted or discussed. The script cannot judge forced triples,
 feelings standing in for mechanisms, synonym cycling, or diluted arguments, and a clean
