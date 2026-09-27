@@ -65,10 +65,14 @@ decision; keep the rest of their context fixed.
 ## Maintenance checks
 
 Validate discovery YAML, local links, Markdown structure, and the installed reference
-paths. When changing `scripts/tells.json`, keep it the only copy of the pattern lists,
-compile-check it with `find_tells.py --list-rules`, and run the script on a sample of
-known tells and on this skill's own files to compare hit counts before and after. Mark
-a rule `weak` when ordinary technical prose triggers it. Inspect examples for unsupported claims or lost qualifiers. Measure entry-point
+paths. When changing `scripts/tells.json`, keep it the only copy of the pattern lists and
+compile-check it with `find_tells.py --list-rules`. Run `tests/check_fixtures.py`
+before and after; it compares strong hits per 1,000 words on human-written fixtures
+(public-domain PEPs and CPython 3.8 code) against AI-written ones (see
+`tests/fixtures/SOURCES.md`). The baseline is about 2 per 1,000 on human text, mostly
+`--` dashes and plain-language filler, and about 46 per 1,000 on AI text. Use
+`--show human` to review the human hits; mark a rule `weak` or narrow it when ordinary
+technical prose triggers it. Inspect examples for unsupported claims or lost qualifiers. Measure entry-point
 and total words separately; relocation is not deletion. No word count proves quality.
 
 Check that conditional references do not contradict the core or require routine tasks
