@@ -51,6 +51,10 @@ invent an explanation to replace a vague metaphor.
 
 The strict default rules paraphrase the `unslop` skill in
 [cursor/plugins](https://github.com/cursor/plugins/tree/main/pstack/skills/unslop).
+The patterns in `scripts/tells.json` also draw on the tropes.fyi directory, the
+Wikipedia page below, the non-fiction entries of the Apache-2.0
+[antislop-sampler](https://github.com/sam-paech/antislop-sampler) phrase list, and the
+excess-vocabulary findings of Kobak et al. (2025).
 The inherited catalog credited [tropes.fyi](https://tropes.fyi) by
 [ossama.is](https://ossama.is); humanizer credited Wikipedia's
 [Signs of AI writing](https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing),

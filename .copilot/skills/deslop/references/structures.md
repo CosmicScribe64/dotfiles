@@ -9,7 +9,7 @@ from empty framing.
 "Not X but Y" and "not X, not Y, just Z" can manufacture a reveal. State the positive
 claim directly only if the exclusions add nothing. "Not thread-safe" is a contract;
 "not only input but also output" includes both items. A clipped ending such as "no
-guessing" may mean no user guesswork, inferred data, or fallback: do not choose blindly.
+guessing" may mean no user guesswork, inferred data, or fallback, so do not choose blindly.
 
 ## Questions, fragments, and forced punchlines
 

@@ -32,7 +32,7 @@ Before: "The caller is required to provide the length of the buffer in bytes."
 After: "The caller must provide the buffer length in bytes."
 
 Ordinary API documentation may be rephrased while preserving actor, obligation, and
-unit. Approved operative wording is different: keep it verbatim and add an explanation
+unit. Keep approved operative wording verbatim instead, and add an explanation
 beside it. Three real prerequisites or five commitments still require every item.
 
 ## 4. Remove a rejected-option setup, retain the consequence
@@ -83,7 +83,7 @@ Source: "I waited. Nothing. Then the second reply arrived. (I nearly missed it.)
 Keep the suspense, fragments, and aside when they fit the writer's purpose. Do not
 force an answer-first sequence, invent a next step, or add the reader's supposed
 experience. A narrative can be effective without being a procedure. The default style
-rules still apply: if the sample read "Nothing — then the second reply arrived," the
+rules still apply, so if the sample read "Nothing — then the second reply arrived," the
 dash becomes a period.
 
 ## 8. Keep a guard when the runtime contract is unknown
