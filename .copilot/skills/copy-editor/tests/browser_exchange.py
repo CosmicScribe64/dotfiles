@@ -63,8 +63,8 @@ def main():
                 else:page.goto(server.origin)
                 expect(page.locator('#editor')).to_have_value(BODY)
                 page.locator('#pass').select_option(PASS)
-                page.locator('[aria-label="Review actions"]').click()
                 expect(page.locator('#external-btn')).to_have_count(0)
+                expect(page.locator('[aria-label="Review actions"]')).to_have_count(0)
                 expect(page.locator('#external-import-open')).to_be_visible()
                 page.locator('#run-review').click()
                 expect(page.locator('#external-dialog')).to_be_visible()
@@ -125,7 +125,6 @@ def main():
                 page.locator('[data-close="external-dialog"]').click()
                 # Selecting another pass must not accidentally route the returned findings there.
                 page.locator('#pass').select_option('find-real-actors')
-                page.locator('[aria-label="Review actions"]').click()
                 page.locator('#external-import-open').click()
                 page.locator('#external-paste-details summary').click()
                 page.locator('#external-result-text').fill('{"scope":"bare result","issues":[]}')
@@ -148,7 +147,6 @@ def main():
                 # Reimport must preserve the author's declined status and avoid duplicates.
                 page.locator('[data-status]').select_option('declined')
                 result_path=home/'result.review.json';result_path.write_text(json.dumps(envelope))
-                page.locator('[aria-label="Review actions"]').click()
                 page.locator('#external-import-open').click()
                 expect(page.locator('#external-dialog')).to_be_visible()
                 page.locator('#external-result-file').set_input_files(str(result_path))
@@ -168,14 +166,15 @@ def main():
                 page.locator('#editor').fill(changed);expect(page.locator('#save-status')).to_have_text('Saved locally')
                 old_result=x.wrap_result(old_packet,dict(EMPTY,issues=[ISSUE]),'stale-input fixture')
                 result_path.write_text(json.dumps(old_result))
-                page.locator('[aria-label="Review actions"]').click()
                 page.locator('#external-import-open').click()
                 expect(page.locator('#external-dialog')).to_be_visible()
                 page.locator('#external-result-file').set_input_files(str(result_path))
                 expect(page.locator('#external-preview')).to_contain_text('Earlier draft or context')
                 page.locator('#external-confirm-import').click()
-                expect(page.locator('#pass-progress')).to_have_text('0 / 30 run')
-                expect(page.locator('#draft-highlights')).to_be_hidden()
+                expect(page.locator('#pass-progress')).to_have_text('0 / 30 run · 2 earlier')
+                # The changed draft only appended a paragraph, so the finding still points to unchanged text.
+                expect(page.locator('#draft-highlights mark.carried')).to_have_count(1)
+                expect(page.locator('#review-note')).to_contain_text('Draft or context changed since snapshot')
                 assert page.locator('#editor').input_value()==changed
                 # Import through a separate local CLI process. Browser polls shared metadata.
                 page.locator('#pass').select_option('restore-actions-to-verbs')
@@ -189,15 +188,15 @@ def main():
                 subprocess.run([sys.executable,str(ROOT/'scripts/workshop.py'),'--data-dir',str(store.home),
                                 'import-result',str(result_path)],capture_output=True,text=True,check=True)
                 expect(page.locator('#review-provider')).to_contain_text('local CLI test fixture',timeout=12000)
-                expect(page.locator('#pass-progress')).to_have_text('1 / 30 run')
+                expect(page.locator('#pass-progress')).to_have_text('1 / 30 run · 2 earlier')
                 assert page.locator('#editor').input_value()==changed
                 assert store.jobs(d['id'])==[]
                 # The receipt selects its own document, even while another document is open.
                 other=store.create('Other document fixture','Keep this other draft unchanged.')
-                page.evaluate('refreshDocuments()');page.locator('#toggle-library').click()
+                page.evaluate('refreshDocuments()')
+                expect(page.locator('#toggle-library')).to_have_attribute('aria-expanded','true')
                 page.locator(f'[data-doc="{other["id"]}"]').click()
                 expect(page.locator('#editor')).to_have_value('Keep this other draft unchanged.')
-                page.locator('[aria-label="Review actions"]').click()
                 page.locator('#external-import-open').click()
                 expect(page.locator('#external-dialog')).to_be_visible()
                 page.locator('#external-result-file').set_input_files(str(result_path))

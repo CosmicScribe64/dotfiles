@@ -26,7 +26,8 @@ before migration; do not reopen an upgraded database with v2/v3.
   a new copy each time, so omit it when reopening saved work.
 2. **Review:** choose a check under **All passes**, then **Review externally**.
   **Copy agent prompt** lets a local agent review and import findings directly.
-  For a remote chat, copy or export the packet and import its returned JSON.
+  For a chat without access to this computer, copy or export the packet and
+  import its returned JSON with **Import results**.
 3. **Revise:** inspect linked findings and make your own edits. Nothing rewrites
   your draft automatically. Resolve or decline findings as you decide.
 4. **Compare:** select an earlier snapshot and **Current working draft** under

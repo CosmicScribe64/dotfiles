@@ -81,7 +81,7 @@ def main():
         else:
             d=s.one('documents',args.doc_id)
             if not d['body'].strip():raise Problem('Write or import a draft first.')
-            r=s.snapshot(args.doc_id,'Review externally: '+args.pass_name)
+            r=s.snapshot(args.doc_id,'Review externally: '+args.pass_name,reuse_latest=True)
         emit(exchange.export_packet(s,r['id'],args.pass_name),args.out)
     elif args.command=='import-result':
         result=read_json(args.json_file)

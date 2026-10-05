@@ -13,7 +13,7 @@ requirement to run all checks or edit in that order.
 
 ## Writing cleanup
 
-### 0. Sand off filler words
+### 1. Sand off filler words
 
 **ID:** `sand-filler-words`
 
@@ -25,7 +25,7 @@ Find qualifiers and padding that do no useful work.
 
 **Author task:** Ask the author to test deleting a specified span and decide whether its meaning or tone is needed. Do not supply the shortened sentence.
 
-### 1. Find the real actors
+### 2. Find the real actors
 
 **ID:** `find-real-actors`
 
@@ -37,7 +37,7 @@ Check whether readers can tell who or what acts.
 
 **Author task:** Ask the author to determine and identify the actual participant, or confirm that its omission is intentional.
 
-### 2. Restore actions to verbs
+### 3. Restore actions to verbs
 
 **ID:** `restore-actions-to-verbs`
 
@@ -49,7 +49,7 @@ Find actions buried in nouns.
 
 **Author task:** Ask the author to rebuild the clause around its main action, while preserving technical meaning. Do not provide a substitute verb or clause.
 
-### 3. Delete empty verbs
+### 4. Delete empty verbs
 
 **ID:** `delete-empty-verbs`
 
@@ -61,7 +61,7 @@ Find verb phrases that delay the action.
 
 **Author task:** Ask the author to identify the clause's actual assertion and test removing its empty scaffolding, without supplying a replacement.
 
-### 4. Prefer characters as subjects
+### 5. Prefer characters as subjects
 
 **ID:** `prefer-characters-as-subjects`
 
@@ -73,7 +73,7 @@ Check whether subjects help readers follow the participants.
 
 **Author task:** Ask the author to choose a useful subject for the clause in this context. Name the existing participant, but do not draft the sentence.
 
-### 5. Put subjects and verbs together
+### 6. Put subjects and verbs together
 
 **ID:** `put-subjects-verbs-together`
 
@@ -85,7 +85,7 @@ Find interruptions between a subject and its verb.
 
 **Author task:** Ask the author to relocate, shorten or separate the intervening material and check that the qualification still applies. Do not show a rewritten clause.
 
-### 6. Put verbs and objects together
+### 7. Put verbs and objects together
 
 **ID:** `put-verbs-objects-together`
 
@@ -97,7 +97,7 @@ Find interruptions between an action and its object.
 
 **Author task:** Ask the author to bring the dependent elements together or move the interruption, preserving scope and emphasis.
 
-### 7. Make the opening familiar
+### 8. Make the opening familiar
 
 **ID:** `make-opening-familiar`
 
@@ -109,7 +109,7 @@ Check the opening of each sentence against prior context.
 
 **Author task:** Ask the author to decide what the reader already knows and test using that as the entry point, or establish the missing context earlier. Identify existing material that could help; do not supply connecting language.
 
-### 8. Put new and important information last
+### 9. Put new and important information last
 
 **ID:** `put-new-important-info-last`
 
@@ -121,7 +121,7 @@ Check what receives a sentence’s final emphasis.
 
 **Author task:** Ask the author to choose the intended emphasis and test relocating existing material while preserving the claim and its qualifications. Do not propose an ending or a replacement sentence.
 
-### 9. Repair topic flow
+### 10. Repair topic flow
 
 **ID:** `repair-topic-flow`
 
@@ -133,7 +133,7 @@ Follow the sequence of sentence topics.
 
 **Author task:** Identify the existing sentence or paragraph whose placement could repair the topic sequence; describe the dependency and possible cost of the move.
 
-### 10. Repair stress flow
+### 11. Repair stress flow
 
 **ID:** `repair-stress-flow`
 
@@ -145,7 +145,7 @@ Check whether emphasized endings lead somewhere.
 
 **Author task:** Ask the author to connect the emphasized information to its next use, reposition it, or decide that the emphasis is not intended.
 
-### 11. Establish a clear topic sentence
+### 12. Establish a clear topic sentence
 
 **ID:** `establish-clear-topic-sentence`
 
@@ -157,7 +157,7 @@ Check whether a paragraph’s point is discoverable.
 
 **Author task:** Ask the author to identify the paragraph's controlling point, decide when readers need it, and align or relocate existing support. If the connection is missing, name the question the author must answer rather than writing the answer.
 
-### 12. Make subjects consistent across a passage
+### 13. Make subjects consistent across a passage
 
 **ID:** `make-subjects-consistent`
 
@@ -169,7 +169,7 @@ Find confusing switches among participants or names.
 
 **Author task:** Ask the author to decide the passage's viewpoint and keep participant references traceable, or explicitly signal a real switch.
 
-### 13. Control passive voice deliberately
+### 14. Control passive voice deliberately
 
 **ID:** `control-passive-voice`
 
@@ -181,7 +181,7 @@ Check whether voice serves emphasis and responsibility.
 
 **Author task:** Ask the author to choose grammatical voice based on the reader's topic and need for agency; do not supply the active or passive alternative.
 
-### 14. Name responsibility
+### 15. Name responsibility
 
 **ID:** `name-responsibility`
 
@@ -193,7 +193,7 @@ Find consequential decisions with unclear ownership.
 
 **Author task:** Ask the author to establish relevant responsibility from evidence, distinguish known facts from inferences, or explain uncertainty or intentional omission. Preserve source protection and necessary qualifications; do not assign blame or write an accusation.
 
-### 15. Trim metadiscourse
+### 16. Trim metadiscourse
 
 **ID:** `trim-metadiscourse`
 
@@ -207,7 +207,7 @@ Check talk about the writing rather than the subject.
 
 ## Structure & argument
 
-### 16. Move misplaced paragraphs
+### 17. Move misplaced paragraphs
 
 **ID:** `move-misplaced-paragraphs`
 
@@ -219,7 +219,7 @@ Find context or explanations in the wrong place.
 
 **Author task:** Propose the exact existing paragraph move, explain its benefit, and identify any dependency the author must repair afterward.
 
-### 17. Separate paragraph jobs
+### 18. Separate paragraph jobs
 
 **ID:** `separate-paragraph-jobs`
 
@@ -231,7 +231,7 @@ Find paragraphs doing competing kinds of work.
 
 **Author task:** Ask the author to separate, reorder or choose among the competing functions, using existing passage locations rather than new headings.
 
-### 18. Remove duplicate work
+### 19. Remove duplicate work
 
 **ID:** `remove-duplicate-work`
 
@@ -243,7 +243,7 @@ Find explanations or claims repeated without progress.
 
 **Author task:** Ask the author to choose which existing treatment to keep, merge in their own words, or preserve for a stated reader need.
 
-### 19. Check logical links
+### 20. Check logical links
 
 **ID:** `check-logical-links`
 
@@ -255,7 +255,7 @@ Find claims whose stated relationship does not follow.
 
 **Author task:** Ask the author to supply the missing reasoning, narrow the claim, change the asserted relationship or remove the unsupported step.
 
-### 20. Supply missing context
+### 21. Supply missing context
 
 **ID:** `supply-missing-context`
 
@@ -267,7 +267,7 @@ Find concepts introduced before readers can understand them.
 
 **Author task:** Ask the author to supply the needed explanation, move an existing explanation earlier, or establish that the audience already knows it.
 
-### 21. Test the opening’s purpose
+### 22. Test the opening’s purpose
 
 **ID:** `test-opening-purpose`
 
@@ -279,7 +279,7 @@ Check whether the introduction prepares this piece.
 
 **Author task:** Ask the author to identify the reader's reason for continuing and the minimum orientation it requires. Point to existing setup that could move or be cut; identify unanswered reader questions without writing an opening or supplying stakes.
 
-### 22. Test the ending’s purpose
+### 23. Test the ending’s purpose
 
 **ID:** `test-ending-purpose`
 
@@ -293,7 +293,7 @@ Check whether the ending follows from the piece.
 
 ## Diction & mechanics
 
-### 23. Resolve ambiguous references
+### 24. Resolve ambiguous references
 
 **ID:** `resolve-ambiguous-references`
 
@@ -305,7 +305,7 @@ Find pronouns and pointers with competing meanings.
 
 **Author task:** Ask the author to select and make the intended referent explicit, using their own wording.
 
-### 24. Unpack abstractions
+### 25. Unpack abstractions
 
 **ID:** `unpack-abstractions`
 
@@ -317,7 +317,7 @@ Find abstract claims that readers cannot interpret.
 
 **Author task:** Ask the author to specify the missing mechanism, referent or concrete example, without inventing it for them.
 
-### 25. Catch repeated phrasing
+### 26. Catch repeated phrasing
 
 **ID:** `catch-repeated-phrasing`
 
@@ -329,7 +329,7 @@ Find distracting verbal patterns.
 
 **Author task:** Ask the author to decide whether the repetition is deliberate and recast or remove selected occurrences themselves.
 
-### 26. Check metaphor and register
+### 27. Check metaphor and register
 
 **ID:** `check-metaphor-register`
 
@@ -341,7 +341,7 @@ Find imagery or tone that interferes with meaning.
 
 **Author task:** Ask the author to choose the intended image or register and reconcile the conflicting parts, without proposing a new metaphor or phrase.
 
-### 27. Check sentence rhythm
+### 28. Check sentence rhythm
 
 **ID:** `check-sentence-rhythm`
 
@@ -353,7 +353,7 @@ Find sentence patterns that obstruct reading.
 
 **Author task:** Ask the author to locate the main assertion, read the passage aloud, and test moving, grouping, splitting, or combining existing material. State which dependency, contrast, or qualification must survive; do not supply the revised sentence or sequence.
 
-### 28. Diagnose mechanics
+### 29. Diagnose mechanics
 
 **ID:** `diagnose-mechanics`
 
@@ -365,7 +365,7 @@ Check grammar, spelling and punctuation without fixing the copy.
 
 **Author task:** Name the issue and the convention to check. Do not supply corrected words, punctuation sequences or a corrected sentence, even as a tiny fix.
 
-### 29. Check terminology and consistency
+### 30. Check terminology and consistency
 
 **ID:** `check-terminology-consistency`
 
@@ -378,6 +378,8 @@ Find changes in names, units and presentation conventions.
 **Author task:** Ask the author to choose or clarify the intended term or convention and check the relevant occurrences themselves.
 
 ## Broad reviews
+
+These seven modes do not count toward the 30 checks.
 
 ### Triage · highest-impact issues
 

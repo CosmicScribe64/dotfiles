@@ -2,7 +2,7 @@
   "skill": "copy-editor",
   "version": "1.0.0",
   "test_type": "manual behavioral acceptance specifications",
-  "execution_status": "Not executed against a Codex model in this environment.",
+  "execution_status": "Executed 2026-10-05 in VS Code with GitHub Copilot. Each case ran once in a fresh subagent, and separate fresh subagents graded each reply against the case's checks. The coordinating agent spot-checked the results. 27 passed and 1 was partial (emphasis-preserves-final-condition). See TEST_REPORT.md for method and limits.",
   "instructions": "Use fresh conversations except where setup requires history. Supply disposable files for file tests. Inspect output for forbidden wording and praise; tests require human judgment.",
   "cases": [
     {

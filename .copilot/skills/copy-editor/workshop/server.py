@@ -134,7 +134,7 @@ class Handler(BaseHTTPRequestHandler):
                        'data_home':str(store.home),'skill_root':str(ROOT.parent.resolve()),'max_text':MAX_TEXT}); return
         if path=='/fragments/documents':
             rows=store.docs()
-            markup=''.join(f'<button class="doc-item" data-doc="{r["id"]}" type="button"><span>{html.escape(r["title"])}</span><small>Draft {r["version"]}</small></button>' for r in rows)
+            markup=''.join(f'<button class="doc-item" data-doc="{r["id"]}" type="button"><span>{html.escape(r["title"])}</span><small>Edited <time datetime="{html.escape(r["updated"])}">{html.escape(r["updated"][:10])}</time></small></button>' for r in rows)
             self.send(markup or '<p class="muted empty-small">No documents yet.</p>',kind='text/html; charset=utf-8');return
         if len(parts)==3 and parts[:2]==['api','external-packets']:
             self.send(exchange.get_packet(store,parts[2])); return
@@ -169,7 +169,7 @@ class Handler(BaseHTTPRequestHandler):
             if action=='save': self.send(s.save(ident,p));return
             if action=='snapshot': self.send(s.snapshot(ident,p.get('note',''),p.get('major',False)),201);return
             if action=='current-snapshot':
-                self.send(s.snapshot(ident,'Current working draft',expected_version=integer(p.get('version'),'version'),reuse_latest=True));return
+                self.send(s.snapshot(ident,p.get('note','Current working draft'),expected_version=integer(p.get('version'),'version'),reuse_latest=True));return
             if action=='restore': self.send(s.restore(ident,integer(p.get('revision_id'),'revision_id'),integer(p.get('version'),'version')));return
             if action=='external-packet':
                 rid=p.get('revision_id')
@@ -177,7 +177,7 @@ class Handler(BaseHTTPRequestHandler):
                     d=s.one('documents',ident)
                     if not d['body'].strip(): raise Problem('Write or import a draft first.')
                     if p.get('pass_name') not in PASS_NAMES: raise Problem('Unknown editing pass.')
-                    rid=s.snapshot(ident,'Review externally: '+p['pass_name'])['id']
+                    rid=s.snapshot(ident,'Review externally: '+p['pass_name'],reuse_latest=True)['id']
                 else:
                     rid=integer(rid,'revision_id')
                     if s.one('revisions',rid)['doc_id']!=ident: raise Problem('Revision belongs to another document.')

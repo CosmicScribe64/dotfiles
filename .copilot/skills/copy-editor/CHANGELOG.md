@@ -5,7 +5,34 @@
 - Explicitly support blank writing documents and verbatim PR-template imports,
   leaving all publishable prose and checkbox decisions to the author.
 - Remove the duplicate Run elsewhere menu command; Review externally is the
-  single export entry, while Import results stays directly available in the menu.
+  single export entry.
+- Remove the Review actions menu. Previous and next check buttons sit beside the
+  pass menu, and Import results is a visible button.
+- Rename the page and header to Copy Editor and add a start screen that explains
+  the write, review, revise and compare loop.
+- List the 30 checks first, numbered 1–30, and the broad reviews last, marked
+  "not counted". The pass catalog uses the same numbers.
+- Show findings as a list of short cards with paragraph numbers. The selected
+  card expands; [ and ] move between findings without moving focus.
+- After a draft or context change, keep dashed highlights on findings in
+  unchanged paragraphs and label findings whose passage changed.
+- Show checks that ran only on earlier input in the progress label, for example
+  "12 / 30 run · 3 earlier".
+- Reuse the latest snapshot when its text and context are identical, for agent
+  prompts and for packet exports from the browser or CLI.
+- Show the last edit time in the document list instead of a save counter, and
+  remember whether the list is open.
+- Disable Review externally for an empty draft and Compare versions until the
+  document has two different versions.
+- Consolidate stylesheet colors into tokens with at least 4.5:1 text contrast,
+  and rebuild the bundled stylesheet from its source.
+- Add keyboard shortcuts to Help and a dismiss button to notices.
+- Put the editing boundaries and review method first in SKILL.md, and reduce
+  workbench operation to one routing table and a short list of rules. Move the
+  remaining workbench detail into the references.
+- Add rules for facts versus wording, deliberately spare writing, and claims of
+  random A/B order.
+- Run all 28 behavioral eval cases and record the results in TEST_REPORT.md.
 - Remove the built-in model runner, model-launch HTTP routes, and provider launch
   options. All evaluations now use external packets and imported results.
 - Keep runtime installation to Python's standard library and bundled assets.

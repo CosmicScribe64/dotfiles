@@ -1,24 +1,26 @@
 # External passes and a shared workbench
 
-The application, local agent and remote chat use the same named pass definitions
-and finding schema. Only the evaluation location differs. Returned findings go
-into the existing reviews/issues tables and participate in the same annotations,
-status controls, history and exact-input checklist. No model call is triggered by
-export, wrapping, validation or import.
+The application, local agent and a chat without access to this computer use the
+same named pass definitions and finding schema. Only the evaluation location
+differs. Returned findings go into the existing reviews/issues tables and
+participate in the same annotations, status controls, history and exact-input
+checklist. Export, wrapping, validation and import never call a model.
 
 ## In the browser
 
 Select a pass and click **Review externally**. Choose the working draft or an existing
-snapshot. The working-draft route first saves an exact snapshot.
+snapshot. The working-draft route reuses the latest snapshot when its text,
+audience and purpose are identical. Otherwise it saves an exact snapshot.
 
 - **Copy agent prompt:** for an agent on this computer. The prompt identifies the
   installed skill, actual data directory, document, snapshot, and pass version.
   It includes a CLI argument array to retrieve the pass. It contains no draft text
   or session token. The agent evaluates the packet and imports directly; no manual
   file transfer is needed. Stop if the packet's target or pass version differs.
-- **Copy packet JSON:** for a remote chat. Paste the complete packet into the chat;
-  it includes the named pass, full draft and context, relevant declined findings,
-  return schema, and reply template. Share only with the intended evaluator.
+- **Copy packet JSON:** for a chat without access to this computer. Paste the
+  complete packet into the chat; it includes the named pass, full draft and
+  context, relevant declined findings, return schema, and reply template. Share
+  only with the intended evaluator.
 - **Download pass packet:** the same self-contained packet as a `.packet.json`
   attachment, with a separate chat instruction shown in the dialog.
 
@@ -27,12 +29,13 @@ the handoff remains selected in a read-only field for manual copying. Choosing
 another snapshot clears that displayed handoff; already copied text still targets
 its original snapshot, not the latest draft.
 
-Ask the evaluator to return the completed `.review.json`. **Import results**
-accepts that file or pasted JSON, including a single enclosing JSON code fence.
-It validates and previews the target document, pass, snapshot, finding count,
-reviewer label and whether the saved working input still matches. Confirm the
-import to store it. The app selects the correct document/pass automatically;
-current selection is not used to route the result. Zero-findings results count.
+Ask the evaluator to return the completed `.review.json`. **Import results**, next
+to **Review externally**, accepts that file or pasted JSON, including a single
+enclosing JSON code fence. It validates and previews the target document, pass,
+snapshot, finding count, reviewer label and whether the saved working input still
+matches. Confirm the import to store it. The app selects the correct document/pass
+automatically; current selection is not used to route the result. Zero-findings
+results count.
 
 Packets are recorded locally as awaiting a result and can be downloaded again
 from the dialog. Exporting a packet does not complete any checklist item.
@@ -45,6 +48,9 @@ Use IDs returned by the app. Do not substitute another data directory because it
 has documents with similar names. Resolve `SKILL_ROOT` to the installed skill
 directory. A copied local-agent prompt supplies these paths and IDs as
 `TARGET_JSON`; use its exact snapshot and verify the exported pass version.
+If `list` shows more than one plausible document, ask before writing. If the
+paths in `TARGET_JSON` are not reachable from your environment, say so and ask
+for a self-contained packet instead of claiming local access.
 
 ```bash
 python3 "$SKILL_ROOT/scripts/workshop.py" list
@@ -53,10 +59,11 @@ python3 "$SKILL_ROOT/scripts/workshop.py" external-packet DOCUMENT_ID \
 ```
 
 Select a requested existing snapshot with `--revision REVISION_ID`. Otherwise
-the command snapshots the current saved working draft. Read the complete packet,
-perform only its check, and write a separate findings file containing
-`scope` and `issues` with the supplied issue schema. Do not edit the source draft.
-Then preserve the receipt automatically:
+the command uses the current saved working draft, reusing the latest snapshot
+when its text and context are identical. Read the complete packet, perform only
+its check, and write a separate findings file containing `scope` and `issues`
+with the supplied issue schema. Do not edit the source draft. Then preserve the
+receipt automatically:
 
 ```bash
 python3 "$SKILL_ROOT/scripts/workshop.py" wrap-result \
@@ -95,9 +102,11 @@ without access to the Mac. Without a script, construct the same envelope from th
 reply template and validate its exact fields and evidence before returning it.
 
 Return a `.review.json` attachment. If file creation is unavailable,
-return one JSON code block the author can paste into Import results. A prose
-review alone cannot update the app. There is no cloud sync or automatic access
-from a remote chat to the user's local SQLite database.
+return one JSON code block the author can paste into Import results. Return the
+complete envelope, not bare `scope` and `issues`, an annotated rewrite, or a
+summary alone. A prose review alone cannot update the app, and only the author's
+import puts the result in their database. There is no cloud sync or automatic
+access from a chat to the user's local SQLite database.
 
 ## Validation and limits
 

@@ -21,13 +21,15 @@ python3 "$SKILL_ROOT/scripts/workshop.py" serve --open --file "/absolute/path/es
 
 This copies the source into SQLite without opening the source for writing.
 Each `--file` launch imports a new document; omit it when reopening existing work.
-The server prints its loopback URL. Keep the terminal running; Ctrl-C stops it.
+The server prints its loopback URL. Check that the URL responds before saying the
+app started. Keep the terminal running; Ctrl-C stops it.
 Use a persistent terminal if the host provides one. Never
 claim to have launched a local Mac app from a remote environment.
 
-For a blank document, open the app without `--file` and choose **+ New**. Verify
-the new document is selected and its body is empty. A blank PR-description
-workspace is allowed; it does not ask the agent to write the description.
+For a blank document, open the app without `--file` and choose **+ New** (or
+**New document** on the start screen). Verify the new document is selected and
+its body is empty. A blank PR-description workspace is allowed; it does not ask
+the agent to write the description.
 
 For a user-selected PR template, use **Import** or `serve --open --file PATH`
 to copy the exact template into a new document. Preserve its headings,
@@ -47,29 +49,43 @@ imports. There is no model-runner or automatic demo-run mode.
 
 1. Import text/Markdown or write in the editor. Expand **Writing context** at the
    top of the sidebar to set an optional audience and purpose. Working drafts
-   autosave locally, with conflict detection.
-2. Open **All passes**. Search or filter the 30 checks, choose a named check,
-   and inspect its guidance. Selection and previous/next pass navigation never
-   call a model. The broad v2 modes are separate from the 30-check completion count.
-3. Press **Review externally** to copy a local-agent prompt, copy a remote packet,
-   or download one. Choose the working draft or an existing snapshot explicitly.
-   Copying or exporting does not run a model. **Review actions** holds packet
-   exchange and previous/next pass controls. Triage is the default broad pass for
-   a document with no reviews.
-4. Read one finding at a time; use previous/next finding navigation. **Pass
-   reviews** in the sidebar lists reviews of only the selected editing check,
-   not saved drafts. The drawer shows open/resolved/declined/superseded counts
-   for the latest relevant review, not a sum of repeated reviews.
+   autosave locally, with conflict detection. The document list shows when each
+   document was last edited. It stays open or closed as you left it, and starts
+   closed on narrow screens.
+2. Choose a check from the pass menu or open **All passes**. Both list the 30
+   checks first, numbered 1–30, then the seven broad reviews, marked "not
+   counted". Search or filter the checks and inspect their guidance. The ‹ and ›
+   buttons beside the menu step through checks. Selection and navigation never
+   call a model. Broad reviews do not count toward the 30 checks.
+3. Press **Review externally** to copy a local-agent prompt, copy a packet for a
+   chat without access to this computer, or download one. Choose the working draft
+   or an existing snapshot explicitly. For the working draft, the app reuses the
+   latest snapshot when its text, audience and purpose are identical, and saves a
+   new one otherwise. Copying or exporting does not run a model. **Import
+   results**, beside it, loads a returned result. Review externally stays
+   unavailable until the draft has text. Triage is the default broad pass for a
+   document with no reviews.
+4. Findings appear as short cards that show the paragraph number and quoted
+   text. The selected card expands to show the problem, reader effect and revision
+   task. Use the **Previous finding** and **Next finding** arrow buttons, or press
+   [ and ] outside text fields, to move between findings. **Pass reviews** in the
+   sidebar lists reviews of only the selected editing check, not saved drafts. The
+   drawer shows open/resolved/declined/superseded counts for the latest relevant
+   review, not a sum of repeated reviews.
 5. **Edit this passage** switches to the editable draft and selects existing
-   author text. **Reviewed text** shows the immutable annotated snapshot. Live
-   highlights are displayed only when draft body, audience, and purpose match.
-   After changes they disappear. Navigation may follow one unchanged paragraph;
-   it will not guess where changed or ambiguous evidence belongs.
+   author text. **Reviewed text** shows the immutable annotated snapshot. Solid
+   highlights mean the draft body, audience and purpose still match the reviewed
+   snapshot. After a change, findings whose paragraph is unchanged keep a dashed
+   underline, and a note says how many still point to unchanged text. Cards for
+   changed passages say **Passage changed in draft**; open **Reviewed text** to
+   see them. Navigation will not guess where changed or ambiguous evidence
+   belongs.
 6. Write the revisions yourself. Changing a finding's status changes metadata
    only. Use **Document actions** to save snapshots or open history. Click
-   **Compare versions** in the editor toolbar to open the A/B form directly;
-   the second version defaults to **Current working draft**, and the first
-   prefers the selected review's snapshot. **View snapshots** reveals all saved
+   **Compare versions** in the editor toolbar to open the A/B form directly. It
+   is available once the document has two different versions. The second
+   version defaults to **Current working draft**, and the first prefers the
+   selected review's snapshot. **View snapshots** reveals all saved
    versions plus a separate current-draft preview. **Saved snapshots** under
    Document actions opens that list with the newest saved snapshot previewed.
    Each saved snapshot shows named passes reviewed on that snapshot and completed
@@ -88,6 +104,10 @@ reviews count. Native demos, failed attempts, and running jobs do not. Changing
 text or context can require reruns; exact restoration can reuse an earlier
 matching result. Titles and notes do not invalidate. A failed retry does not erase
 a matching prior successful review. Older evidence remains accessible.
+
+The **All passes** button shows how many checks are current. For example,
+"12 / 30 run · 3 earlier" means 12 checks match the current input and 3 more
+have reviews only of earlier text or context.
 
 The checklist matches input, not historical checklist state. An old snapshot
 can show a later review of identical input. A pass-specific instruction change
@@ -119,9 +139,11 @@ validates exact evidence, and preserves statuses for an identical duplicate resu
 
 For a local agent, use `external-packet`, evaluate it directly, then use
 `wrap-result` and `import-result` in the same data directory. The open browser
-refreshes without a second model call. For a remote chat, export a packet and
-load the returned `.review.json` through Import results. A remote sandbox is not
-the user's local workbench. Creating a result file does not complete an import.
+refreshes without a second model call. For a chat without access to this
+computer, export a packet and load the returned `.review.json` through Import
+results. A remote sandbox is not the user's local workbench. Creating a result
+file does not complete an import. When the user asks for findings in the
+workbench, a chat reply alone does not complete the task.
 
 ### Legacy v2/v3 exchange
 
@@ -155,9 +177,13 @@ its example placeholder is not included in the packet. **View snapshots**
 shows the full draft history without closing the dialog; the sidebar's **Pass
 reviews** shows only evaluations of the selected check. Snapshot count can exceed
 the number of distinct drafts after a restore. Identical-text snapshots are
-labelled and are not selected as the default comparison pair. After import, the
+labelled and are not selected as the default comparison pair. The browser
+exports a comparison only when the two texts differ; the CLI checks only that
+the snapshot IDs differ, so confirm the texts differ first. After import, the
 result names the preferred saved snapshot and its caveat first, with supporting
 quotations in an expandable section. It never changes the working draft.
+The result compares only its two selected snapshots, not every snapshot or the
+current working text.
 **Export fresh-evaluator packet** randomizes A/B;
 it excludes titles, IDs, timestamps, revision notes, prior findings, and chat
 history. The mapping stays in SQLite. Exporting does not evaluate the candidates.

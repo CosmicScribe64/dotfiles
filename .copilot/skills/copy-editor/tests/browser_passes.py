@@ -79,9 +79,9 @@ def main():
                 title_box=page.locator('#title').bounding_box()
                 controls_box=page.locator('.editor-controls').bounding_box()
                 assert abs(title_box['y']+title_box['height']/2-controls_box['y']-controls_box['height']/2)<=1
-                brand=page.locator('.brand-mark').bounding_box()
+                heading=page.locator('.app-header strong').bounding_box()
                 documents=page.locator('#toggle-library').bounding_box()
-                assert abs(documents['x']-brand['x'])<=1
+                assert abs(documents['x']-heading['x'])<=1
                 assert page.locator('#toggle-library').evaluate('(element)=>getComputedStyle(element).fontSize')=='14px'
                 expect(page.locator('.review-pane>.context-details:first-child')).not_to_have_attribute('open','')
                 expect(page.get_by_role('heading',name='Writing context',exact=True)).to_be_visible()
@@ -94,7 +94,7 @@ def main():
                 assert page.evaluate('''() => {
                     const context=getComputedStyle(document.querySelector('.context-title'));
                     const pass=getComputedStyle(document.getElementById('selected-pass-title'));
-                    return context.fontSize===pass.fontSize && context.fontWeight===pass.fontWeight && context.color===pass.color;
+                    return context.fontSize==='14px' && parseFloat(pass.fontSize)>parseFloat(context.fontSize) && context.fontWeight===pass.fontWeight;
                 }''')
                 page.locator('#editor').fill(BODY);expect(page.locator('#save-status')).to_have_text('Saved locally')
                 long_draft='\n'.join(f'Synthetic paragraph {index}: text for a layout check.' for index in range(80))
@@ -121,9 +121,12 @@ def main():
                 expect(page.locator('#word-count')).to_have_text(f'{total_words} words')
                 assert page.locator('.paper-footer').bounding_box()['height']<=32
                 ident=store.docs()[0]['id'];baseline=store.snapshot(ident,'Original test input')['id']
-                expect(page.locator('#pass optgroup').first).to_have_attribute('label','Broad reviews')
-                expect(page.locator('#pass optgroup').first.locator('option')).to_have_count(7)
+                expect(page.locator('#pass optgroup').first).to_have_attribute('label','Writing cleanup')
+                expect(page.locator('#pass optgroup').last).to_have_attribute('label','Broad reviews · not counted')
+                expect(page.locator('#pass optgroup').last.locator('option')).to_have_count(7)
+                expect(page.locator('#pass option').first).to_have_text('1 · Sand off filler words')
                 expect(page.locator('#pass')).to_have_value('triage')
+                expect(page.locator('#selected-pass-state')).to_contain_text('broad review, not counted')
                 for opener,dialog in [('#help-btn','#help-dialog'),('#passes-btn','#passes-dialog'),('#run-review','#external-dialog'),('#snapshot-btn','#snapshot-dialog'),('#history-btn','#history-dialog')]:
                     for dismissal in ['escape','backdrop']:
                         if opener in ['#snapshot-btn','#history-btn']:page.locator('[aria-label="Document actions"]').click()
@@ -148,9 +151,12 @@ def main():
                 page.locator('#passes-btn').click()
                 expect(page.locator('#passes-dialog')).to_be_visible()
                 expect(page.locator('#pass-list [data-pass]')).to_have_count(37)
-                expect(page.locator('#pass-list .pass-group h3').first).to_have_text('Broad reviews')
-                expect(page.locator('#pass-list [data-pass]').first).to_have_attribute('data-pass','triage')
-                assert page.locator('#pass-list').evaluate('(element)=>element.scrollTop')==0
+                expect(page.locator('#pass-list .pass-group h3').first).to_have_text('Writing cleanup')
+                expect(page.locator('#pass-list .pass-group h3').last).to_have_text('Broad reviews · not counted')
+                expect(page.locator('#pass-list [data-pass]').first).to_have_attribute('data-pass','sand-filler-words')
+                expect(page.locator('#pass-list [data-pass]').first.locator('.pass-number')).to_have_text('1')
+                expect(page.locator('#pass-list [data-pass="triage"]')).to_have_class(re.compile(r'\bchosen\b'))
+                expect(page.locator('#pass-list [data-pass="triage"]')).to_be_in_viewport()
                 expect(page.locator('#checklist-count')).to_have_text('0 of 30 run')
                 page.locator('#pass-search').fill('verbs')
                 expect(page.locator('[data-pass="restore-actions-to-verbs"]')).to_be_visible()
@@ -158,9 +164,7 @@ def main():
                 expect(page.locator('#pass')).to_have_value('restore-actions-to-verbs')
                 expect(page.locator('#selected-pass-title')).to_have_text('Restore actions to verbs')
                 expect(page.locator('#findings .finding')).to_have_count(0)
-                page.locator('[aria-label="Review actions"]').click()
                 page.locator('#next-pass').click();expect(page.locator('#pass')).to_have_value('delete-empty-verbs')
-                page.locator('[aria-label="Review actions"]').click()
                 page.locator('#prev-pass').click();expect(page.locator('#pass')).to_have_value('restore-actions-to-verbs')
                 # Simply selecting checks creates no model jobs.
                 assert not store.jobs(ident)
@@ -186,18 +190,27 @@ def main():
                 expect(page.locator('#pass-list [data-pass]')).to_have_count(2) # one individual + broad full review
                 page.locator('[data-pass="sand-filler-words"]').click()
                 expect(page.locator('.finding')).to_have_count(2)
-                expect(page.locator('.finding:visible')).to_have_count(1)
+                expect(page.locator('.finding:visible')).to_have_count(2)
+                expect(page.locator('.finding.selected')).to_have_count(1)
                 expect(page.locator('#finding-count')).to_have_text('1 of 2')
                 expect(page.locator('#review-note')).not_to_be_visible()
                 expect(page.locator('#review-select')).not_to_be_visible()
-                page.locator('.finding:visible summary').click()
-                expect(page.locator('.finding:visible .reader-effect')).to_be_visible()
+                page.locator('.finding.selected summary').click()
+                expect(page.locator('.finding.selected .reader-effect')).to_be_visible()
+                expect(page.locator('.finding:not(.selected) .revision-task')).not_to_be_visible()
                 page.locator('#next-issue').click()
                 expect(page.locator('#finding-count')).to_have_text('2 of 2')
-                expect(page.locator('.finding:visible blockquote')).to_have_text('in order to')
+                expect(page.locator('.finding.selected blockquote')).to_have_text('in order to')
                 page.locator('#prev-issue').click()
                 expect(page.locator('#finding-count')).to_have_text('1 of 2')
-                page.locator('[aria-label="Review actions"]').click()
+                page.locator('.app-header strong').click()
+                page.keyboard.press(']')
+                expect(page.locator('#finding-count')).to_have_text('2 of 2')
+                page.keyboard.press('[')
+                expect(page.locator('#finding-count')).to_have_text('1 of 2')
+                expect(page.locator('#editor')).not_to_be_focused()
+                assert page.locator('#editor').input_value()==BODY
+                page.locator('[aria-label="Document actions"]').click()
                 page.keyboard.press('Escape')
                 expect(page.locator('.actions-menu[open]')).to_have_count(0)
                 expect(page.locator('#editor')).to_be_focused()
@@ -232,7 +245,8 @@ def main():
                 page.locator('#editor').fill(changed)
                 expect(page.locator('#draft-highlights')).to_be_hidden()
                 expect(page.locator('#save-status')).to_have_text('Saved locally')
-                expect(page.locator('#pass-progress')).to_have_text('0 / 30 run')
+                expect(page.locator('#pass-progress')).to_have_text('0 / 30 run · 1 earlier')
+                expect(page.locator('.finding.selected .finding-changed')).to_be_visible()
                 page.locator('[data-edit-issue]').first.click()
                 expect(page.locator('#notice')).to_contain_text('Source paragraph changed or is ambiguous')
                 page.locator('[data-source-issue]').first.click()
@@ -252,7 +266,7 @@ def main():
                 expect(page.locator('#pass-progress')).to_have_text('1 / 30 run')
                 page.locator('#title').fill('Renamed, same reviewed inputs')
                 expect(page.locator('#save-status')).to_have_text('Saved locally')
-                expect(page).to_have_title('Renamed, same reviewed inputs — Voice Workshop')
+                expect(page).to_have_title('Renamed, same reviewed inputs — Copy Editor')
                 expect(page.locator('#pass-progress')).to_have_text('1 / 30 run')
                 expect(page.locator('.review-pane .context-details')).to_have_count(1)
                 expect(page.locator('.review-pane>.context-details:first-child')).to_have_count(1)
@@ -263,15 +277,16 @@ def main():
                 expect(page.locator('#audience')).to_be_visible()
                 assert page.locator('#editor').evaluate('(element)=>element.getBoundingClientRect().top+window.scrollY')==draft_offset
                 page.locator('#audience').fill('A different audience')
-                expect(page.locator('#draft-highlights')).to_be_hidden()
+                expect(page.locator('#draft-highlights mark.carried')).to_have_count(1)
+                expect(page.locator('#review-note')).to_contain_text('1 of 1 finding still points to unchanged text')
                 expect(page.locator('#save-status')).to_have_text('Saved locally')
-                expect(page.locator('#pass-progress')).to_have_text('0 / 30 run')
+                expect(page.locator('#pass-progress')).to_have_text('0 / 30 run · 1 earlier')
                 page.locator('#audience').fill('');expect(page.locator('#save-status')).to_have_text('Saved locally')
                 expect(page.locator('#pass-progress')).to_have_text('1 / 30 run')
                 context='Explain the incident timeline, customer impact, and next steps.\nKeep uncertainty visible so readers can distinguish evidence from assumptions.'
                 page.locator('#purpose').fill(context)
                 expect(page.locator('#save-status')).to_have_text('Saved locally')
-                expect(page.locator('#pass-progress')).to_have_text('0 / 30 run')
+                expect(page.locator('#pass-progress')).to_have_text('0 / 30 run · 1 earlier')
                 assert page.locator('#purpose').evaluate('(element)=>element.scrollHeight<=element.clientHeight+1')
                 assert page.locator('#purpose').bounding_box()['height']>=88
                 assert store.one('documents',ident)['purpose']==context
@@ -314,11 +329,12 @@ def main():
                     store.issue_status(v['issues'][1]['id'],'declined')
                     store.import_review(rid,'find-real-actors',{'scope':'DEMO FIXTURE — no real review.','issues':[]},'demo-fixture')
                     store.import_review(rid,'restore-actions-to-verbs',{'scope':'DEMO FIXTURE — sample only.','issues':[finding(2,'The creation of a separate editing view')]},'demo-fixture')
-                    page.locator('#toggle-library').click()
+                    def show_library():
+                        if page.locator('#toggle-library').get_attribute('aria-expanded')!='true':page.locator('#toggle-library').click()
                     # Refresh document list through a real app control / local metadata polling.
                     if args.dom_bridge:page.evaluate('refreshDocuments()')
                     else:page.reload()
-                    if not args.dom_bridge:page.locator('#toggle-library').click()
+                    show_library()
                     page.locator(f'[data-doc="{d["id"]}"]').click()
                     page.locator('#pass').select_option(PASS)
                     expect(page.locator('.finding')).to_have_count(1)
@@ -330,7 +346,8 @@ def main():
                     page.screenshot(path=str(out/'voice-workshop-v3-passes.png'),full_page=False)
                     page.locator('[data-close="passes-dialog"]').click()
                 # Phone width: drawer and main workspace must not overflow horizontally.
-                page.locator('#toggle-library').click()
+                expect(page.locator('#toggle-library')).to_have_attribute('aria-expanded','true')
+                expect(page.locator('#new-doc')).to_be_visible()
                 left=page.locator('#document-library').bounding_box()
                 handle=page.locator('#library-resize').bounding_box()
                 page.mouse.move(handle['x']+5,handle['y']+45);page.mouse.down()
