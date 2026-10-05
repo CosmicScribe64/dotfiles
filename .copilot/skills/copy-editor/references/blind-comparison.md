@@ -32,10 +32,12 @@ independently verified. A known history-inheriting fork does not qualify.
    modification times, revision numbers, change summaries, personal identities,
    and prior judgments from the packet's metadata. Do not alter information
    inside the passages to disguise them without the author's permission.
-4. Randomize order with an available tool when practical. Keep the mapping
-   outside the evaluator's context. Without actual randomization, call the
-   labels neutral, not randomized. A remembered passage remains recognizable
-   to the original reviewer regardless of labeling.
+4. Randomize order only with an actual tool, such as a shuffle command or the
+   workbench export. Choosing an order yourself, even a swapped one, is not
+   random. Keep the mapping outside the evaluator's context. Without a tool,
+   call the labels neutral and never describe the order as random, shuffled,
+   or randomized. A remembered passage remains recognizable to the original
+   reviewer regardless of labeling.
 5. Send the packet alone, along with the rules below, to a fresh evaluator under
    the isolation assumption above. Do not silently send private drafts to an external
    service or start another account's model; use only authorized capabilities.

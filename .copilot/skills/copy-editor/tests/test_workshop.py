@@ -49,6 +49,11 @@ class CoreTests(unittest.TestCase):
     def test_save_preserves_snapshot(self):
         saved=self.s.save(self.d['id'],dict(self.d,body=TEXT+'\nNew.'))
         self.assertEqual(saved['version'],2);self.assertEqual(self.s.one('revisions',self.r)['body'],TEXT)
+    def test_revisions_report_whether_snapshot_has_text(self):
+        for body in ('',' \n\t\r\n'):
+            blank=self.s.create('Blank',body)
+            self.assertFalse(self.s.revisions(blank['id'])[0]['has_text'])
+        self.assertTrue(self.s.revisions(self.d['id'])[0]['has_text'])
     def test_current_snapshot_captures_edits_and_reuses_only_latest(self):
         initial=self.s.snapshot(self.d['id'],expected_version=1,reuse_latest=True)
         self.assertEqual(initial['id'],self.r)
@@ -220,6 +225,23 @@ class HttpTests(unittest.TestCase):
         self.s.create('<img src=x onerror=alert(1)>','Test')
         body=self.request('/fragments/documents').read().decode()
         self.assertNotIn('<img',body);self.assertIn('&lt;img',body)
+    def test_document_list_shows_edit_time_not_save_counter(self):
+        d=self.s.create('Listed',TEXT)
+        self.s.save(d['id'],dict(d,body=TEXT+' More.'))
+        body=self.request('/fragments/documents').read().decode()
+        self.assertIn(f'Edited <time datetime="{self.s.one("documents",d["id"])["updated"]}"',body)
+        self.assertNotIn('Draft 2',body)
+    def test_current_snapshot_accepts_note_and_reuses_identical_text(self):
+        d=self.s.create('Noted',TEXT)
+        saved=self.s.save(d['id'],dict(d,body=TEXT+' Revised.'))
+        endpoint=f'/api/documents/{d["id"]}/current-snapshot'
+        first=json.load(self.request(endpoint,{'version':saved['version'],'note':'Sent for review: Triage'}))
+        self.assertEqual(first['note'],'Sent for review: Triage')
+        again=json.load(self.request(endpoint,{'version':saved['version'],'note':'Another note'}))
+        self.assertEqual(again['id'],first['id'])
+        with self.assertRaises(urllib.error.HTTPError) as error:
+            self.request(endpoint,{'version':saved['version'],'note':7})
+        self.assertEqual(error.exception.code,400)
     def test_second_server_cannot_reset_active_database(self):
         with self.assertRaisesRegex(Problem,'already running'):WorkshopServer(self.s,0)
     def test_http_review_and_comparison_pipeline(self):

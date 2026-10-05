@@ -148,6 +148,7 @@ class ExchangeTests(unittest.TestCase):
             return subprocess.run(cli+args,check=True,capture_output=True,text=True).stdout
         packet_path=self.home/'packet.json'
         run(['--data-dir',str(self.s.home),'external-packet',str(self.d['id']),'--pass',PASS,'--out',str(packet_path)])
+        self.assertEqual(len(self.s.revisions(self.d['id'])),1)
         inner=self.home/'findings.json';inner.write_text(json.dumps(dict(EMPTY,issues=[ISSUE])))
         offline_home=self.home/'should-not-exist';output=self.home/'returned.review.json'
         run(['--data-dir',str(offline_home),'wrap-result',str(packet_path),str(inner),'--provider','test-agent','--out',str(output)])
@@ -185,6 +186,15 @@ class ExchangeHTTPTests(unittest.TestCase):
         with self.assertRaises(http_error.HTTPError) as e:
             self.call(f'/api/documents/{self.d["id"]}/external-packet',{'pass_name':PASS},token=False)
         self.assertEqual(e.exception.code,403)
+    def test_http_export_reuses_identical_latest_snapshot(self):
+        endpoint=f'/api/documents/{self.d["id"]}/external-packet'
+        first=self.call(endpoint,{'pass_name':PASS});second=self.call(endpoint,{'pass_name':PASS})
+        self.assertEqual(first['request']['revision_id'],second['request']['revision_id'])
+        self.assertNotEqual(first['request']['id'],second['request']['id'])
+        d=self.s.one('documents',self.d['id']);self.s.save(d['id'],dict(d,body=BODY+' Changed.'))
+        third=self.call(endpoint,{'pass_name':PASS})
+        self.assertNotEqual(third['request']['revision_id'],first['request']['revision_id'])
+        self.assertEqual(len(self.s.revisions(self.d['id'])),2)
     def test_http_rejects_unknown_receipt_without_guessing(self):
         p=x.export_packet(self.s,self.s.revisions(self.d['id'])[0]['id'],PASS)
         e=x.wrap_result(p,EMPTY,'fixture');e['request']['id']='other-request'

@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="workshop-token" content="__TOKEN__">
   <meta name="htmx-config" content='{"allowEval":false,"allowScriptTags":false,"includeIndicatorStyles":false,"historyEnabled":false}'>
-  <title>Voice Workshop</title>
+  <title>Copy Editor</title>
   <link rel="stylesheet" href="/static/styles.css">
   __HTMX__
   <script src="/static/anchors.js" defer></script>
@@ -13,11 +13,11 @@
 </head>
 <body>
   <header class="app-header flex items-center justify-between px-6">
-    <div class="flex items-center gap-3"><span class="brand-mark" aria-hidden="true">w.</span><div><strong>Voice Workshop</strong></div></div>
+    <div class="flex items-center gap-3"><strong>Copy Editor</strong></div>
     <div class="flex items-center gap-3"><span id="provider-badge" class="pill">Local workbench</span><button id="help-btn" class="quiet">Help</button></div>
   </header>
   <nav class="library-navigation" aria-label="Workspace"><button id="toggle-library" class="quiet" aria-expanded="true" aria-controls="document-library">☰ <span>Documents</span></button></nav>
-  <div id="notice" role="status" aria-live="polite" hidden><span id="notice-text"></span><button id="reconnect-btn" class="secondary" hidden>Reconnect</button></div>
+  <div id="notice" role="status" aria-live="polite" hidden><span id="notice-text"></span><span class="notice-actions"><button id="reconnect-btn" class="secondary" hidden>Reconnect</button><button id="notice-close" class="quiet icon-btn" aria-label="Dismiss message">✕</button></span></div>
   <main class="workspace">
     <aside class="library" id="document-library">
       <div id="library-resize" class="sidebar-resize library-resize" role="separator" tabindex="0" aria-label="Resize document sidebar" aria-controls="document-library" aria-orientation="vertical" aria-valuemin="200" aria-valuemax="360" aria-valuenow="240" title="Drag to resize; use left and right arrow keys"></div>
@@ -26,18 +26,28 @@
       <nav id="documents" aria-label="Documents" hx-get="/fragments/documents" hx-trigger="load, documentsChanged from:body" hx-swap="innerHTML"></nav>
     </aside>
     <section class="writing-pane">
-      <div id="empty-state" class="empty-state"><h1>No document selected</h1></div>
+      <div id="empty-state" class="empty-state">
+        <h1>Start a draft</h1>
+        <p>You write. An agent reviews one check at a time and points to passages without rewriting them. You revise, then compare versions.</p>
+        <ol class="loop-steps">
+          <li>Write or import a draft.</li>
+          <li>Choose a check, then select <strong>Review externally</strong> to hand it to an agent.</li>
+          <li>Read the linked findings and revise in your own words.</li>
+          <li>Select <strong>Compare versions</strong> to have a fresh evaluator compare two drafts.</li>
+        </ol>
+        <div class="empty-actions"><button id="empty-new" class="primary">New document</button><button id="empty-import" class="secondary">Import text file</button></div>
+      </div>
       <div id="document-workspace" hidden>
         <header class="editor-toolbar">
           <div class="editor-title"><label for="title">Document title</label><textarea id="title" rows="1" maxlength="300" placeholder="Untitled" title="Edit document title"></textarea></div>
-          <div class="editor-controls"><div class="segmented" role="group" aria-label="Document view"><button id="write-mode" class="active">Write</button><button id="review-mode">Annotated snapshot</button></div><div class="flex items-center gap-2"><button id="compare-versions" class="secondary" aria-haspopup="dialog" aria-controls="history-dialog">Compare versions</button><span id="save-status" class="muted text-xs" role="status">Saved locally</span><details class="actions-menu"><summary aria-label="Document actions" title="Document actions">⋯</summary><div class="actions-panel"><button id="snapshot-btn" class="quiet">Save snapshot</button><button id="history-btn" class="quiet">Saved snapshots</button><button id="export-btn" class="quiet">Export</button></div></details></div></div>
+          <div class="editor-controls"><div class="segmented" role="group" aria-label="Document view"><button id="write-mode" class="active">Write</button><button id="review-mode">Reviewed text</button></div><div class="flex items-center gap-2"><button id="compare-versions" class="secondary" aria-haspopup="dialog" aria-controls="history-dialog">Compare versions</button><span id="save-status" class="muted text-xs" role="status">Saved locally</span><details class="actions-menu"><summary aria-label="Document actions" title="Document actions">⋯</summary><div class="actions-panel"><button id="snapshot-btn" class="quiet">Save snapshot</button><button id="history-btn" class="quiet">Saved snapshots</button><button id="export-btn" class="quiet">Export</button></div></details></div></div>
         </header>
         <div class="pass-toolbar">
-          <div class="pass-picker"><label class="sr-only" for="pass">Editing pass</label><select id="pass"></select></div>
+          <div class="pass-picker"><button id="prev-pass" class="nav-btn" aria-label="Previous editing pass" title="Previous check">‹</button><label class="sr-only" for="pass">Editing pass</label><select id="pass"></select><button id="next-pass" class="nav-btn" aria-label="Next editing pass" title="Next check">›</button></div>
           <button id="run-review" class="primary">Review externally</button>
-          <details class="actions-menu"><summary aria-label="Review actions" title="Review actions">⋯</summary><div class="actions-panel"><button id="external-import-open" class="quiet" aria-haspopup="dialog">Import results</button><button id="prev-pass" class="quiet" aria-label="Previous editing pass">Previous pass</button><button id="next-pass" class="quiet" aria-label="Next editing pass">Next pass</button></div></details>
+          <button id="external-import-open" class="secondary" aria-haspopup="dialog">Import results</button>
         </div>
-        <div id="review-note" class="review-note" hidden></div>
+        <div id="review-note" class="review-note" role="status" aria-live="polite" hidden></div>
         <div class="paper">
           <div id="editor-surface" class="editor-surface"><div id="draft-highlights" class="prose-editor draft-highlights" aria-hidden="true" hidden></div><label for="editor" class="sr-only">Your draft</label><textarea id="editor" class="prose-editor" spellcheck="true" maxlength="300000" placeholder="Your draft"></textarea></div>
           <div id="annotated" class="prose-editor annotated" hidden aria-label="Annotated immutable review snapshot" tabindex="0"></div>
@@ -53,10 +63,11 @@
       <details class="pass-instructions"><summary>Scope & exceptions</summary><p id="selected-pass-summary" class="pass-summary"></p><p id="pass-focus"></p><p id="pass-exceptions"></p><p id="pass-task"></p></details>
       <div id="jobs" aria-live="polite"></div>
       <div class="review-divider"></div>
-      <div class="findings-toolbar flex items-center justify-between"><label class="text-xs"><input type="checkbox" id="open-only" checked> Open only</label><span id="finding-count" class="muted text-xs">0 findings</span><div class="flex gap-1"><button id="prev-issue" class="nav-btn" aria-label="Previous finding">←</button><button id="next-issue" class="nav-btn" aria-label="Next finding">→</button></div></div>
+      <div class="findings-toolbar flex items-center justify-between"><label class="text-xs"><input type="checkbox" id="open-only" checked> Open only</label><span id="finding-count" class="muted text-xs">0 findings</span><div class="flex gap-1"><button id="prev-issue" class="nav-btn" aria-label="Previous finding" title="Previous finding ([)">←</button><button id="next-issue" class="nav-btn" aria-label="Next finding" title="Next finding (])">→</button></div></div>
       <div id="findings-source" class="finding-source"></div>
       <details class="review-details"><summary>Pass reviews</summary><label class="section-label" for="review-select">Review history for this pass</label><select id="review-select" class="w-full"><option value="">No reviews yet</option></select><p id="review-scope" class="muted text-xs"></p><p id="review-provider" class="muted text-xs"></p></details>
       <div id="findings"><p class="empty-small muted">No review yet.</p></div>
+      <p class="review-empty">Create or open a document to choose a check.</p>
       <div id="review-resize" class="sidebar-resize review-resize" role="separator" tabindex="0" aria-label="Resize review sidebar" aria-controls="review-sidebar" aria-orientation="vertical" aria-valuemin="280" aria-valuemax="520" aria-valuenow="360" title="Drag to resize; use left and right arrow keys"></div>
     </aside>
   </main>
@@ -73,7 +84,7 @@
     <section class="external-step"><h3><span>1</span> Send for review</h3>
       <strong id="external-pass-label"></strong><label>Draft to review<select id="external-snapshot"><option value="">Working draft · save an exact snapshot</option></select></label>
       <div class="handoff-option"><strong>Agent on this computer</strong><button id="external-copy-agent" class="primary">Copy agent prompt</button><p class="muted">Local paths and snapshot details only. The agent reads the skill and saves findings here.</p></div>
-      <div class="handoff-option"><strong>Remote chat</strong><div class="handoff-actions"><button id="external-copy-packet" class="secondary">Copy packet JSON</button><button id="external-export" class="quiet">Download pass packet</button></div><p class="muted">Includes your draft, context, declined findings, and pass instructions. Share only with your intended evaluator.</p></div>
+      <div class="handoff-option"><strong>Chat without access to this computer</strong><div class="handoff-actions"><button id="external-copy-packet" class="secondary">Copy packet JSON</button><button id="external-export" class="quiet">Download pass packet</button></div><p class="muted">Includes your draft, context, declined findings, and pass instructions. Share only with your intended evaluator.</p></div>
       <div id="external-copy-ready" hidden><label id="external-copy-label" for="external-copy-text">Copyable handoff</label><textarea id="external-copy-text" readonly rows="5" spellcheck="false"></textarea></div>
       <div id="external-packet-ready" hidden><p id="external-packet-label"></p><label>Chat instruction<textarea id="external-chat-instruction" readonly rows="4"></textarea></label></div>
     </section>
@@ -88,7 +99,7 @@
   </dialog>
   <dialog id="snapshot-dialog"><form id="snapshot-form"><h2>Save snapshot</h2><label>Revision note<input id="snapshot-note" maxlength="1000" placeholder="Optional"></label><label class="check-row"><input id="snapshot-major" type="checkbox"> Major revision</label><div class="dialog-actions"><button type="button" data-close="snapshot-dialog" class="quiet">Cancel</button><button class="primary" type="submit">Save snapshot</button></div></form></dialog>
   <dialog id="history-dialog" class="wide-dialog" aria-labelledby="history-heading">
-    <div class="flex items-center justify-between gap-4 flex-wrap"><div><h2 id="history-heading">Saved snapshots</h2><p id="history-summary" class="muted text-xs"></p></div><div class="flex gap-2"><button id="history-view-switch" type="button" class="quiet">Compare versions</button><button data-close="history-dialog" class="quiet">Close</button></div></div>
+    <div class="flex items-center justify-between gap-4 flex-wrap"><div><h2 id="history-heading">Saved snapshots</h2><p id="history-summary" class="muted text-xs"></p></div><div class="flex gap-2"><button id="history-view-switch" type="button" class="quiet">Compare versions</button><button data-close="history-dialog" class="quiet icon-btn" aria-label="Close">✕</button></div></div>
     <div class="history-layout"><div id="history-list"></div><pre id="revision-preview" class="revision-preview">No snapshot selected.</pre></div>
     <details class="comparison-builder"><summary>Choose versions</summary>
       <div class="flex flex-wrap gap-3"><label>First version<select id="compare-first"></select></label><label>Second version<select id="compare-second"></select></label></div>
@@ -107,15 +118,16 @@
     </details>
     <div id="comparison-results"></div>
   </dialog>
-  <dialog id="help-dialog" class="wide-dialog">
-    <h2>Help</h2>
-    <details><summary>Drafts and findings</summary><p>Plain text/Markdown with browser spellcheck, undo, autosave, and snapshots; not a rich-text or collaborative editor. Findings highlight the reviewed snapshot and any identical working draft. Edit this passage selects existing words without changing them. Resolved and Declined change only finding status.</p></details>
-    <details><summary>Review freshness</summary><p>Changing text, audience, or purpose hides draft highlights and requires new checks. Earlier findings remain on their snapshots. Restoring identical input reuses matching checks; changing a title or major-revision flag does not invalidate them.</p><p>Checks record successful passes on exact input, not resolved findings. Zero findings count; failed jobs, demo fixtures, and broad reviews do not complete individual checks. Saved snapshots have their own checklist.</p></details>
+  <dialog id="help-dialog" class="wide-dialog" aria-labelledby="help-heading">
+    <div class="dialog-heading"><h2 id="help-heading">Help</h2><button data-close="help-dialog" class="quiet icon-btn" aria-label="Close help">✕</button></div>
+    <details open><summary>How it works</summary><ol class="loop-steps"><li>Write or import a draft.</li><li>Choose a check, then select <strong>Review externally</strong> to hand it to an agent.</li><li>Read the linked findings and revise in your own words.</li><li>Select <strong>Compare versions</strong> to have a fresh evaluator compare two drafts.</li></ol></details>
+    <details><summary>Drafts and findings</summary><p>Plain text/Markdown with browser spellcheck, undo, autosave, and snapshots; not a rich-text or collaborative editor. Findings highlight the reviewed snapshot. After you edit, findings in unchanged paragraphs keep a dashed highlight; findings in changed paragraphs appear only under Reviewed text. Edit this passage selects existing words without changing them. Resolved and Declined change only finding status.</p></details>
+    <details><summary>Review freshness</summary><p>Changing text, audience, or purpose makes earlier checks stale. Their findings remain on their snapshots, and the check count shows how many ran on earlier text. Restoring identical input reuses matching checks; changing a title or major-revision flag does not invalidate them.</p><p>Checks record successful passes on exact input, not resolved findings. Zero findings count; failed jobs, demo fixtures, and broad reviews do not complete individual checks. Saved snapshots have their own checklist.</p></details>
     <details><summary>External reviews and comparisons</summary><p>Review externally copies a local-agent prompt or exports a complete packet. Import results returns findings to the reviewed snapshot. Local agents can import directly. Remote chats have no database access or cloud sync.</p><p>Comparison packets contain randomized candidates without revision metadata. Use a fresh evaluator with no editing history; importing JSON cannot verify its independence.</p></details>
+    <details><summary>Keyboard shortcuts</summary><p><kbd>Ctrl</kbd> or <kbd>⌘</kbd> with <kbd>S</kbd> saves now. Outside a text field, <kbd>[</kbd> and <kbd>]</kbd> move to the previous or next finding. <kbd>Esc</kbd> closes menus and dialogs.</p></details>
     <details><summary>Privacy</summary><p>Drafts and history stay in local SQLite; the server listens on 127.0.0.1. Sharing a packet sends its text to your chosen evaluator, which may consume usage. Copying or exporting does not call a model. No analytics or browser CDN requests.</p><p id="data-location" class="muted text-xs"></p></details>
     <details><summary>Model limits</summary><p>Prompts prohibit praise and rewrites. Schemas reject replacement fields and validate quotations, but cannot guarantee compliant advice. Nothing auto-applies; you can reject findings.</p></details>
     <details class="exchange"><summary>Legacy manual exchange (v2/v3)</summary><p>For v2/v3 packets only.</p><button id="packet-btn" class="secondary w-full">Export review packet</button><button id="import-review-btn" class="quiet w-full">Import findings JSON</button><input id="review-json" type="file" accept=".json,application/json" hidden><label class="mt-2">Import into snapshot<select id="import-revision"></select></label><p class="text-xs muted">Match the exported snapshot and pass.</p></details>
-    <div class="dialog-actions"><button data-close="help-dialog" class="primary">Close</button></div>
   </dialog>
 </body>
 </html>

@@ -13,6 +13,14 @@ const passById = id => (state.catalog || []).find(p => p.id === id);
 const passLabel = id => passById(id)?.title || id;
 const zeroCounts = {total:0,open:0,resolved:0,declined:0,superseded:0};
 const esc = (s) => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const shortTime = (date) => date.toLocaleString([], {month:'short',day:'numeric',hour:'numeric',minute:'2-digit'});
+const LIBRARY_KEY = 'copy-editor-library-visible';
+const LARGE_DRAFT = 50000;
+let highlightTimer = null;
+function setText(element, text) { if(element.textContent!==text) element.textContent=text; }
+function localizeTimes(root) {
+  root.querySelectorAll('time[datetime]').forEach(time=>{const date=new Date(time.dateTime);if(!Number.isNaN(date.getTime()))time.textContent=shortTime(date);});
+}
 function notify(message, error = false) { $('notice-text').textContent = message; $('notice').classList.toggle('error', error); $('notice').hidden = false; $('reconnect-btn').hidden=!connectionBlocked; }
 function report(e) { notify(e.message || String(e), true); }
 function connectionFailure(message='Connection lost. Your text is still in this tab. Reconnect to continue.') {
@@ -75,7 +83,7 @@ function words() {
 function changed() {
   if (!doc) return;
   dirty=true; $('save-status').textContent='Unsaved changes'; words();
-  syncDraftHighlights(); renderProgress();
+  scheduleDraftHighlights(); renderProgress();
   clearTimeout(saveTimer); saveTimer=setTimeout(()=>persist().catch(report),800);
 }
 async function persist() {
@@ -86,7 +94,7 @@ async function persist() {
   saving=(async()=>{
     const saved=await api(`/api/documents/${ident}/save`, {...payload,version:doc.version});
     doc={...doc,...saved};
-    document.title=`${doc.title} — Voice Workshop`;
+    document.title=`${doc.title} — Copy Editor`;
     dirty=JSON.stringify(formData())!==JSON.stringify(payload);
     $('save-status').textContent=dirty?'Unsaved changes':'Saved locally';
     refreshDocuments().catch(report);
@@ -103,7 +111,7 @@ async function refreshDocuments() {
   try { r=await fetch('/fragments/documents'); } catch { throw connectionFailure(); }
   if(r.status===403)throw connectionFailure('The workbench session expired. Reconnect to continue.');
   if (!r.ok) throw new Error(`Could not load documents (${r.status}).`);
-  $('documents').innerHTML=await r.text(); markDocument();
+  $('documents').innerHTML=await r.text(); markDocument(); localizeTimes($('documents'));
   $('doc-count').textContent=$('documents').querySelectorAll('[data-doc]').length;
 }
 async function loadDoc(id) {
@@ -117,11 +125,12 @@ async function loadDoc(id) {
   $('compare-first').value='';$('compare-second').value='';$('compare-criteria').value='';
   for (const key of ['title','audience','purpose']) $(key).value=doc[key];
   $('editor').value=doc.body; $('empty-state').hidden=true; $('document-workspace').hidden=false;
+  $('review-sidebar').classList.remove('no-document');
   $('save-status').textContent='Saved locally'; $('notice').hidden=true;
   $('pass').value=doc.reviews[0]?.pass_name||'triage';
-  renderMetadata(); markDocument(); setMode('write'); setLibrary(false);
+  renderMetadata(); markDocument(); setMode('write'); if(innerWidth<=900)setLibrary(false,false);
   await choosePass($('pass').value, false);
-  document.title=`${doc.title} — Voice Workshop`;
+  document.title=`${doc.title} — Copy Editor`;
   poll();
 }
 async function refreshMetadata() {
@@ -136,7 +145,15 @@ async function refreshMetadata() {
   renderMetadata();
 }
 function sameTextAs(revision) { return revision.text_group_id!==revision.id?revision.text_group_id:null; }
-function revisionOptions() { return doc.revisions.map(r=>`<option value="${r.id}">${esc(`#${r.id}${r.major?' ★':''} · ${r.note||'Snapshot'}${sameTextAs(r)?` (same text as #${sameTextAs(r)})`:''}`)}</option>`).join(''); }
+const differsFromDraft=revision=>!revision.matches_working_text&&revision.has_text;
+function revisionOptions() { return doc.revisions.map(r=>`<option value="${r.id}">${esc(`#${r.id}${r.major?' ★':''} · ${r.note||'Snapshot'} · ${shortTime(new Date(r.created))}${sameTextAs(r)?` (same text as #${sameTextAs(r)})`:''}`)}</option>`).join(''); }
+function comparableTexts() {
+  if(!doc)return 0;
+  const texts=new Set(doc.revisions.filter(r=>r.has_text).map(r=>r.text_group_id));
+  const draft=$('editor').value;
+  if(draft.trim()&&(draft!==doc.body||!doc.revisions.some(r=>r.matches_working_text)))texts.add('current');
+  return texts.size;
+}
 function comparisonSelection() {
   const selected=id=>{
     if($(id).value==='current')return {current:true,text_group_id:doc.revisions.find(revision=>revision.matches_working_text)?.text_group_id??'current'};
@@ -162,7 +179,7 @@ function renderMetadata() {
     const previous=$(id).value;
     $(id).innerHTML=(id==='import-revision'?'':'<option value="current">Current working draft</option>')+revisionOptions();
     if((id!=='import-revision'&&previous==='current')||doc.revisions.some(r=>String(r.id)===previous))$(id).value=previous;
-    else if(id==='compare-first')$(id).value=doc.revisions.find(revision=>!revision.matches_working_text)?.id??doc.revisions[0]?.id??'current';
+    else if(id==='compare-first')$(id).value=(doc.revisions.find(differsFromDraft)??doc.revisions[0])?.id??'current';
   }
   updateComparisonEligibility();
   $('comparison-target').innerHTML=doc.comparisons.filter(c=>!c.result).map(c=>`<option value="${c.id}">Comparison #${c.id}</option>`).join('') || '<option value="">No pending comparisons</option>';
@@ -186,26 +203,57 @@ function inputHasUnsavedChanges() {
 function setMode(next) {
   if(next==='review'&&!review){notify('No review for this pass.');return;}
   mode=next; $('editor-surface').hidden=next!=='write'; $('editor').hidden=next!=='write'; $('annotated').hidden=next!=='review';
+  document.querySelector('.writing-pane').classList.toggle('snapshot-mode',next==='review');
   $('write-mode').classList.toggle('active',next==='write'); $('review-mode').classList.toggle('active',next==='review');
   $('revision-label').textContent=next==='review'?`Review snapshot #${review.revision_id}`:'Working draft';
   if(next==='review') renderAnnotated();
   syncDraftHighlights(); words();
 }
+function draftRanges() {
+  return review?WorkshopAnchors.locateAll(visibleIssues(),review.revision.body,$('editor').value):[];
+}
+function rangeHTML(text,ranges,carried) {
+  const points=new Set([0,text.length]);
+  ranges.forEach(range=>{points.add(range.start);points.add(range.end);});
+  const edges=[...points].sort((a,b)=>a-b);let out='';
+  for(let k=0;k<edges.length-1;k++) {
+    const start=edges[k],end=edges[k+1],cover=ranges.filter(range=>range.start<=start&&range.end>=end);
+    const part=esc(text.slice(start,end));
+    const classes=[carried?'carried':'',cover.some(range=>range.id===selectedIssue)?'selected':''].filter(Boolean).join(' ');
+    out+=cover.length?`<mark class="${classes}" data-marks="${cover.map(range=>range.id).join(',')}">${part}</mark>`:part;
+  }
+  return out;
+}
+// Large drafts re-render highlights after a short pause instead of on every keystroke.
+function scheduleDraftHighlights() {
+  clearTimeout(highlightTimer);
+  if($('editor').value.length<LARGE_DRAFT){syncDraftHighlights();return;}
+  $('draft-highlights').hidden=true;
+  highlightTimer=setTimeout(syncDraftHighlights,200);
+}
 function syncDraftHighlights() {
+  clearTimeout(highlightTimer);
   const same=reviewMatchesForm();
-  $('draft-highlights').hidden=mode!=='write'||!same;
-  if(mode==='write'&&same) {
-    $('draft-highlights').innerHTML=annotationHTML(review.revision.body,visibleIssues(),true)+'&#8203;';
+  const ranges=mode==='write'?draftRanges():[];
+  const located=new Set(ranges.map(range=>range.id));
+  $('draft-highlights').hidden=mode!=='write'||!ranges.length;
+  if(!$('draft-highlights').hidden) {
+    $('draft-highlights').innerHTML=rangeHTML($('editor').value,ranges,!same)+'&#8203;';
     $('draft-highlights').scrollTop=$('editor').scrollTop;
   }
   $('review-note').hidden=!review||(mode==='write'&&same);
   if(review) {
-    $('review-note').textContent=mode==='review'
+    const total=visibleIssues().length;
+    setText($('review-note'),mode==='review'
       ? `Snapshot #${review.revision_id} · read-only${same?'':' · Your working draft differs.'}`
       : same ? ''
-      : `Draft or context changed. Findings refer to snapshot #${review.revision_id}; draft highlights are hidden.`;
+      : ranges.length ? `Draft or context changed since snapshot #${review.revision_id}. ${ranges.length} of ${total} ${total===1?'finding still points':'findings still point'} to unchanged text; the rest are under Reviewed text.`
+      : `Draft or context changed. Findings refer to snapshot #${review.revision_id}; open Reviewed text to see them.`);
     $('review-note').classList.toggle('stale',!same);
   }
+  document.querySelectorAll('#findings [data-issue]').forEach(card=>{
+    card.querySelector('.finding-changed').hidden=same||mode!=='write'||located.has(Number(card.dataset.issue));
+  });
   $('findings-source').textContent=review?`Snapshot #${review.revision_id}${same?' · current input':' · earlier text or context'}`:'';
 }
 async function loadReview(id,show=true) {
@@ -224,11 +272,11 @@ function renderFindings() {
   const position=issues.findIndex(issue=>issue.id===selectedIssue);
   $('finding-count').textContent=issues.length?`${position+1} of ${issues.length}`:'0 findings';
   $('prev-issue').disabled=issues.length<2;$('next-issue').disabled=issues.length<2;
-  $('findings').innerHTML=issues.map(i=>`<article class="finding ${selectedIssue===i.id?'selected':''}" data-issue="${i.id}" tabindex="0"><div class="flex justify-between items-center gap-2"><span class="severity ${esc(i.priority)}">${esc(i.priority)}</span><span class="muted text-xs">P${i.paragraph} · #${i.id}</span></div><h3>${esc(i.category)}</h3><blockquote>${esc(i.quote)}</blockquote><p>${esc(i.problem)}</p><div class="revision-task"><strong>Revision</strong><p>${esc(i.revision_task)}</p></div><details><summary>Why it matters</summary><p class="reader-effect">${esc(i.reader_effect)}</p>${i.tradeoff?`<p class="muted text-xs">Tradeoff: ${esc(i.tradeoff)}</p>`:''}<p class="muted text-xs">Confidence: ${esc(i.confidence)}</p></details><div class="finding-actions"><button class="secondary" data-edit-issue="${i.id}">Edit this passage</button><button class="quiet" data-source-issue="${i.id}">Reviewed text</button></div><div class="flex justify-between items-center gap-2 mt-3"><label class="sr-only" for="status-${i.id}">Finding status</label><select id="status-${i.id}" data-status="${i.id}" class="status-select">${['open','resolved','declined','superseded'].map(s=>`<option value="${s}"${i.status===s?' selected':''}>${s}</option>`).join('')}</select></div></article>`).join('') || `<p class="empty-small muted">${review?(review.issues.length?'No open findings.':'No material issue found in this pass.'):'No review yet.'}</p>`;
+  $('findings').innerHTML=issues.map(i=>`<article class="finding ${selectedIssue===i.id?'selected':''}" data-issue="${i.id}" tabindex="0"><div class="finding-head"><span class="severity ${esc(i.priority)}">${esc(i.priority)}</span><span class="finding-changed" hidden>Passage changed in draft</span><span class="muted text-xs" title="Paragraph ${esc(i.paragraph)}">¶${esc(i.paragraph)}</span></div><h3>${esc(i.category)}</h3><blockquote>${esc(i.quote)}</blockquote><p>${esc(i.problem)}</p><div class="revision-task"><strong>Revision</strong><p>${esc(i.revision_task)}</p></div><details><summary>Why it matters</summary><p class="reader-effect">${esc(i.reader_effect)}</p>${i.tradeoff?`<p class="muted text-xs">Tradeoff: ${esc(i.tradeoff)}</p>`:''}<p class="muted text-xs">Confidence: ${esc(i.confidence)}</p></details><div class="finding-actions"><button class="secondary" data-edit-issue="${i.id}">Edit this passage</button><button class="quiet" data-source-issue="${i.id}">Reviewed text</button></div><div class="finding-status"><label class="sr-only" for="status-${i.id}">Finding status</label><select id="status-${i.id}" data-status="${i.id}" class="status-select">${['open','resolved','declined','superseded'].map(s=>`<option value="${s}"${i.status===s?' selected':''}>${s}</option>`).join('')}</select></div></article>`).join('') || `<p class="empty-small muted">${review?(review.issues.length?'No open findings.':'No material issue found in this pass.'):'No review yet.'}</p>`;
   if(mode==='review')renderAnnotated();
   syncDraftHighlights();
 }
-function annotationHTML(body,issues,mirror=false) {
+function annotationHTML(body,issues) {
   // Python offsets count Unicode code points; JavaScript text selection uses UTF-16.
   const chars=Array.from(body),points=new Set([0,chars.length]);
   issues.forEach(i=>{points.add(i.start);points.add(i.end);});
@@ -236,14 +284,14 @@ function annotationHTML(body,issues,mirror=false) {
   for(let k=0;k<edges.length-1;k++) {
     const start=edges[k],end=edges[k+1],cover=issues.filter(i=>i.start<=start&&i.end>=end);
     const text=esc(chars.slice(start,end).join(''));
-    out+=cover.length?`<mark ${mirror?'':'tabindex="0"'} data-marks="${cover.map(i=>i.id).join(',')}" class="${cover.some(i=>i.id===selectedIssue)?'selected':''}" title="${esc(cover.map(i=>i.category).join('; '))}">${text}</mark>`:text;
+    out+=cover.length?`<mark tabindex="0" data-marks="${cover.map(i=>i.id).join(',')}" class="${cover.some(i=>i.id===selectedIssue)?'selected':''}" title="${esc(cover.map(i=>i.category).join('; '))}">${text}</mark>`:text;
   }
   return out;
 }
 function renderAnnotated() {
   if(review)$('annotated').innerHTML=annotationHTML(review.revision.body,visibleIssues());
 }
-function editIssue(id) {
+function editIssue(id,focus=true) {
   const issue=review?.issues.find(i=>i.id===id);if(!issue)return;
   selectedIssue=id; setMode('write'); renderFindings();
   const range=WorkshopAnchors.locate(issue,review.revision.body,$('editor').value);
@@ -251,16 +299,18 @@ function editIssue(id) {
     notify('Source paragraph changed or is ambiguous. Open “Reviewed text” for the original.');
     return;
   }
-  const editor=$('editor');editor.focus();editor.setSelectionRange(range.start,range.end);
+  // Keyboard navigation leaves focus alone so the next [ or ] cannot replace selected text.
+  const editor=$('editor');if(focus){editor.focus();editor.setSelectionRange(range.start,range.end);}
   // Text remains untouched. Selection is the navigation target, never replacement text.
   const mark=$('draft-highlights').querySelector('mark.selected');
   if(mark&&!$('draft-highlights').hidden)editor.scrollTop=Math.max(0,mark.offsetTop-editor.clientHeight/3);
   else editor.scrollTop=Math.max(0,(range.start/Math.max(1,editor.value.length))*editor.scrollHeight-editor.clientHeight/3);
   editor.scrollIntoView({behavior:'smooth',block:'nearest'});
-  notify(range.basis==='same-draft'?'Passage selected.':'Unchanged passage selected. Findings refer to the earlier snapshot.');
+  const verb=focus?'selected':'highlighted';
+  notify(range.basis==='same-draft'?`Passage ${verb}.`:`Unchanged passage ${verb}. Findings refer to the earlier snapshot.`);
 }
-function selectIssue(id,scroll=true,forceSnapshot=false) {
-  if(mode==='write'&&!forceSnapshot){editIssue(id);return;}
+function selectIssue(id,scroll=true,forceSnapshot=false,focus=true) {
+  if(mode==='write'&&!forceSnapshot){editIssue(id,focus);return;}
   selectedIssue=id;setMode('review');renderFindings();
   if(scroll) {
     const mark=[...$('annotated').querySelectorAll('mark')].find(m=>m.dataset.marks.split(',').includes(String(id)));
@@ -268,7 +318,7 @@ function selectIssue(id,scroll=true,forceSnapshot=false) {
     $('findings').querySelector(`[data-issue="${id}"]`)?.scrollIntoView({behavior:'smooth',block:'nearest'});
   }
 }
-function navigateIssue(delta) { const items=visibleIssues();if(!items.length)return;let at=items.findIndex(i=>i.id===selectedIssue);at=at<0?(delta>0?0:items.length-1):(at+delta+items.length)%items.length;selectIssue(items[at].id); }
+function navigateIssue(delta,focus=true) { const items=visibleIssues();if(!items.length)return;let at=items.findIndex(i=>i.id===selectedIssue);at=at<0?(delta>0?0:items.length-1):(at+delta+items.length)%items.length;selectIssue(items[at].id,true,false,focus); }
 async function snapshot(note,major=false) { if(!doc)throw Error('Open a document first.');await persist();const r=await api(`/api/documents/${doc.id}/snapshot`,{note,major});await refreshMetadata();return r; }
 function renderJobs() { $('jobs').innerHTML=(doc?.jobs||[]).filter(j=>j.status!=='done'&&(j.kind!=='review'||j.pass_name===$('pass').value)).slice(0,3).map(j=>`<div class="job ${j.status==='error'?'job-error':''}"><strong>${esc(j.kind==='review'?passLabel(j.pass_name):'Comparison')}</strong> · ${esc(j.status)}${j.error?`<pre>${esc(j.error)}</pre>`:''}</div>`).join(''); }
 async function poll() {
@@ -283,7 +333,12 @@ async function poll() {
     const newReview=doc.reviews.find(r=>!old.has(r.id)&&r.pass_name===$('pass').value);
     const finished=completed.find(j=>j.kind==='review'&&j.status==='done'&&j.pass_name===$('pass').value);
     const reviewId=finished?.result_id || newReview?.id || (!review && doc.reviews.find(r=>r.pass_name===$('pass').value)?.id);
-    if(reviewId) {await loadReview(reviewId,false);notify('Review ready. Inspect its highlights, then write your own changes.');}
+    if(reviewId) {
+      await loadReview(reviewId,false);
+      const message='Review ready. Inspect its highlights, then write your own changes.';
+      notify(message);
+      if($('external-dialog').open)externalNotice(message);
+    }
     pollTimer=setTimeout(()=>poll().catch(report),doc.jobs.some(j=>['queued','running'].includes(j.status))?1000:5000);
   } catch(e){report(e);}
 }
@@ -296,7 +351,7 @@ function renderHistory() {
     const passState=passNames.length===0?'No pass review':passNames.length===1?`Pass reviewed: ${passNames[0]}`:`${passNames.length} passes reviewed`;
     const comparisons=doc.comparisons.filter(comparison=>comparison.result&&(comparison.a_revision===r.id||comparison.b_revision===r.id));
     const comparisonState=comparisons.map(comparison=>`Compared with #${comparison.a_revision===r.id?comparison.b_revision:comparison.a_revision} in A/B #${comparison.id}`).join(' · ');
-    return `<article class="revision-row"><div><button class="quiet revision-title" data-preview="${r.id}">Snapshot #${r.id}${r.major?' ★':''} · ${esc(r.note||'Snapshot')}</button><small>${esc(new Date(r.created).toLocaleString())}${sameTextAs(r)?` · Same text as #${sameTextAs(r)}`:''}</small><small class="revision-relations"><span class="${passNames.length?'reviewed':''}">${esc(passState)}</span>${comparisonState?`<span>${esc(comparisonState)}</span>`:''}</small></div><div class="flex gap-1"><button class="quiet text-xs" data-major="${r.id}">${r.major?'Unmark':'Major'}</button><button class="quiet text-xs" data-restore="${r.id}">Restore</button></div></article>`;
+    return `<article class="revision-row"><div><button class="quiet revision-title" data-preview="${r.id}">Snapshot #${r.id}${r.major?' ★':''} · ${esc(r.note||'Snapshot')}</button><small>${esc(shortTime(new Date(r.created)))}${sameTextAs(r)?` · Same text as #${sameTextAs(r)}`:''}</small><small class="revision-relations"><span class="${passNames.length?'reviewed':''}">${esc(passState)}</span>${comparisonState?`<span>${esc(comparisonState)}</span>`:''}</small></div><div class="flex gap-1"><button class="quiet text-xs" data-major="${r.id}">${r.major?'Unmark major':'Mark major'}</button><button class="quiet text-xs" data-restore="${r.id}">Restore</button></div></article>`;
   }).join('');
   $('comparison-results').innerHTML=doc.comparisons.filter(c=>c.result).map(c=>{
     const result=JSON.parse(c.result);
@@ -352,13 +407,21 @@ async function init() {
   buildPassSelect(); renderPassInfo();
   $('provider-badge').textContent='Local workbench';
   $('data-location').textContent=`Local data directory: ${state.data_home}`;
-  await refreshDocuments(); if(state.documents.length)await loadDoc(state.documents[0].id);
+  await refreshDocuments();
+  if(state.documents.length)await loadDoc(state.documents[0].id);
+  else $('review-sidebar').classList.add('no-document');
 }
-function setLibrary(visible) {
+function setLibrary(visible,remember=true) {
   libraryVisible=visible;
   document.querySelector('.workspace').classList.toggle('focus-layout',!visible);
   $('toggle-library').setAttribute('aria-expanded',String(visible));
+  if(remember) try { localStorage.setItem(LIBRARY_KEY,JSON.stringify(visible)); } catch {}
   sizeSidebars();
+}
+function initLibrary() {
+  let saved=null;
+  try { saved=JSON.parse(localStorage.getItem(LIBRARY_KEY)); } catch {}
+  setLibrary(typeof saved==='boolean'?saved:innerWidth>900,false);
 }
 const sidebarWidths={library:240,review:360};
 function sizeSidebars(changed) {
@@ -417,14 +480,18 @@ function initSidebarResize() {
   window.addEventListener('resize',()=>sizeSidebars());sizeSidebars();
 }
 initSidebarResize();
+initLibrary();
+const BROAD_GROUP='Broad reviews';
+const groupLabel=group=>group===BROAD_GROUP?`${BROAD_GROUP} · not counted`:group;
+const passNumber=pass=>pass.checklist?String(pass.order+1):'—';
 function passGroups(passes) {
   const groups=[...new Set(passes.map(pass=>pass.group))];
-  return groups.filter(group=>group==='Broad reviews').concat(groups.filter(group=>group!=='Broad reviews'));
+  return groups.filter(group=>group!==BROAD_GROUP).concat(groups.filter(group=>group===BROAD_GROUP));
 }
 function buildPassSelect() {
   const selected=$('pass').value||'triage';
   const groups=passGroups(state.catalog);
-  $('pass').innerHTML=groups.map(group=>`<optgroup label="${esc(group)}">${state.catalog.filter(p=>p.group===group).map(p=>`<option value="${p.id}">${p.checklist?`${p.order} · `:''}${esc(p.title)}</option>`).join('')}</optgroup>`).join('');
+  $('pass').innerHTML=groups.map(group=>`<optgroup label="${esc(groupLabel(group))}">${state.catalog.filter(p=>p.group===group).map(p=>`<option value="${p.id}">${p.checklist?`${passNumber(p)} · `:''}${esc(p.title)}</option>`).join('')}</optgroup>`).join('');
   $('pass').value=selected;
 }
 function renderPassInfo() {
@@ -432,8 +499,9 @@ function renderPassInfo() {
   $('selected-pass-title').textContent=p.title;$('selected-pass-summary').textContent=p.summary;
   $('pass-focus').textContent=p.focus;$('pass-exceptions').textContent=p.exceptions;$('pass-task').textContent=p.task;
   const item=doc?.pass_progress?.items.find(i=>i.id===p.id);
-  $('selected-pass-state').textContent=item?stateText(item):'Not run';
-  if(item&&inputHasUnsavedChanges()&&item.current)$('selected-pass-state').textContent='Unsaved changes · rerun needed';
+  let status=item?stateText(item):'Not run';
+  if(item&&inputHasUnsavedChanges()&&item.current)status='Unsaved changes · rerun needed';
+  $('selected-pass-state').textContent=p.checklist?status:`${status} · broad review, not counted`;
 }
 function countsText(counts) {
   const parts=[];
@@ -448,9 +516,15 @@ function stateText(item) {
 function renderProgress() {
   const progress=doc?.pass_progress;
   const total=progress?.summary.total||(state.catalog||[]).filter(p=>p.checklist).length||30;
-  $('pass-progress').textContent=inputHasUnsavedChanges()?`— / ${total} · unsaved`:`${progress?.summary.current||0} / ${total} run`;
-  $('run-review').disabled=!doc;
+  const earlier=progress?.summary.needs_rerun||0;
+  $('pass-progress').textContent=inputHasUnsavedChanges()?`— / ${total} · unsaved`:`${progress?.summary.current||0} / ${total} run${earlier?` · ${earlier} earlier`:''}`;
+  const blank=!doc||!$('editor').value.trim();
+  $('run-review').disabled=blank;
+  $('run-review').title=blank?'Write or import a draft first.':'';
   $('run-review').textContent='Review externally';
+  const comparable=comparableTexts()>=2;
+  $('compare-versions').disabled=!comparable;
+  $('compare-versions').title=comparable?'':'Compare needs two different versions. Revise the draft or save a snapshot first.';
   $('passes-btn').disabled=!doc;
   renderPassInfo();
   if($('passes-dialog').open)renderChecklist();
@@ -480,7 +554,7 @@ async function openChecklist() {
   $('checklist-scope').value='';checklist=doc.pass_progress;
   $('pass-search').value='';$('pass-filter').value='all';
   renderChecklist();$('passes-dialog').showModal();
-  $('pass-list').scrollTop=0;
+  $('pass-list').querySelector('.pass-row.chosen')?.scrollIntoView({block:'center'});
 }
 async function loadChecklist() {
   if(!doc)return;
@@ -496,7 +570,8 @@ function renderChecklist() {
   $('checklist-count').textContent=unsaved?`Unsaved edits · progress pending`:`${summary.current} of ${summary.total} run`;
   $('checklist-scope-label').textContent=isLive?'Working draft':`Snapshot #${checklist.revision_id}`;
   $('checklist-bar').max=summary.total;$('checklist-bar').value=unsaved?0:summary.current;
-  $('checklist-explanation').textContent=unsaved?'Unsaved input; earlier findings retained.':'Reviewed input, not resolved findings. Choose the review target when exporting.';
+  const earlier=summary.needs_rerun||0;
+  $('checklist-explanation').textContent=unsaved?'Unsaved input; earlier findings retained.':`Counts checks run on this exact text and context, not resolved findings.${earlier?` ${earlier} ${earlier===1?'check':'checks'} ran on earlier text.`:''}`;
   const search=$('pass-search').value.trim().toLowerCase(),filter=$('pass-filter').value;
   const items=checklist.items.filter(p=>{
     const meta=passById(p.id);const current=p.current&&!unsaved;
@@ -504,12 +579,12 @@ function renderChecklist() {
       (filter==='all'||filter==='current'&&current||filter==='to-run'&&p.checklist&&!current||filter==='history'&&p.run_count>0);
   });
   const groups=passGroups(items),top=$('pass-list').scrollTop;
-  $('pass-list').innerHTML=groups.map(group=>`<section class="pass-group"><h3>${esc(group)}</h3>${items.filter(p=>p.group===group).map(p=>{
+  $('pass-list').innerHTML=groups.map(group=>`<section class="pass-group"><h3>${esc(groupLabel(group))}</h3>${items.filter(p=>p.group===group).map(p=>{
     const current=p.current&&!unsaved,selected=p.id===$('pass').value;
     const icon=p.active_job?'◌':current?'✓':p.status==='needs-rerun'||p.current&&unsaved?'↻':p.status==='demo'?'◇':p.status==='error'?'!':'·';
     const status=unsaved&&p.current?'Unsaved edits · rerun':stateText(p);
     const history=p.review_id?`${(p.status==='needs-rerun'||p.current&&unsaved)?'Earlier review · ':''}${countsText(p.counts)} · ${p.created?new Date(p.created).toLocaleString([], {month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}):''}`:'';
-    return `<button type="button" data-pass="${p.id}" class="pass-row ${selected?'chosen':''} ${current?'current':''} ${p.status==='needs-rerun'?'outdated':''}" aria-pressed="${selected}" title="${esc(passById(p.id)?.summary||'')}"><span class="pass-number">${p.checklist?p.order:'—'}</span><span class="pass-icon" aria-hidden="true">${icon}</span><span class="pass-row-body"><span class="pass-row-title">${esc(p.title)}</span><small class="pass-row-state">${esc(status)}</small>${history?`<small class="pass-row-counts">${esc(history)}</small>`:''}</span></button>`;
+    return `<button type="button" data-pass="${p.id}" class="pass-row ${selected?'chosen':''} ${current?'current':''} ${p.status==='needs-rerun'?'outdated':''}" aria-pressed="${selected}" title="${esc(passById(p.id)?.summary||'')}"><span class="pass-number">${passNumber(p)}</span><span class="pass-icon" aria-hidden="true">${icon}</span><span class="pass-row-body"><span class="pass-row-title">${esc(p.title)}</span><small class="pass-row-state">${esc(status)}</small>${history?`<small class="pass-row-counts">${esc(history)}</small>`:''}</span></button>`;
   }).join('')}</section>`).join('')||'<p class="empty-small">No editing passes match this filter.</p>';
   $('pass-list').scrollTop=top;
 }
@@ -556,7 +631,7 @@ async function copyHandoff(text,label,prefix='external') {
     await navigator.clipboard.writeText(text);
     return true;
   } catch {
-    $(`${prefix}-copy-text`).focus();$(`${prefix}-copy-text`).select();
+    $(`${prefix}-copy-text`).focus();$(`${prefix}-copy-text`).select();$(`${prefix}-copy-text`).scrollTop=0;
     const notice=prefix==='external'?externalNotice:notify;
     notice('Clipboard unavailable. Copy the selected text below.');
     return false;
@@ -570,7 +645,7 @@ async function copyAgentPrompt() {
     if(!state.skill_root)throw Error('Reload the workbench to get its installed skill path.');
     const documentId=doc.id, passName=$('pass').value, revisionId=Number($('external-snapshot').value);
     if(!revisionId&&!doc.body.trim())throw Error('Write or import a draft first.');
-    const snapshot=revisionId?await api(`/api/revisions/${revisionId}`):await api(`/api/documents/${documentId}/snapshot`,{note:'Local agent: '+passName});
+    const snapshot=revisionId?await api(`/api/revisions/${revisionId}`):await api(`/api/documents/${documentId}/current-snapshot`,{version:doc.version,note:'Sent for review: '+passLabel(passName)});
     if(snapshot.doc_id!==documentId)throw Error('Snapshot belongs to another document.');
     if(!snapshot.body.trim())throw Error('Write or import a draft first.');
     const target={skill_file:state.skill_root+'/SKILL.md',data_dir:state.data_home,document_id:documentId,revision_id:snapshot.id,
@@ -654,7 +729,11 @@ $('reconnect-btn').addEventListener('click',action(reconnect));
 document.addEventListener('selectionchange',words);
 document.addEventListener('focusin',words);
 $('editor').addEventListener('select',words);
-$('new-doc').addEventListener('click',action(async()=>{await persist();const d=await api('/api/documents',{title:'Untitled'});await refreshDocuments();await loadDoc(d.id);$('title').focus();$('title').select();}));
+async function createDocument() {await persist();const d=await api('/api/documents',{title:'Untitled'});await refreshDocuments();await loadDoc(d.id);$('title').focus();$('title').select();}
+$('new-doc').addEventListener('click',action(createDocument));
+$('empty-new').addEventListener('click',action(createDocument));
+$('empty-import').onclick=()=>$('file-input').click();
+$('notice-close').onclick=()=>{$('notice').hidden=true;};
 $('documents').addEventListener('click',action(async(e)=>{const b=e.target.closest('[data-doc]');if(b)await loadDoc(Number(b.dataset.doc));}));
 $('import-doc').onclick=()=>$('file-input').click();
 $('file-input').addEventListener('change',action(async()=>{const f=$('file-input').files[0];if(!f)return;try{await persist();if(f.size>1200000)throw Error('Choose a text file under 1.2 MB.');const body=await f.text();const d=await api('/api/documents',{title:f.name.replace(/\.(txt|md|markdown)$/i,''),body});await refreshDocuments();await loadDoc(d.id);}finally{$('file-input').value='';}}));
@@ -685,8 +764,8 @@ async function openHistory(showComparison=false) {
   const documentId=doc.id;
   await persist();await refreshMetadata();
   if(doc?.id!==documentId)return;
-  const reviewed=doc.revisions.find(revision=>revision.id===review?.revision_id);
-  $('compare-first').value=reviewed?.id??doc.revisions.find(revision=>!revision.matches_working_text)?.id??doc.revisions[0]?.id??'current';
+  const reviewed=doc.revisions.find(revision=>revision.id===review?.revision_id&&differsFromDraft(revision));
+  $('compare-first').value=(reviewed??doc.revisions.find(differsFromDraft)??doc.revisions[0])?.id??'current';
   $('compare-second').value='current';
   updateComparisonEligibility();
   $('compare-context').value=[doc.audience,doc.purpose].filter(Boolean).join(' — ');
@@ -777,10 +856,15 @@ document.addEventListener('keydown',event=>{
   menus.forEach(menu=>{menu.open=false;});
   if(dialog)dismissDialog(dialog);else focusEditor();
 },true);
-document.body.addEventListener('htmx:afterSwap',()=>{markDocument();$('doc-count').textContent=$('documents').querySelectorAll('[data-doc]').length;});
+document.body.addEventListener('htmx:afterSwap',()=>{markDocument();localizeTimes($('documents'));$('doc-count').textContent=$('documents').querySelectorAll('[data-doc]').length;});
 document.body.addEventListener('htmx:configRequest',e=>{e.detail.headers['X-Workshop-Token']=token;});
 window.addEventListener('beforeunload',e=>{if(dirty||saving){e.preventDefault();e.returnValue='';}});
 window.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='s'){e.preventDefault();persist().catch(report);}});
+document.addEventListener('keydown',e=>{
+  if(!['[',']'].includes(e.key)||e.ctrlKey||e.metaKey||e.altKey||e.isComposing)return;
+  if(e.target.closest('input,textarea,select,[contenteditable]')||document.querySelector('dialog[open]')||!review)return;
+  e.preventDefault();navigateIssue(e.key===']'?1:-1,false);
+});
 $('pass').addEventListener('change',action(()=>choosePass($('pass').value)));
 $('prev-pass').addEventListener('click',action(()=>navigatePass(-1)));
 $('next-pass').addEventListener('click',action(()=>navigatePass(1)));

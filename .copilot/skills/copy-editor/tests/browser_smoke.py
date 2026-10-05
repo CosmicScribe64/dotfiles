@@ -207,11 +207,11 @@ def main():
             page.locator('[aria-label="Document actions"]').click()
             with page.expect_download() as info:page.locator('#export-btn').click()
             saved=Path(tmp)/'export.md';info.value.save_as(saved)
-            assert saved.read_text()==revised
+            assert saved.read_text()==current_text
             # Reload exercises persistence; content must survive and demo reviews remain attached.
             page.reload()
             if args.dom_bridge:mount_dom()
-            expect(page.locator('#editor')).to_have_value(revised)
+            expect(page.locator('#editor')).to_have_value(current_text)
             page.locator('#open-only').uncheck()
             page.locator('#review-mode').click()
             expect(page.locator('#annotated mark')).to_have_count(1)

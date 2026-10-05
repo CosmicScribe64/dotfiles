@@ -246,7 +246,8 @@ class Store:
         with self.db() as c:
             return [dict(r) for r in c.execute('''SELECT r.id,r.doc_id,r.title,r.note,r.major,r.created,
                 (SELECT MIN(older.id) FROM revisions older WHERE older.doc_id=r.doc_id AND older.body=r.body) AS text_group_id,
-                r.body=d.body AS matches_working_text
+                r.body=d.body AS matches_working_text,
+                length(trim(r.body,' '||char(9)||char(10)||char(13)))>0 AS has_text
                 FROM revisions r JOIN documents d ON d.id=r.doc_id WHERE r.doc_id=? ORDER BY r.id DESC''',(doc_id,))]
 
     def snapshot(self, doc_id: int, note: str = '', major: bool = False,
