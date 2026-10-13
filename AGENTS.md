@@ -27,6 +27,7 @@ Failure to do this means the new config will exist in the repo but never be inst
 │   └── skills/            # installed to ~/.copilot/skills
 │       ├── copy-editor/     # first-party skill and local workbench
 │       └── ...            # first-party and ignored local skills
+├── .mattpocock.skills/    # submodule; engineering/ and productivity/ skills installed to ~/.copilot/skills
 ├── .bashrc                # installed to ~/.bashrc
 ├── .tmux.conf             # installed to ~/.tmux.conf
 ├── .vimrc                 # installed to ~/.vimrc
@@ -37,7 +38,8 @@ Failure to do this means the new config will exist in the repo but never be inst
 
 ## setup.sh behavior
 
-- Installs configuration and skills from this checkout without fetching other repositories
+- Updates the `.mattpocock.skills` submodule to upstream `main` (warns and continues if offline), then installs configuration and skills from this checkout
+- Prunes stale skills from `~/.copilot/skills` against every skill source, including the submodule buckets
 - Symlinks by default; `--copy` resolves symlinks and copies real files (useful for isolated environments)
 - Idempotent in symlink mode: already-correct symlinks are skipped without prompting
 - Prompts before overwriting anything that exists but is wrong
