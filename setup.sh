@@ -122,21 +122,26 @@ install_dir_items() {
 }
 
 # Remove items in a destination directory that no longer have a corresponding
-# item in the source directory (e.g. a skill removed/renamed upstream), so old
+# item in any source directory (e.g. a skill removed/renamed upstream), so old
 # installs don't linger and confuse things.
+# $1 = destination directory, remaining args = source directories.
 prune_removed_items() {
-    local src_dir="$1"
-    local dest_dir="$2"
+    local dest_dir="$1"
+    shift
 
     [ -d "$dest_dir" ] || return 0
 
     for existing in "$dest_dir"/*; do
         { [ -e "$existing" ] || [ -L "$existing" ]; } || continue
-        local name
+        local name found=false src_dir
         name="$(basename "$existing")"
-        if { [ -e "$src_dir/$name" ] || [ -L "$src_dir/$name" ]; }; then
-            continue
-        fi
+        for src_dir in "$@"; do
+            if [ -e "$src_dir/$name" ] || [ -L "$src_dir/$name" ]; then
+                found=true
+                break
+            fi
+        done
+        [ "$found" = false ] || continue
         confirm_action "Remove" "$dest_dir/$name" "is stale (no longer present in source)" || continue
         remove_existing "$existing"
         success "Removed stale '$dest_dir/$name'"
@@ -235,13 +240,32 @@ install_item "$REPO_DIR/.vimrc"            "$HOME_DIR/.vimrc"
 install_item "$REPO_DIR/.cows/custom-cows" "$HOME_DIR/.cows/custom-cows"
 
 
-# Install first-party and local Copilot skills directly from this checkout.
+# Fetch the latest mattpocock/skills; keep the current checkout if offline.
+MATTPOCOCK_DIR="$REPO_DIR/.mattpocock.skills"
+if ! git -C "$REPO_DIR" submodule update --init --remote .mattpocock.skills; then
+    warn "Could not update .mattpocock.skills; using the existing checkout."
+fi
+
+# Same buckets upstream ships in its plugin; misc/, in-progress/ and deprecated/ are skipped.
+MATTPOCOCK_BUCKETS=(
+    "$MATTPOCOCK_DIR/skills/engineering"
+    "$MATTPOCOCK_DIR/skills/productivity"
+)
+
+# Install first-party, local, and submodule Copilot skills.
 # demo installs locked npm assets on first use.
-prune_removed_items "$REPO_DIR/.copilot/skills" "$HOME_DIR/.copilot/skills"
+prune_removed_items "$HOME_DIR/.copilot/skills" "$REPO_DIR/.copilot/skills" "${MATTPOCOCK_BUCKETS[@]}"
 install_dir_items "$REPO_DIR/.copilot/skills" "$HOME_DIR/.copilot/skills"
+for bucket in "${MATTPOCOCK_BUCKETS[@]}"; do
+    for skill_dir in "$bucket"/*/; do
+        [ -f "$skill_dir/SKILL.md" ] || continue
+        skill_dir="${skill_dir%/}"
+        install_item "$skill_dir" "$HOME_DIR/.copilot/skills/$(basename "$skill_dir")"
+    done
+done
 
 # .copilot instructions (global, applies across all workspaces)
-prune_removed_items "$REPO_DIR/.copilot/instructions" "$HOME_DIR/.copilot/instructions"
+prune_removed_items "$HOME_DIR/.copilot/instructions" "$REPO_DIR/.copilot/instructions"
 install_dir_items "$REPO_DIR/.copilot/instructions" "$HOME_DIR/.copilot/instructions"
 
 echo ""

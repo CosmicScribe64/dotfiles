@@ -13,7 +13,10 @@ cd dotfiles
 [setup.sh](setup.sh) creates symlinks by default and skips existing correct links.
 It prompts before overwriting files or removing installed Copilot skills and
 instructions absent from this checkout. Review those prompts if you keep other
-skills locally. Setup does not fetch dependencies or initialize submodules.
+skills locally. Setup also updates the
+[mattpocock/skills](https://github.com/mattpocock/skills) submodule to the latest
+upstream `main`. Commit the submodule pointer when it changes. Setup does not
+fetch other dependencies.
 
 ```bash
 ./setup.sh --copy   # Copy files instead of linking
@@ -29,6 +32,7 @@ skills locally. Setup does not fetch dependencies or initialize submodules.
 | [.cows/custom-cows/](.cows/custom-cows/) | `~/.cows/custom-cows/` |
 | [.copilot/instructions/](.copilot/instructions/) | `~/.copilot/instructions/` |
 | [.copilot/skills/](.copilot/skills/) | `~/.copilot/skills/` |
+| [.mattpocock.skills/](.mattpocock.skills/) `skills/engineering/` and `skills/productivity/` | `~/.copilot/skills/` |
 
 ### Bundled Skills
 
