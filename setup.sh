@@ -136,7 +136,9 @@ prune_removed_items() {
         local name found=false src_dir
         name="$(basename "$existing")"
         for src_dir in "$@"; do
-            if [ -e "$src_dir/$name" ] || [ -L "$src_dir/$name" ]; then
+            # A source with SKILL.md at its root is one skill, checked out as .<owner>.<name>.
+            if [ -e "$src_dir/$name" ] || [ -L "$src_dir/$name" ] \
+                || { [ -f "$src_dir/SKILL.md" ] && [ "${src_dir##*.}" = "$name" ]; }; then
                 found=true
                 break
             fi
@@ -240,10 +242,11 @@ install_item "$REPO_DIR/.vimrc"            "$HOME_DIR/.vimrc"
 install_item "$REPO_DIR/.cows/custom-cows" "$HOME_DIR/.cows/custom-cows"
 
 
-# Fetch the latest mattpocock/skills; keep the current checkout if offline.
+# Fetch the latest skill submodules; keep the current checkouts if offline.
 MATTPOCOCK_DIR="$REPO_DIR/.mattpocock.skills"
-if ! git -C "$REPO_DIR" submodule update --init --remote .mattpocock.skills; then
-    warn "Could not update .mattpocock.skills; using the existing checkout."
+ANATOMY_DIR="$REPO_DIR/.wheresryan22.anatomy"
+if ! git -C "$REPO_DIR" submodule update --init --remote .mattpocock.skills .wheresryan22.anatomy; then
+    warn "Could not update skill submodules; using the existing checkouts."
 fi
 
 # Same buckets upstream ships in its plugin; misc/, in-progress/ and deprecated/ are skipped.
@@ -254,8 +257,9 @@ MATTPOCOCK_BUCKETS=(
 
 # Install first-party, local, and submodule Copilot skills.
 # demo installs locked npm assets on first use.
-prune_removed_items "$HOME_DIR/.copilot/skills" "$REPO_DIR/.copilot/skills" "${MATTPOCOCK_BUCKETS[@]}"
+prune_removed_items "$HOME_DIR/.copilot/skills" "$REPO_DIR/.copilot/skills" "${MATTPOCOCK_BUCKETS[@]}" "$ANATOMY_DIR"
 install_dir_items "$REPO_DIR/.copilot/skills" "$HOME_DIR/.copilot/skills"
+install_item "$ANATOMY_DIR" "$HOME_DIR/.copilot/skills/anatomy"
 for bucket in "${MATTPOCOCK_BUCKETS[@]}"; do
     for skill_dir in "$bucket"/*/; do
         [ -f "$skill_dir/SKILL.md" ] || continue
