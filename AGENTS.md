@@ -28,6 +28,7 @@ Failure to do this means the new config will exist in the repo but never be inst
 │       ├── copy-editor/     # first-party skill and local workbench
 │       └── ...            # first-party and ignored local skills
 ├── .mattpocock.skills/    # submodule; engineering/ and productivity/ skills installed to ~/.copilot/skills
+├── .wheresryan22.anatomy/ # submodule; installed to ~/.copilot/skills/anatomy
 ├── .bashrc                # installed to ~/.bashrc
 ├── .tmux.conf             # installed to ~/.tmux.conf
 ├── .vimrc                 # installed to ~/.vimrc
