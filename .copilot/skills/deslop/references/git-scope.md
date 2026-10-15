@@ -1,62 +1,36 @@
 # Git scope
 
-Use for diff requests, pre-commit staged reviews, and repository requests with no
-explicit target. A supplied paragraph or current-file selection does not need Git
-bookkeeping. The main skill governs mode and edit permission.
+Use for diff requests, staged reviews, and repository requests without a target. A
+pasted paragraph or a selection needs none of this.
 
-## Resolve the fixture
+## Resolve what to review
 
-1. Record the repository root, current `HEAD`, requested refs, and resolved commit
-   hashes. Pin commits once; branch movement must not change the source mid-review.
-2. Use explicit refs exactly. Two refs or `base..head` compare snapshots directly;
-   `base...head` or an explicit merge-base request compares the merge base to the head.
-   A requested current-file, staged-only, or unstaged-only view keeps that scope.
-3. With no target, compare `HEAD` against its merge base with the established default
-   branch, preferring the locally recorded remote-default ref for the intended remote.
-   Do not assume `origin`, `main`, or `master`. On the default branch itself, use the
-   remote-default ref, not the local branch, so unpushed commits stay visible; a local
-   default branch can still be the base for a different branch. Ask if the base is
-   missing or ambiguous; do not guess or fetch.
-4. Only when that default branch diff is empty, inspect staged, unstaged, and untracked
-   non-ignored changes. Inspect index and worktree differences separately even if they
-   cancel in the net diff. An explicit scope never falls back to another version.
-5. Stop with `scope mismatch` on an unresolved ref/path or a source that disagrees with
-   the pinned fixture. Report what was observed; do not substitute remembered text,
-   another branch, or the worktree. If no relevant changes exist, report that and stop.
+1. Use explicit refs exactly and pin their commits once. `base..head` or two refs
+   compare snapshots; `base...head` compares the merge base to the head. A requested
+   file, staged-only, or unstaged-only view keeps that scope.
+2. With no target, compare `HEAD` with its merge base on the default branch, using the
+   recorded remote-default ref (not an assumed `origin/main`). On the default branch
+   itself, use the remote ref so unpushed commits stay visible. Ask if the base is
+   missing or ambiguous; do not fetch.
+3. Only when that diff is empty, inspect staged, unstaged, and untracked non-ignored
+   changes, checking index and worktree separately.
+4. Report `scope mismatch` for an unresolved ref or path. If nothing relevant changed,
+   say so and stop; do not widen to a whole-tree cleanup.
 
-Keep the full fixture record internal unless requested or needed to explain a mismatch.
-State enough scope in the result to identify the audited versions; do not print a
-large manifest for a small edit.
+## Inventory
 
-## Inventory the changes
+Inspect added, changed, and removed writing in every file type, including headers,
+shell, configuration, and build files. Treat contiguous comments as blocks. For deleted
+text, check for lost requirements or dangling references; a deliberate deletion is not
+permission to restore it.
 
-Use the changed-file list and diffstat, then inspect added, changed, and removed writing
-blocks. Include documentation, headers, shell, configuration, and Starlark/Bazel rather
-than relying on a source-extension grep. Parse comments by language when possible;
-otherwise inspect the actual syntax and state any inventory limit.
+## Inspect versus edit
 
-Treat contiguous comments/docstrings as blocks. Read deleted files at the base and
-check removals for lost requirements, rationale, or dangling references. A deliberate
-deletion is not permission to restore the text. Compare at least one extracted block
-with its exact source version when the inventory is nonempty. Read nearby unchanged
-material only for meaning, duplication, and continuity. An empty writing inventory
-does not authorize executable cleanup.
+Historical audits read the revision without checkout. Before editing in place, confirm
+the target still matches what you inspected and preserve unrelated staged and unstaged
+changes. Never reset, checkout, or stash to make the worktree match.
 
-## Separate inspection from mutation
-
-Historical audits read the requested revision without checkout; no clean worktree or
-editable mapping is needed. Diff line references identify the appropriate base/head
-version, not an unrelated current file.
-
-Before an in-place rewrite, confirm that the target block still matches the inspected
-version and preserve unrelated staged/unstaged changes. If it changed, reread only
-when the current working version is authorized; otherwise report `scope mismatch` for
-that target and leave it alone. Refs do not authorize reset, checkout, stash, or an
-overwrite to make the working tree match.
-
-A staged-only rewrite does not implicitly authorize index changes. Propose a patch
-unless the user also authorizes its editable destination. The exception is a
-pre-commit review inside an authorized commit task, which applies its fixes to the
-working files and restages only those intended changes. Check the destination immediately
-before applying a fix. Inspect the final diff for unrelated churn; cleanup alone does
-not authorize staging, committing, or pushing.
+A staged-only rewrite does not authorize index changes; propose a patch unless the user
+also authorizes the destination. The exception is a pre-commit review inside an
+authorized commit, which edits the working files and restages only its fixes. Cleanup
+alone never authorizes staging, committing, or pushing.

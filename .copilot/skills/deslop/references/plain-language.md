@@ -1,73 +1,59 @@
 # Plain-language assessment
 
-Use for formal reader-outcome assessments and high-stakes writing. Ordinary rewrites
-use the core workflow. These techniques are supporting practice; the separate research
-note records the public ISO source boundaries.
+Use for formal reader-outcome assessments, ISO 24495-1 questions, and high-stakes
+writing. Ordinary rewrites use the core workflow.
 
-## Reader brief
+## ISO 24495-1 basics
 
-Identify primary readers, their task or decision, language/domain knowledge, use
-conditions, required content, and observable success. Consider scanning, time pressure,
-stress, and device where relevant. Primary readers guide emphasis without displacing
-requirements for secondary readers. Keep the brief internal unless a consequential
-assumption needs resolution.
+ISO 24495-1:2023, _Plain language - Part 1: Governing principles and guidelines_, is a
+14-page guidance standard. Its definition: wording, structure, and design work together
+so intended readers can find, understand, and use what they need. Its four principles:
 
-## Four outcomes
+1. **Relevant:** readers get what they need.
+2. **Findable:** readers can easily find it.
+3. **Understandable:** readers can easily understand it.
+4. **Usable:** readers can easily use it.
 
-Work on content and structure before sentence polish:
+The full text was not available when this skill was written. Attribute to ISO only the
+title, scope, definition, these four principles, and the public structure; present
+specific techniques as supporting practice. Do not rename the principles. Part 1
+certifies no document, plain language is not accessibility conformance (pair it with
+WCAG for web content), and it differs from easy language for readers with comprehension
+difficulties. Recheck the [ISO catalog](https://www.iso.org/standard/78907.html) before
+claiming anything about later parts or certification. Other sources:
+[IPLF](https://www.iplfederation.org/iso-standard/) and
+[Digital.gov](https://digital.gov/guides/plain-language).
 
-| Outcome        | Questions and useful checks                                                                                                                                                                                                                             |
-| -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Relevant       | Does the document support the reader's purpose? Are evidence, exceptions, and consequential assumptions present? Separate common needs from unusual cases without hiding either.                                                                        |
-| Findable       | Do headings predict content, labels stay consistent, and links name their destination? Use lists for parallel items, numbers for sequence, and tables for comparisons. Place costs, deadlines, eligibility, and warnings beside the relevant decisions. |
-| Understandable | Are actors, references, logical links, dates, units, and probabilities clear? Explain unfamiliar terms; keep related conditions together. Define ambiguous `we`. Use examples or visuals when they explain better, not as decoration.                   |
-| Usable         | Can readers perform the intended task using the document? Check prerequisites, permissions, order, branches, stopping conditions, success, error recovery, and help. Flag missing steps or contacts rather than inventing them.                         |
+## Assessment
 
-For explanatory or creative material, evaluate the intended understanding or experience;
-do not impose a procedure. Assess only visible design in plain text. Rendering,
-navigation, typography, and accessibility remain untested unless examined separately.
+Identify primary readers, their task, knowledge, and conditions. Work on content and
+structure before sentences:
 
-## High-stakes procedure
+| Outcome        | Check                                                                                                         |
+| -------------- | ------------------------------------------------------------------------------------------------------------- |
+| Relevant       | Does it support the reader's purpose, with evidence, exceptions, and assumptions present?                    |
+| Findable       | Do headings predict content? Are costs, deadlines, eligibility, and warnings beside the decisions they affect? |
+| Understandable | Are actors, references, dates, units, and terms clear? Is an ambiguous "we" defined?                          |
+| Usable         | Can readers do the task: prerequisites, order, branches, success, error recovery, help?                       |
 
-Resolve missing audience, purpose, jurisdiction, or required-content details when they
-affect legal, medical, financial, safety, or regulatory meaning. Preserve operative,
-approved, dosage, formula, eligibility, warning, and quoted wording by default; put
-an explanation beside it. Keep warnings before the risky action and conditions with
-the rule they govern.
+Flag missing steps or contacts; do not invent them. In plain text, rendering,
+typography, and accessibility remain untested.
 
-Only explicit authorization permits meaning-sensitive changes to protected content.
-List removals, reorderings, and changes of effect. Mark newly drafted operative or
-safety-critical text as unverified and require appropriate subject-matter review before
-use, even when the source contained no protected wording. Editorial approval alone
-does not supply that expertise.
+For each formal finding, give the outcome, severity (high: task failure, lost rights,
+unsafe action; medium: avoidable effort; low: friction), and basis: `Observed`,
+`Assumed`, `Source claim`, `Reader evidence`, or `Cannot assess`. Give no ISO or
+authenticity score.
 
-## Evidence and reporting
+## High-stakes text
 
-Use the core's compact finding format. For a formal assessment, add the affected
-outcome and distinguish the basis:
+Resolve missing audience, jurisdiction, or required content when it affects legal,
+medical, financial, safety, or regulatory meaning. Keep operative, approved, dosage,
+formula, eligibility, and warning wording verbatim and explain it alongside. Keep
+warnings before the risky action. List any change of effect, mark new operative text as
+unverified, and require subject-matter review before use.
 
-- `Observed`: supported by text or visible design.
-- `Assumed`: depends on context inferred rather than supplied.
-- `Source claim`: asserted by the material, including an assertion that testing occurred.
-- `Reader evidence`: supported by supplied or verified study details, not its summary alone.
-- `Cannot assess`: requires unavailable rendering, subject-matter, or reader evidence.
+## Reader evidence
 
-Severity reflects consequence: high for likely task failure, lost rights, unsafe action,
-or serious misunderstanding; medium for avoidable effort or delay; low for minor friction.
-Confidence separately reflects direct evidence versus unresolved inference. State missing
-evidence rather than assigning an ISO or authenticity score. A requested local rubric
-must be labeled as such. Report reader performance as untested unless evidence supports it.
-
-## Reader evaluation
-
-When requested, use representative readers and realistic find-and-use tasks. Use
-paraphrase/teach-back questions instead of asking only whether text seems clear.
-Measure completion, accuracy, time, wrong turns, help, and recovery as appropriate.
-Record participants, tasks, conditions, results, revisions, and unresolved risks;
-revise and retest observed failures.
-
-Interviews and focus groups can identify needs, not prove task success. Readability
-formulas may flag dense passages but do not measure these outcomes or establish a
-pass/fail result. Call text-only work an editorial assessment, not reader validation,
-ISO certification, or WCAG conformance. Plain language, easy language, controlled
-language, and accessibility require distinct methods and evidence.
+Text-only work is an editorial assessment, not reader validation. Real evidence comes
+from representative readers doing realistic tasks, with paraphrase or teach-back
+questions; preference questions and readability formulas do not measure outcomes.

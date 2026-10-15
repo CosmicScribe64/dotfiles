@@ -6,232 +6,155 @@ argument-hint: "[path or target] [quick|standard|deep] [audit-only|repair]"
 
 # Test Suite Auditor
 
-Evaluate whether a test suite can detect important regressions. Treat line coverage and
-test counts as supporting signals, not proof of quality.
+Judge whether a test suite would catch important regressions. Line coverage and test
+counts are supporting signals, not proof.
 
-## Operating contract
+## Rules
 
-- Default to **standard, audit-only** when the user does not specify a mode.
-- Do not leave persistent production or test changes unless the user explicitly asks for
-  repair. Audit-only mode may use the temporary, safely restored experiments described
-  below.
-- Keep generated reports in chat. Do not create report or planning files unless asked.
-- Respect repository instructions, test commands, working-directory rules, and safety
-  constraints before running anything.
-- Never change host time, network interfaces, firewall rules, shared services, or other
-  machine-wide state to create stress. Use dependency injection, test-runner options,
-  local proxies, or isolated containers when available.
-- Never call a limited sample "flake-free," "fully covered," or "safe." State exactly
-  what was inspected and executed.
+- Default to **standard, audit-only**. Leave no production or test changes unless the
+  user asks for repair; temporary experiments must be restored exactly.
+- Report in chat. Create no report or planning files unless asked.
+- Follow repository instructions and canonical test commands.
+- Never change host time, network, firewall, shared services, or other machine-wide
+  state to create stress. Use injection, runner options, or isolated containers.
+- Never call a sample "flake-free," "fully covered," or "safe." State exactly what ran.
 
-## Audit depth
+| Depth      | Use when                                  | Work                                                                     |
+| ---------- | ----------------------------------------- | ------------------------------------------------------------------------ |
+| `quick`    | Fast review, narrow target, no execution  | Baseline, targeted static review, highest-risk gaps                      |
+| `standard` | Default                                   | Baseline, risk map, semantic review, one or two applicable techniques    |
+| `deep`     | Explicit comprehensive or high-risk audit | Repeated flake runs plus mutation, property, and fuzz work where useful  |
 
-Choose the smallest depth that answers the request.
-
-| Depth | Use when | Expected work |
-|---|---|---|
-| `quick` | A fast review, narrow target, or no execution access | Baseline status, targeted static review, highest-risk gaps |
-| `standard` | Default | Baseline, risk map, semantic review, focused execution, one or two applicable advanced techniques |
-| `deep` | Explicit comprehensive audit or high-risk release | Repeated flake runs plus broad semantic, mutation, property, and fuzz analysis where each is applicable |
-
-Depth controls breadth, not rigor. A quick audit may inspect fewer paths, but every
-reported finding still needs evidence.
+Depth controls breadth, not rigor: every finding needs evidence.
 
 ## Workflow
 
-### 1. Establish scope and constraints
+### 1. Scope
 
-1. Identify the requested path, target, component, or suite. If none is given, infer a
-   bounded scope from the current workspace and say what is included.
-2. Read applicable repository instructions and nearby test/build documentation.
-3. Inspect and record worktree state before any experiment that could edit files. Assume
-  existing changes belong to the user, and preserve the exact pre-experiment contents
-  of every file the audit may touch.
-4. Identify the canonical test command and the narrowest useful target.
-5. Record execution constraints: unavailable dependencies, hardware, credentials,
-   network, runtime budget, memory/process limits, or unsafe operations. For a deep
-   audit, confirm which mutation, property, and fuzz frameworks or bounded harnesses are
-   actually available.
+Identify the target; if none is given, choose a bounded scope from the workspace and say
+what it covers. Read repository and test docs. Record the worktree state and treat
+existing changes as the user's. Find the narrowest test command and note constraints:
+dependencies, hardware, credentials, network, time, and memory. For deep audits, check
+which mutation, property, and fuzz tools actually exist. Ask only when plausible scopes
+differ materially in work or risk.
 
-Ask a question only when different plausible scopes would produce materially different
-work or risk. Otherwise choose a conservative scope and proceed.
+### 2. Baseline
 
-### 2. Establish a baseline
+Run the narrowest representative test first. Record the command, directory, result
+(pass, fail, timeout, not run), test count, duration, and any seed, shard, sanitizer,
+or parallelism settings. Keep pre-existing failures separate from findings; if the
+baseline fails, isolate it and audit unaffected slices without calling them clean.
 
-Run the narrowest representative test or existing failing command first. Expand only
-when useful and affordable.
+### 3. Risk map
 
-Record:
+Map behavior to tests before choosing expensive techniques. Prioritize:
 
-- exact command and working directory
-- pass, fail, timeout, or not run
-- test count when the runner reports it
-- duration when available
-- relevant seed, shard, sanitizer, and parallelism settings
-- pre-existing failures separately from audit findings
+1. safety, security, permissions, money, data loss, irreversible effects
+2. concurrency, retries, timeouts, clocks, randomness, shared state
+3. parsers, protocols, serialization, untrusted input
+4. state machines, numerical code, algorithms, complex boolean guards
+5. recently changed or historically fragile code
 
-If the baseline fails, isolate the failure. Continue auditing unaffected slices when
-possible; do not present later results as a clean-suite audit.
+For each behavior, find the implementation, its tests, and the assertion that would
+catch a wrong result. Skip generated code, trivial accessors, and library internals.
 
-### 3. Build a risk map
+### 4. Semantic review (always)
 
-Map production behavior to its tests before choosing expensive techniques. Prioritize:
+Check behavior, not executed lines. Look for:
 
-1. safety, security, permissions, money, data loss, and irreversible side effects
-2. concurrency, retries, timeouts, clocks, randomness, and shared state
-3. parsers, protocol boundaries, serialization, and untrusted input
-4. state machines, numerical code, algorithms, and complex boolean guards
-5. recently changed or historically fragile behavior
-
-For each selected behavior, locate the controlling implementation, relevant tests, and
-the assertion or oracle that would detect a wrong result. Do not spend audit budget on
-generated code, trivial accessors, or external-library internals unless boundary logic
-makes them risky.
-
-### 4. Review semantic coverage
-
-Semantic review is mandatory at every depth. Check behavior, not merely executed lines.
-
-Look for:
-
-- missing false/default branches and boundary values
-- incomplete boolean or state-transition matrices
+- missing false or default branches, boundaries, and state transitions
 - success-only coverage of retries, cancellation, cleanup, and partial failure
-- assertions that only check "no exception," status codes, mocks, or snapshots without
-  validating the important outcome
-- tests that reproduce implementation details instead of using an independent oracle
-- over-mocking that bypasses integration contracts
-- parameterized tests whose cases collapse to the same behavior
+- assertions that only check "no exception," status codes, mocks, or snapshots
+- tests that copy the implementation instead of using an independent oracle
+- over-mocking that bypasses real contracts
+- parameterized cases that collapse to the same behavior
 - untested error propagation, resource ownership, and side effects
-- tests that can pass without executing the intended behavior
+- tests that can pass without running the intended code
 
-Classify a path as **verified**, **gap**, **dead/unreachable**, or **unknown**. Cite the
-specific test for verified paths and explain why it is capable of detecting the fault.
+Classify each path as **verified**, **gap**, **dead**, or **unknown**. For verified
+paths, cite the test and say why it would catch the fault.
 
-### 5. Hunt flakiness when risk justifies it
+### 5. Flakiness
 
-Use repeated execution for tests involving concurrency, timing, ordering, randomness,
-processes, external resources, or prior intermittent failures.
+Use for tests involving concurrency, timing, ordering, randomness, processes, external
+resources, or past intermittent failures. Run a control, then apply one bounded
+stressor (repeats, random order or seed, isolation, parallelism, sanitizer, fake clock,
+injected latency). Record every attempt and seed. Rerun a failure alone and under
+control settings, then classify it: deterministic, order-dependent, timing-sensitive,
+environmental, or confirmed intermittent. Pick repetitions from runtime and risk.
+Zero failures in $N$ runs means only "0 failures observed in $N$ runs."
 
-1. Run a control using normal settings.
-2. Choose one bounded stressor: repeat count, random order/seed, isolated execution,
-   parallelism, sanitizer, fake clock, or injected latency/failure.
-3. Record every attempt or runner summary. Preserve seeds and first useful failure.
-4. Re-run the failing test alone and under the control settings.
-5. Distinguish deterministic failure, order dependence, timing sensitivity,
-   environmental failure, and confirmed intermittent failure.
+### 6. Mutation testing
 
-Choose repetitions from runtime and risk; do not blindly run 50 or 100 iterations. Zero
-failures in $N$ attempts means only "0 failures observed in $N$ attempts."
+Use when assertions look weak. Prefer an existing framework. For manual mutation:
 
-### 6. Run mutation testing when assertions are in doubt
-
-Prefer an existing mutation framework. Otherwise use manual mutation only when file
-restoration can be proven safe.
-
-Before a manual mutation:
-
-1. Confirm the target file's current worktree status.
-2. Save its exact current contents outside the repository or use a reversible patch that
-   restores the pre-mutation bytes.
-3. Never use `git checkout`, `git restore`, `git reset`, or `git clean` to restore a file
-   that may contain user changes.
-
-For each mutation:
-
-1. State the expected behavioral change and the test that should detect it.
-2. Apply one compile-valid semantic mutation.
-3. Run the narrowest relevant test; broaden only if the narrow test survives and a
-   broader suite is affordable.
-4. Classify the result as **killed**, **survived**, **not covered**, **equivalent**,
-  **timeout**, or **invalid**. A compile error is invalid unless compile rejection is
-  the behavior under test.
-5. For a survivor, identify an input or observable effect that distinguishes it from the
-  original. If no such behavior exists, classify it as equivalent rather than a gap.
-6. Restore the exact pre-mutation contents immediately and verify restoration before the
-  next mutation.
-
-Count valid, non-equivalent mutations in the score. Uncovered mutants count against the
-suite because no test executed the changed behavior:
+1. Check the file's worktree status and save its exact bytes outside the repository.
+   **Never** restore with `git checkout`, `git restore`, `git reset`, or `git clean`;
+   they wipe uncommitted user changes.
+2. Name the expected behavior change and the test that should catch it. Apply one
+   compile-valid semantic mutation and run the narrowest test.
+3. Classify: **killed**, **survived**, **not covered**, **equivalent**, **timeout**, or
+   **invalid** (compile errors, unless compile rejection is the behavior). A survivor is
+   a gap only if some input or effect distinguishes it; otherwise it is equivalent.
+4. Restore the saved bytes and verify before the next mutation.
 
 $$
-	ext{kill rate} = \frac{\text{killed}}{\text{killed} + \text{survived} + \text{not covered}} \times 100\%
+\text{kill rate} = \frac{\text{killed}}{\text{killed} + \text{survived} + \text{not covered}} \times 100\%
 $$
 
-Do not apply a universal pass threshold. Interpret the score using mutation quality,
-sample size, module risk, and equivalent-mutant uncertainty. A surviving mutation is a
-finding only when it represents a meaningful observable regression.
+Apply no universal threshold; interpret the rate by sample size, risk, and equivalent
+mutant uncertainty.
 
-### 7. Apply property testing to invariant-rich behavior
+### 7. Property testing
 
-Use property testing for pure transformations, numerical code, state machines,
-serializers, collections, and algorithms. Prefer the repository's existing framework.
+Use for pure transformations, numerical code, state machines, serializers, and
+algorithms, with the repository's framework. Good properties: round trips, idempotence,
+conservation, monotonicity, bounds, metamorphic relations, and agreement with a simple
+oracle. Constrain generators to valid inputs unless invalid-input handling is the
+property. Record seed, case count, minimized counterexample, and reproduction command.
 
-Good properties include round trips, idempotence, conservation, monotonicity, bounds,
-metamorphic relations, and agreement with a simple independent oracle. Constrain
-generators to valid inputs unless robustness to invalid input is the property being
-tested. Record framework settings, seed, case count, minimized counterexample, and
-reproduction command.
+### 8. Fuzzing
 
-In audit-only mode, temporary harnesses must not remain in the worktree. Recommend a
-permanent regression test for every credible counterexample.
+Use for parsers, decoders, protocol handlers, file formats, and other untrusted-input
+boundaries, not ordinary helpers. Prefer an existing fuzzer and corpus. Bound runtime,
+memory, input size, and processes; use sanitizers where practical. Separate target
+crashes from harness failures and resource limits, and keep the input that reproduces a
+credible failure.
 
-### 8. Apply fuzzing to trust boundaries
+### 9. Validate
 
-Use fuzzing for parsers, decoders, protocol handlers, file formats, public APIs, and
-other untrusted-input boundaries. Do not fuzz ordinary internal helpers merely to claim
-phase completion.
-
-- Prefer an existing fuzzer and corpus.
-- Bound runtime, memory, input size, and process count.
-- Use sanitizers where supported and practical.
-- Distinguish target crashes from harness failures and resource-limit termination.
-- Minimize and preserve the seed or payload needed to reproduce a credible failure.
-- Treat expected rejection as success only when it is bounded, documented, and leaves
-  state consistent.
-
-### 9. Validate and report
-
-In repair mode, validate each repair with the narrowest test that could falsify it, then
-run an appropriate broader check. After mutation or temporary harness work, compare
-worktree state and every touched file against the recorded pre-experiment state. Confirm
-that user changes are intact and no experiment residue remains.
-
-Report findings first, ordered by severity. Avoid a large inventory of passing tests.
+In repair mode, validate each fix with the narrowest test that could falsify it, then a
+broader check. After any experiment, compare the worktree and every touched file with
+the recorded state, and confirm no temporary harness remains. Recommend a permanent
+regression test for every credible counterexample.
 
 ## Evidence and severity
 
-Separate observation from inference:
+Label each finding **Observed** (from a command, failure, counterexample, or inspected
+missing assertion), **Inferred** (plausible but not executed or fully traced), or
+**Not assessed**.
 
-- **Observed**: produced by a command, failure, counterexample, or directly inspected
-  missing assertion.
-- **Inferred**: plausible risk that could not be executed or fully traced.
-- **Not assessed**: outside scope or blocked.
+| Severity | Meaning                                                                   |
+| -------- | ------------------------------------------------------------------------- |
+| Critical | Tests can miss a safety or security failure, data loss, or severe outage  |
+| High     | Important behavior unverified, or a meaningful mutant or counterexample escapes |
+| Medium   | Real gap with limited impact or compensating coverage                     |
+| Low      | Maintainability, diagnostics, or minor edge cases                         |
 
-Use these severities:
+Do not derive severity from coverage percentage alone.
 
-| Severity | Meaning |
-|---|---|
-| Critical | Tests can miss a safety/security failure, destructive behavior, or severe production regression |
-| High | Important behavior is unverified or a meaningful mutation/counterexample escapes |
-| Medium | Real gap with limited impact or compensating coverage |
-| Low | Maintainability, diagnostic quality, or minor edge-case weakness |
+## Output
 
-Do not assign severity from coverage percentage alone. Include confidence when evidence
-is incomplete.
-
-## Output format
-
-Use this compact structure and omit empty sections:
+Findings first, by severity. Omit empty sections and do not list passing tests.
 
 ```markdown
 ## Findings
 
 ### [High] Short finding title
-- **Location:** `path/to/file.ext:line` and affected test/target
-- **Evidence:** observed command/result or exact static evidence
-- **Why it matters:** regression the suite can currently miss
-- **Recommended test:** concrete setup, action, and assertions
+- **Location:** `path/to/file.ext:line` and affected test
+- **Evidence:** command and result, or exact static evidence
+- **Why it matters:** the regression the suite can miss
+- **Recommended test:** setup, action, and assertions
 - **Confidence:** high/medium/low
 
 ## Audit coverage
@@ -239,32 +162,24 @@ Use this compact structure and omit empty sections:
 |---|---|---|---|
 
 ## Metrics
-- Baseline: [status, count, duration]
-- Flake runs: [failures/attempts, seeds/settings]
-- Mutations: [killed/survived/not-covered/equivalent/invalid; kill rate for valid,
-  non-equivalent mutations]
-- Properties/fuzzing: [cases, duration, counterexamples/crashes]
+- Baseline: status, count, duration
+- Flake runs: failures/attempts, seeds
+- Mutations: killed/survived/not covered/equivalent/invalid; kill rate
+- Properties/fuzzing: cases, duration, counterexamples
 
 ## Limits
-- [What was not run or inspected and why]
+- What was not run or inspected, and why
 
 ## Recommended order
-1. [Highest-value next test or repair]
+1. Highest-value next test or repair
 ```
 
-If no findings are found, say so directly, then state the audited scope, commands run,
-and residual risk. Never imply that unassessed areas passed.
+With no findings, say so, then give the scope, commands, and residual risk. Never imply
+that unassessed areas passed.
 
 ## Stop conditions
 
-Stop an expensive phase and report when:
-
-- a critical blocker makes results unreliable
-- repeated tests threaten rate limits, shared infrastructure, or machine stability
-- the mutation target cannot be restored safely
-- fuzzing lacks a bounded harness
-- enough high-severity gaps are established that more examples would not change the
-  recommended next action
-
-Skipped phases are not failures. Name why each was inapplicable, blocked, or outside the
-selected depth.
+Stop an expensive phase and report when results become unreliable, repeated runs
+threaten shared infrastructure or machine stability, a mutated file cannot be restored
+safely, fuzzing has no bounded harness, or further examples would not change the next
+action. Name why each skipped phase was inapplicable, blocked, or outside the depth.
