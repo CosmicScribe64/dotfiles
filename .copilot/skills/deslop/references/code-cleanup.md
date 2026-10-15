@@ -1,79 +1,46 @@
 # Code cleanup
 
-Use for explicit executable-code cleanup. Audits remain read-only. Preserve the
-supported contract; do not turn cleanup into feature or architecture work.
+Use only for explicitly requested executable cleanup. Audits stay read-only. Preserve the
+supported contract; cleanup is not feature or architecture work.
 
-## Establish the contract
+## Evidence
 
-Start with the owning declaration/implementation and a nearby caller or test. Identify
-one redundancy claim and a focused check that could falsify it. Expand inspection only
-for relevant boundaries: public consumers, untyped calls, FFI, serialization, generated
-bindings, configuration, or supported platforms. Inspect API docs and build/test rules
-where they determine the contract.
+Start with the owning implementation and a caller or test. State one redundancy claim
+and a focused check that could falsify it. A static type, one caller, or missing tests
+cannot prove a runtime boundary redundant: check untyped callers, FFI, serialization,
+public consumers, and supported platforms. Keep or escalate when evidence is missing.
+For a standalone snippet, only propose a conditional change.
 
-A static type, one caller, or absent tests cannot establish that a runtime boundary
-is redundant. Account for invalid inputs, side effects, defaults, and errors. A one-use
-helper may still isolate a contract or support testing. Keep or escalate a candidate
-when required evidence is unavailable; do not assume unknown consumers away.
+Choose the check for the claim. A compiler or linter covers mechanical changes, not
+error, numerical, compatibility, or concurrency equivalence:
 
-For a standalone snippet, audit or propose a conditional change only. Repository
-evidence and a meaningful focused check are required before applying executable
-cleanup or claiming verified behavior preservation.
-
-## Candidate evidence
-
-| Candidate                                      | Evidence to inspect                                                                      | Focused check                                                  |
-| ---------------------------------------------- | ---------------------------------------------------------------------------------------- | -------------------------------------------------------------- |
-| Guard, cast, branch, or error path             | Supported inputs, callers, runtime boundaries, invalid-input and error behavior          | Accepted/rejected inputs and applicable typecheck/build        |
-| Wrapper, adapter, or compatibility shim        | Public consumers, support policy, side effects, version/platform matrix                  | API/integration tests for supported consumers                  |
-| Helper or abstraction                          | All callers, mutation, errors/fallbacks, reuse or testing purpose                        | Success, failure, and side-effect tests                        |
-| Duplicate parsing, conversion, or control flow | Authoritative implementation; identical units, defaults, errors, and edge cases          | Paired behavior tests before consolidation                     |
-| Name, alias, or local style                    | References, reflection, string lookups, serialized names, generated bindings             | Typecheck/build and reflective/serialized-use tests            |
-| Configuration or feature flag                  | Deployed/persisted values, defaults, rollout/support policy, generated config            | Migration/compatibility tests across supported states          |
-| Concurrency or lifecycle                       | Ownership, ordering, cancellation, cleanup, races/deadlocks                              | Meaningful lifecycle/concurrency tests; otherwise human review |
-| Numerical check or conversion                  | Domain, units, bounds, overflow/underflow, NaN/infinity, rounding, tolerances, precision | Boundary/property tests over the supported domain              |
-
-A compiler or linter may suffice for a mechanical change, not for runtime error,
-numerical, compatibility, or concurrency equivalence. Choose checks for the claim,
-not merely commands that pass.
+| Candidate                         | Check                                                 |
+| --------------------------------- | ----------------------------------------------------- |
+| Guard, cast, branch, error path   | Accepted and rejected inputs                          |
+| Wrapper, shim, or helper          | Tests for every supported consumer and side effect    |
+| Duplicate parsing or conversion   | Paired behavior tests on units, defaults, edge cases  |
+| Name or alias                     | Build plus reflective or serialized uses              |
+| Config or feature flag            | Compatibility across deployed and persisted states    |
+| Concurrency or lifecycle          | Lifecycle tests, otherwise human review               |
+| Numerical code                    | Boundary or property tests over the supported domain  |
 
 ## Protected behavior
 
-Retain validation, authorization, escaping, resource limits, retries/backoff,
-cancellation, cleanup, telemetry, and observability unless directly proven redundant.
-Preserve security, privacy, safety, accessibility, legal, and compliance controls.
-Do not remove intentional workarounds, suppressions, directives, or actionable TODOs
-merely because they look defensive.
+Keep validation, authorization, escaping, limits, retries, cancellation, cleanup,
+telemetry, and security, privacy, or compliance controls unless proven redundant. Keep
+intentional workarounds, suppressions, and actionable TODOs. Public APIs, CLI behavior,
+wire formats, and generated output are not local details. Inlining must preserve
+evaluation order, lifetime, and exception timing.
 
-Public APIs, CLI/environment behavior, wire/database formats, and plugin compatibility
-are not local implementation details. An authorized API change requires separate
-compatibility work. Change generated behavior through its owning source/generator,
-not a manual edit to generated output.
+## Procedure
 
-Inlining must preserve evaluation count/order, allocation, lifetime, exception timing,
-and cleanup. Concurrency changes must preserve locking, atomics, synchronization,
-ordering, idempotency, and transactions. Numerical changes must preserve wrapping,
-singularities, approximation limits, and the table's domain properties.
+1. Run the narrowest meaningful check and require a passing baseline. If none exists, a
+   rewrite may first add a test against unchanged code; an audit reports the gap. If the
+   check cannot run or fails, leave the code alone and report it.
+2. Make one evidenced change, then rerun the same check before anything else.
+3. If behavior changed, fix the local defect or withdraw the edit. Never weaken
+   assertions, skip cases, or revert pre-existing work to make it pass.
+4. Review the diff for changed errors, lost boundaries, and unrelated churn.
 
-## Baseline, change, recheck
-
-1. Select the narrowest meaningful existing check and record its command/environment.
-   Inspect side effects first; use isolated fixtures where checks could affect shared
-   or user state. Cleanup does not authorize live deployment or data changes.
-2. Require a passing baseline before cleanup. If no check exists, an authorized rewrite
-   may add a test against unchanged implementation first; an audit only reports the gap.
-   If the check cannot run or fails, leave the candidate unchanged and report the blocker.
-3. Make one minimal evidenced rename, inline, deletion, or consolidation. Immediately
-   rerun the same focused check before further reading or editing.
-4. Repair a local defect and recheck, or withdraw only the candidate edit if preservation
-   is falsified. Never revert pre-existing work, weaken assertions, skip cases, or narrow
-   the supported contract to make cleanup pass.
-5. Add necessary regression coverage using repository conventions. Run every new/changed
-   test explicitly and the original baseline again after all code/test edits. Additional
-   checks are required only by meaningful risk or repository rules.
-6. Review the diff for changed errors, lost boundaries, broadened behavior, and unrelated
-   churn. Recheck volatile artifacts/configuration when they affect the claim.
-
-Report candidate evidence, preserved behavior, unsupported consumers/states, exact
-checks run, and remaining limits. A passing build is not runtime/deployment proof;
-claim preservation only within the verified contract.
+Report the evidence, checks run, and remaining limits. A passing build is not runtime
+proof.

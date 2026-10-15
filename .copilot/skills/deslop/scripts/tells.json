@@ -63,7 +63,7 @@
       "id": "ai-vocab",
       "category": "vocabulary",
       "pattern": "(?<!\\w)(?:additionally|bolster(?:s|ed|ing)?|crucial(?:ly)?|delv(?:e|es|ed|ing)|deep dive|enduring|foster(?:s|ed|ing)?|garner(?:s|ed|ing)?|interplay|intricate(?:ly)?|intricacies|meticulous(?:ly)?|pivotal|showcas(?:e|es|ed|ing)|tapestr(?:y|ies)|testament|underscor(?:ed|ing)|underscores? (?:the|its|his|her|their|a|an|how|that|why|our)|vibrant|realm|multifaceted|commendable|invaluable|paramount|holistic(?:ally)?|synerg(?:y|ies|istic)|ever-(?:evolving|changing)|everchanging|embark(?:s|ed|ing)?|bustling|nestled|kaleidoscope|symphony|moreover|furthermore|notably|resonat(?:e|es|ed|ing) with|align(?:s|ed)? with|in the realm of|in today's (?:digital|fast-paced) (?:age|world))(?!\\w)",
-      "hint": "AI vocabulary; name the action or property meant (phrases.md)."
+      "hint": "AI vocabulary; name the action or property meant (catalog.md)."
     },
     {
       "id": "ai-vocab-weak",
@@ -76,7 +76,7 @@
       "id": "promo",
       "category": "vocabulary",
       "pattern": "(?<!\\w)(?:seamless(?:ly)?|cutting-edge|groundbreaking|game[- ]chang(?:er|ing)|unlock(?:s|ed|ing)?|unleash(?:es|ed|ing)?|elevat(?:e|es|ed|ing)|empower(?:s|ed|ing)?|revolutioni[sz](?:e|es|ed|ing)|revolutionary|unprecedented|unparalleled|world-class|best-in-class|state-of-the-art|next-generation|all-in-one|supercharg(?:e|es|ed|ing)|effortless(?:ly)?|renowned|breathtaking|stunning|must-have|in the heart of|natural beauty|rich (?:cultural )?heritage|transformative|reshap(?:e|es|ed|ing))(?!\\w)",
-      "hint": "Promotional language; state the checkable fact instead (tropes.md)."
+      "hint": "Promotional language; state the checkable fact instead (catalog.md)."
     },
     {
       "id": "magic-adverb",
@@ -109,7 +109,7 @@
       "id": "fancy-word",
       "category": "wording",
       "pattern": "(?<!\\w)(?:utili[sz](?:e|es|ed|ing|ation)|leverag(?:e|es|ed|ing)|facilitat(?:e|es|ed|ing)|numerous|commenc(?:e|es|ed|ing)|endeavou?r(?:s)?|ascertain(?:s|ed)?|plethora|myriad|a (?:wide|diverse) (?:range|variety|array) of|in order to|due to the fact that|at this point in time|in the event that|has the ability to|conduct an? \\w+ation|when it comes to|moving forward|going forward|at the end of the day|prior to)(?!\\w)",
-      "hint": "Filler or inflated word; use the plain version (phrases.md table)."
+      "hint": "Filler or inflated word; use the plain version (catalog.md table)."
     },
     {
       "id": "metaphor-noun",
@@ -128,19 +128,19 @@
       "id": "significance",
       "category": "claims",
       "pattern": "(?<!\\w)(?:a testament to|(?:is|as) a (?:reminder|testament)|(?:pivotal|key|crucial|defining) moment|(?:key |major )?turning point|evolving landscape|focal point|indelible mark|deeply rooted|setting the stage for|paving the way (?:for|to)|(?:marks|represents|signals) a (?:shift|new era)|reflects? (?:a )?broader|broader (?:trends?|movement|implications)|plays? an? (?:crucial|pivotal|vital|key|significant|important|central) role|cannot be overstated|more (?:important|relevant) than ever|a new era|(?:a |an )?(?:significant|major|big|giant|important|huge) (?:step|leap) forward)(?!\\w)",
-      "hint": "Inflated significance; state the specific fact or cut it (tropes.md)."
+      "hint": "Inflated significance; state the specific fact or cut it (catalog.md)."
     },
     {
       "id": "ing-tail",
       "category": "claims",
       "pattern": ",\\s+(?:thereby |further |ultimately )?(?:highlighting|underscoring|emphasizing|ensuring|reflecting|symbolizing|contributing to|cultivating|fostering|encompassing|enhancing|showcasing|solidifying|reinforcing|cementing|marking|paving the way|demonstrating|illustrating|signaling|creating a|offering a|providing a)\\b",
-      "hint": "Trailing -ing analysis; say what the clause claims or cut it (structures.md)."
+      "hint": "Trailing -ing analysis; say what the clause claims or cut it (catalog.md)."
     },
     {
       "id": "vague-attribution",
       "category": "claims",
       "pattern": "(?<!\\w)(?:experts? (?:say|says|argue|argues|believe|agree|suggest|note)|industry (?:reports|experts|observers)|observers (?:have )?(?:noted|cited|argued)|(?:some|many) (?:critics|observers|analysts|scholars) (?:argue|say|believe|note)|studies (?:show|suggest|have shown)|research (?:shows|suggests)|it is widely (?:believed|recognized|acknowledged|regarded)|(?:is|are) widely (?:regarded|considered|seen) as|many (?:people )?(?:believe|argue|say|feel) that|according to (?:some|many|several)|described in scholarship|several (?:sources|publications|reports))(?!\\w)",
-      "hint": "Vague attribution; name the source or cut the claim (tropes.md)."
+      "hint": "Vague attribution; name the source or cut the claim (catalog.md)."
     },
     {
       "id": "notability",
@@ -159,7 +159,7 @@
       "id": "knowledge-gap",
       "category": "claims",
       "pattern": "(?<!\\w)(?:as of my (?:last )?(?:knowledge|training) (?:cutoff|update)|up to my last (?:training|knowledge) update|while (?:specific )?details are (?:limited|scarce)|not widely (?:available|documented|disclosed|known)|based on (?:the )?available information|in the (?:provided|available) (?:sources|search results))(?!\\w)",
-      "hint": "Knowledge-limit disclaimer or speculation about gaps; keep unknowns unknown (tropes.md)."
+      "hint": "Knowledge-limit disclaimer or speculation about gaps; keep unknowns unknown (catalog.md)."
     },
     {
       "id": "not-x-but-y",
@@ -185,13 +185,13 @@
       "id": "announcement",
       "category": "structure",
       "pattern": "(?<!\\w)(?:here'?s (?:the thing|the kicker|the catch|the deal|the truth|the problem|what|why|how)|let'?s (?:dive|delve|break (?:this|it) down|unpack|explore|take a (?:closer )?look|talk about)|let me (?:break|walk you through|explain)|quick note|it'?s worth (?:noting|mentioning|pointing out)|worth noting|(?:it is|it's) (?:important|critical|crucial|essential) to (?:note|remember|consider|understand|recognize)|importantly,|interestingly,|needless to say|it goes without saying|that said,|with that in mind)(?!\\w)",
-      "hint": "Announcement before the point; cut it (phrases.md)."
+      "hint": "Announcement before the point; cut it (catalog.md)."
     },
     {
       "id": "staged-candor",
       "category": "structure",
       "pattern": "(?<!\\w)(?:full stop|let that sink in|make no mistake|honestly\\?|real talk|and yes,|let'?s be honest|to be (?:honest|frank|fair)|i'?ll be honest|this is not a rant|hot take|spoiler(?: alert)?:?)(?!\\w)",
-      "hint": "Manufactured emphasis or candor (phrases.md)."
+      "hint": "Manufactured emphasis or candor (catalog.md)."
     },
     {
       "id": "reasoning-leak",
@@ -229,7 +229,7 @@
       "id": "analogy-opener",
       "category": "structure",
       "pattern": "(?<!\\w)(?:think of (?:it|this|them|that) (?:as|like)|imagine (?:a world|if|it as|this)|picture this|it'?s like (?:a|an|having)|a (?:classic|textbook) (?:case|example))(?!\\w)",
-      "hint": "Stock analogy or 'imagine' opener; keep only if it clarifies (structures.md).",
+      "hint": "Stock analogy or 'imagine' opener; keep only if it clarifies (catalog.md).",
       "weak": true
     },
     {
@@ -263,7 +263,7 @@
       "id": "stock-phrase",
       "category": "wording",
       "pattern": "(?<!\\w)(?:whether you'?re (?:a |an )?[\\w -]{1,40} or|at (?:its|their) core|in essence|the key takeaways?|the (?:reality|truth) is|let'?s face it|shed(?:s|ding)? (?:some |new )?light on|a stark reminder|at the intersection of|the power of|harness(?:es|ing)? the power|unlock(?:s|ing)? the (?:full )?potential|(?:a )?delicate balance|treasure trove|(?:a )?beacon of|meticulously crafted|without further ado|buckle up|in a world where|simply put|dive (?:deeper|into)|navigat(?:e|es|ing) the complexit(?:y|ies)|look no further|take (?:it|your [\\w-]+) to the next level|the best of both worlds|a wealth of|rapidly (?:evolving|changing)|fast-paced|say goodbye to|stands? the test of time|a force to be reckoned with|(?:plays|played) (?:a )?(?:crucial|pivotal) part)(?!\\w)",
-      "hint": "Stock phrase; say the specific thing (phrases.md)."
+      "hint": "Stock phrase; say the specific thing (catalog.md)."
     },
     {
       "id": "stock-phrase-weak",
@@ -295,7 +295,7 @@
       "id": "edit-narration",
       "category": "residue",
       "pattern": "(?:^|(?<=\\s\\s))(?:Added|Updated|Changed|Modified|Fixed|Refactored|Removed|Replaced|Moved|Renamed|Switched|Previously|Changed from|Now (?:we|it|this|uses|handles|returns|supports)|New(?:ly added)? (?:implementation|version|approach|logic|helper)|(?:NEW|UPDATED|FIXED|CHANGED|ADDED):)\\b|\\binstead of the old\\b",
-      "hint": "Comment narrates the edit history; describe the code as it is now (structures.md).",
+      "hint": "Comment narrates the edit history; describe the code as it is now (catalog.md).",
       "case_sensitive": true,
       "scope": "comments"
     },
@@ -369,7 +369,7 @@
     },
     {
       "id": "bold-label-restate",
-      "hint": "Bold label the line then restates; convert to prose (structures.md)."
+      "hint": "Bold label the line then restates; convert to prose (catalog.md)."
     },
     {
       "id": "bold-bullet-run",

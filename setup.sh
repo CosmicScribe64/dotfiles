@@ -237,7 +237,6 @@ echo ""
 # Format: source path (relative to repo) -> destination path (relative to $HOME)
 
 install_item "$REPO_DIR/.bashrc"           "$HOME_DIR/.bashrc"
-install_item "$REPO_DIR/.tmux.conf"        "$HOME_DIR/.tmux.conf"
 install_item "$REPO_DIR/.vimrc"            "$HOME_DIR/.vimrc"
 install_item "$REPO_DIR/.cows/custom-cows" "$HOME_DIR/.cows/custom-cows"
 
@@ -256,7 +255,6 @@ MATTPOCOCK_BUCKETS=(
 )
 
 # Install first-party, local, and submodule Copilot skills.
-# demo installs locked npm assets on first use.
 prune_removed_items "$HOME_DIR/.copilot/skills" "$REPO_DIR/.copilot/skills" "${MATTPOCOCK_BUCKETS[@]}" "$ANATOMY_DIR"
 install_dir_items "$REPO_DIR/.copilot/skills" "$HOME_DIR/.copilot/skills"
 install_item "$ANATOMY_DIR" "$HOME_DIR/.copilot/skills/anatomy"

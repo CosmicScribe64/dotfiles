@@ -1,6 +1,6 @@
 # dotfiles
 
-Personal Bash, tmux, Vim, and Copilot configuration, installed into `$HOME`.
+Personal Bash, Vim, and Copilot configuration, installed into `$HOME`.
 
 ## Install
 
@@ -29,7 +29,7 @@ fetch other dependencies.
 
 | Source | Installed location |
 | --- | --- |
-| [.bashrc](.bashrc), [.tmux.conf](.tmux.conf), [.vimrc](.vimrc) | Matching files in `$HOME` |
+| [.bashrc](.bashrc), [.vimrc](.vimrc) | Matching files in `$HOME` |
 | [.cows/custom-cows/](.cows/custom-cows/) | `~/.cows/custom-cows/` |
 | [.copilot/instructions/](.copilot/instructions/) | `~/.copilot/instructions/` |
 | [.copilot/skills/](.copilot/skills/) | `~/.copilot/skills/` |
@@ -40,8 +40,6 @@ fetch other dependencies.
 
 | Skill | Purpose |
 | --- | --- |
-| [copy-editor](.copilot/skills/copy-editor/) | Local writing workbench with diagnostic reviews and fresh-agent version comparisons. You write; agents review without rewriting. |
-| [demo](.copilot/skills/demo/) | Capture real evidence and build a feature demonstration. |
 | [deslop](.copilot/skills/deslop/) | Draft, rewrite, or audit prose; optionally apply its plain-language style to answers and explanations. Includes `scripts/find_tells.py`, which lists likely AI-writing tells for review. Simplify code only when explicitly requested. |
 | [test-suite-auditor](.copilot/skills/test-suite-auditor/) | Find weak assertions, missing coverage, and flaky tests. |
 

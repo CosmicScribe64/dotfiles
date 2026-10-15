@@ -1,20 +1,19 @@
-# Examples and boundary cases
+# Examples
 
-These synthetic examples illustrate decisions, not actual studies or tested model
-behavior. Each source and its stated context supply the available facts.
+Synthetic examples of decisions, not tested model behavior.
 
-## 1. Cut filler without changing a bound
+## 1. Cut filler, keep the bound
 
-Before: "It's worth noting that the import job processes up to 40 files per minute,
-and it may slow down on encrypted files."
+Before: "It's worth noting that the import job processes up to 40 files per minute, and
+it may slow down on encrypted files."
 
 After: "The import job processes up to 40 files per minute and may slow down on
 encrypted files."
 
-Keep "up to," the unit, "may," and the condition. Likewise, "over 3,000 square feet"
-must not become "3,000 square feet."
+"Up to," the unit, "may," and the condition all stay. "Over 3,000 square feet" must not
+become "3,000 square feet."
 
-## 2. Improve wording without inventing evidence
+## 2. Fix wording without inventing evidence
 
 Before: "It is worth noting that these findings have important implications for
 forecast ensembling and indicate a need for further evaluation."
@@ -22,69 +21,56 @@ forecast ensembling and indicate a need for further evaluation."
 After: "These findings have important implications for forecast ensembling and
 indicate a need for further evaluation."
 
-Remove the filler now; separately flag the unspecified implication. Missing detail
-does not require blocking this harmless edit or inventing a mechanism, metric, or study.
+Separately flag the unspecified implication. Do not invent a mechanism or metric.
 
-## 3. Keep requirements, not their verbosity
+## 3. Keep the requirement, not its verbosity
 
 Before: "The caller is required to provide the length of the buffer in bytes."
 
 After: "The caller must provide the buffer length in bytes."
 
-Ordinary API documentation may be rephrased while preserving actor, obligation, and
-unit. Keep approved operative wording verbatim instead, and add an explanation
-beside it. Three real prerequisites or five commitments still require every item.
+Actor, obligation, and unit survive. Approved operative wording stays verbatim instead.
 
-## 4. Remove a rejected-option setup, retain the consequence
+## 4. Keep the consequence of a rejected option
 
 Before: "Session tokens rotate every 24 hours. A tempting approach would be to restart
 the auth service, but restarting ends all active sessions. Rotation happens in place,
 and clients refresh transparently."
 
-After: "Session tokens rotate every 24 hours, in place, and clients refresh transparently.
-Restarting the auth service ends all active sessions."
+After: "Session tokens rotate every 24 hours, in place, and clients refresh
+transparently. Restarting the auth service ends all active sessions."
 
-The rejected option contains a useful failure mode. Similarly, "not thread-safe" is
-a contract, not empty negative rhetoric.
+## 5. Select details for a length target
 
-## 5. Select details for an explicit length target
-
-Request: "Cut this batch-failure update to 15 words."
-
-Source: "The batch contained 40 files. Four failed because credentials expired. The
-dashboard chart is blue."
+Request: "Cut this to 15 words." Source: "The batch contained 40 files. Four failed
+because credentials expired. The dashboard chart is blue."
 
 After: "Four of 40 files failed because credentials expired."
 
-The failure-focused limit authorizes omitting the peripheral styling fact. Note that
-omission outside the rewrite. Keep the denominator and cause. If the request also says
-"keep every fact," compress faithfully or explain a genuine conflict.
+Note the dropped chart detail outside the rewrite. If the user also says "keep every
+fact," compress faithfully or explain the conflict.
 
-## 6. Remove narration, retain the convention
-
-In writing mode, this implementation comment may be deleted if no documentation rule
-requires it; the code stays unchanged:
+## 6. Cut narration, keep the convention
 
 ```cpp
 // Increment retry_count by one.
 ++retry_count;
 ```
 
-This coordinate convention supplies information the arithmetic alone may not:
+Delete this comment in writing mode; the code stays. Keep this one, which the
+arithmetic alone does not show:
 
 ```cpp
 // Convert ENU (east, north, up) to NED (north, east, down).
 ```
 
-## 7. Preserve deliberate narrative choices
+## 7. Keep deliberate narrative choices
 
 Source: "I waited. Nothing. Then the second reply arrived. (I nearly missed it.)"
 
-Keep the suspense, fragments, and aside when they fit the writer's purpose. Do not
-force an answer-first sequence, invent a next step, or add the reader's supposed
-experience. A narrative can be effective without being a procedure. The default style
-rules still apply, so if the sample read "Nothing — then the second reply arrived," the
-dash becomes a period.
+Keep the suspense, fragments, and aside. Do not add a next step. The style rules still
+apply: "Nothing — then the second reply arrived" becomes "Nothing. Then the second reply
+arrived."
 
 ## 8. Keep a guard when the runtime contract is unknown
 
@@ -97,9 +83,9 @@ export function upperCaseName(name: string): string {
 }
 ```
 
-"Deslop this file" permits writing edits only. Even in explicit code mode, the type
-annotation does not constrain untyped consumers. The guard defines rejection and an
-error message. Keep it without boundary evidence and a passing focused baseline.
+"Deslop this file" permits writing edits only. Even in code mode, the annotation does
+not bind untyped callers, and the guard defines an error. Keep it without boundary
+evidence and a passing baseline.
 
 ## 9. Replace dashes and hinge colons
 
@@ -109,17 +95,11 @@ simple: warm the cache before traffic shifts."
 After: "Each deploy clears the cache on every node. Warm the cache before shifting
 traffic."
 
-The em dash becomes a sentence break, the passive "is invalidated" gets its actor, and
-"the fix is simple:" announces a point instead of making it. A colon before a list of
-steps would stay.
-
-## 10. Expand over-compressed notes
+## 10. Expand compressed notes
 
 Before: "Retry w/ backoff → max 5, then DLQ. No dup writes (idempotency key)."
 
 After: "The worker retries with backoff up to five times, then sends the message to the
 dead-letter queue. An idempotency key prevents duplicate writes."
 
-Spell out the arrow, "w/," and "DLQ" in prose. Keep the limit and the mechanism. The
-original notation may stay in a table cell or commit subject where that style is the
-convention.
+The notation may stay in a table cell or commit subject where it is the convention.
