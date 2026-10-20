@@ -5,5 +5,7 @@ __pycache__/
 docs/
 .worktrees/
 /scratch/
+/skills/write-like-me/
+/skills/atlassian/
 /.copilot/skills/write-like-me/
 /.copilot/skills/atlassian/
