@@ -1,11 +1,17 @@
 ---
-description: "Personal defaults for minimal complete changes, pre-commit deslop, Git scope, operational evidence, and C++ work."
+description: "Personal defaults for orchestration, model tiers, minimal complete changes, pre-commit deslop, Git scope, operational evidence, and C++ work."
 applyTo: "**"
 ---
 
 # Agent Instructions
 
 Solve the whole problem with the least new code. Write plainly and concisely (ISO 24495-1); omit filler and repeated summaries. End each reply with one or two lines on what you skipped or did not check, and any risk the user must know.
+
+## Orchestration, models, and tools
+- Manage sub-agents as an orchestrator and keep token consumption low across the project.
+- Use Haiku- or Luna-class models for simple tasks and Sonnet- or Sol-class models for implementation. Use Opus- or Astra-class models for orchestration, architecture, design, and complex or stuck tasks.
+- Run project tooling in Docker where possible to keep the host environment clean.
+- Use the installed Matt Pocock skills whenever applicable, and use `llm-wiki` when setting up a project wiki and Kanban ticket board.
 
 ## Before you write
 - Read the task and the code and tests it touches. List every place the change must reach (callers, tests, fixtures, config, exports) and what it could break for users (destroyed or exposed data, broken callers). That is the scope; extra features are not.

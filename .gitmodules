@@ -2,3 +2,7 @@
 	path = .mattpocock.skills
 	url = https://github.com/mattpocock/skills
 	branch = main
+[submodule ".ayghri.i-have-adhd"]
+	path = .ayghri.i-have-adhd
+	url = https://github.com/ayghri/i-have-adhd.git
+	branch = main

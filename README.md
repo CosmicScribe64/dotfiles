@@ -14,8 +14,9 @@ cd dotfiles
 It prompts before overwriting files or removing installed Copilot skills and
 instructions absent from this checkout. Review those prompts if you keep other
 skills locally. Setup also updates the
-[mattpocock/skills](https://github.com/mattpocock/skills) submodule to the
-latest upstream `main`. Commit the submodule pointer when it changes. Setup does not
+[mattpocock/skills](https://github.com/mattpocock/skills) and
+[ayghri/i-have-adhd](https://github.com/ayghri/i-have-adhd) submodules to the
+latest upstream `main`. Commit the submodule pointers when they change. Setup does not
 fetch other dependencies.
 
 ```bash
@@ -32,6 +33,7 @@ fetch other dependencies.
 | [.cows/custom-cows/](.cows/custom-cows/) | `~/.cows/custom-cows/` |
 | [.copilot/instructions/](.copilot/instructions/) | `~/.copilot/instructions/` |
 | [skills/](skills/) | `~/.copilot/skills/` |
+| [.ayghri.i-have-adhd/](.ayghri.i-have-adhd/) `skills/i-have-adhd/` | `~/.copilot/skills/i-have-adhd/` |
 | [.mattpocock.skills/](.mattpocock.skills/) `skills/engineering/` and `skills/productivity/` | `~/.copilot/skills/` |
 
 ### Bundled Skills
