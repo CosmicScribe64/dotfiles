@@ -14,9 +14,8 @@ cd dotfiles
 It prompts before overwriting files or removing installed Copilot skills and
 instructions absent from this checkout. Review those prompts if you keep other
 skills locally. Setup also updates the
-[mattpocock/skills](https://github.com/mattpocock/skills) and
-[wheresryan22/anatomy](https://github.com/wheresryan22/anatomy) submodules to the
-latest upstream `main`. Commit the submodule pointers when they change. Setup does not
+[mattpocock/skills](https://github.com/mattpocock/skills) submodule to the
+latest upstream `main`. Commit the submodule pointer when it changes. Setup does not
 fetch other dependencies.
 
 ```bash
@@ -34,13 +33,13 @@ fetch other dependencies.
 | [.copilot/instructions/](.copilot/instructions/) | `~/.copilot/instructions/` |
 | [.copilot/skills/](.copilot/skills/) | `~/.copilot/skills/` |
 | [.mattpocock.skills/](.mattpocock.skills/) `skills/engineering/` and `skills/productivity/` | `~/.copilot/skills/` |
-| [.wheresryan22.anatomy/](.wheresryan22.anatomy/) | `~/.copilot/skills/anatomy/` |
 
 ### Bundled Skills
 
 | Skill | Purpose |
 | --- | --- |
 | [deslop](.copilot/skills/deslop/) | Draft, rewrite, or audit prose; optionally apply its plain-language style to answers and explanations. Includes `scripts/find_tells.py`, which lists likely AI-writing tells for review. Simplify code only when explicitly requested. |
+| [llm-wiki](.copilot/skills/llm-wiki/) | Set up a project wiki with a Kanban ticket board. |
 | [test-suite-auditor](.copilot/skills/test-suite-auditor/) | Find weak assertions, missing coverage, and flaky tests. |
 
 ## Adding Configuration

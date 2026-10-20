@@ -241,11 +241,10 @@ install_item "$REPO_DIR/.vimrc"            "$HOME_DIR/.vimrc"
 install_item "$REPO_DIR/.cows/custom-cows" "$HOME_DIR/.cows/custom-cows"
 
 
-# Fetch the latest skill submodules; keep the current checkouts if offline.
+# Fetch the latest skill submodule; keep the current checkout if offline.
 MATTPOCOCK_DIR="$REPO_DIR/.mattpocock.skills"
-ANATOMY_DIR="$REPO_DIR/.wheresryan22.anatomy"
-if ! git -C "$REPO_DIR" submodule update --init --remote .mattpocock.skills .wheresryan22.anatomy; then
-    warn "Could not update skill submodules; using the existing checkouts."
+if ! git -C "$REPO_DIR" submodule update --init --remote .mattpocock.skills; then
+    warn "Could not update the skill submodule; using the existing checkout."
 fi
 
 # Same buckets upstream ships in its plugin; misc/, in-progress/ and deprecated/ are skipped.
@@ -255,9 +254,8 @@ MATTPOCOCK_BUCKETS=(
 )
 
 # Install first-party, local, and submodule Copilot skills.
-prune_removed_items "$HOME_DIR/.copilot/skills" "$REPO_DIR/.copilot/skills" "${MATTPOCOCK_BUCKETS[@]}" "$ANATOMY_DIR"
+prune_removed_items "$HOME_DIR/.copilot/skills" "$REPO_DIR/.copilot/skills" "${MATTPOCOCK_BUCKETS[@]}"
 install_dir_items "$REPO_DIR/.copilot/skills" "$HOME_DIR/.copilot/skills"
-install_item "$ANATOMY_DIR" "$HOME_DIR/.copilot/skills/anatomy"
 for bucket in "${MATTPOCOCK_BUCKETS[@]}"; do
     for skill_dir in "$bucket"/*/; do
         [ -f "$skill_dir/SKILL.md" ] || continue
