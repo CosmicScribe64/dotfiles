@@ -254,8 +254,8 @@ MATTPOCOCK_BUCKETS=(
 )
 
 # Install first-party, local, and submodule Copilot skills.
-prune_removed_items "$HOME_DIR/.copilot/skills" "$REPO_DIR/.copilot/skills" "${MATTPOCOCK_BUCKETS[@]}"
-install_dir_items "$REPO_DIR/.copilot/skills" "$HOME_DIR/.copilot/skills"
+prune_removed_items "$HOME_DIR/.copilot/skills" "$REPO_DIR/skills" "${MATTPOCOCK_BUCKETS[@]}"
+install_dir_items "$REPO_DIR/skills" "$HOME_DIR/.copilot/skills"
 for bucket in "${MATTPOCOCK_BUCKETS[@]}"; do
     for skill_dir in "$bucket"/*/; do
         [ -f "$skill_dir/SKILL.md" ] || continue

@@ -31,7 +31,7 @@ fetch other dependencies.
 | [.bashrc](.bashrc), [.vimrc](.vimrc) | Matching files in `$HOME` |
 | [.cows/custom-cows/](.cows/custom-cows/) | `~/.cows/custom-cows/` |
 | [.copilot/instructions/](.copilot/instructions/) | `~/.copilot/instructions/` |
-| [skills/](skills/) (linked at `.copilot/skills`) | `~/.copilot/skills/` |
+| [skills/](skills/) | `~/.copilot/skills/` |
 | [.mattpocock.skills/](.mattpocock.skills/) `skills/engineering/` and `skills/productivity/` | `~/.copilot/skills/` |
 
 ### Bundled Skills
@@ -40,7 +40,7 @@ fetch other dependencies.
 | --- | --- |
 | [deslop](skills/deslop/) | Draft, rewrite, or audit prose; optionally apply its plain-language style to answers and explanations. Includes `scripts/find_tells.py`, which lists likely AI-writing tells for review. Simplify code only when explicitly requested. |
 | [llm-wiki](skills/llm-wiki/) | Set up a project wiki with a Kanban ticket board. |
-| [org-braindump](skills/org-braindump/) | Organize a loose braindump into a summary, grouped notes, next actions, and open questions. |
+| [org-braindump](skills/org-braindump/) | Organize a loose braindump into topic buckets, next actions, and open questions. |
 | [project-setup](skills/project-setup/) | Set up a repository with an orchestrator workflow, Dockerized tooling, an LLM wiki ticket board, and Matt Pocock skills. |
 | [test-suite-auditor](skills/test-suite-auditor/) | Find weak assertions, missing coverage, and flaky tests. |
 | [verification-status](skills/verification-status/) | List each claim made, whether it is verified, and the supporting evidence in a table. |

@@ -23,8 +23,7 @@ Failure to do this means the new config will exist in the repo but never be inst
 ```
 .
 ├── .copilot/
-│   ├── instructions/      # installed to ~/.copilot/instructions
-│   └── skills -> ../skills
+│   └── instructions/      # installed to ~/.copilot/instructions
 ├── skills/                # first-party and ignored local skills; installed to ~/.copilot/skills
 ├── .mattpocock.skills/    # submodule; engineering/ and productivity/ skills installed to ~/.copilot/skills
 ├── .bashrc                # installed to ~/.bashrc
@@ -41,4 +40,4 @@ Failure to do this means the new config will exist in the repo but never be inst
 - Symlinks by default; `--copy` resolves symlinks and copies real files (useful for isolated environments)
 - Idempotent in symlink mode: already-correct symlinks are skipped without prompting
 - Prompts before overwriting anything that exists but is wrong
-- Prunes stale skill symlinks left over from renamed/removed upstream skills, both inside the repo (`.copilot/skills/`) and in `~/.copilot/skills/`
+- Prunes stale skill symlinks left over from renamed/removed upstream skills, both inside the repo (`skills/`) and in `~/.copilot/skills/`
