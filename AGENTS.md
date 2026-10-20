@@ -24,8 +24,8 @@ Failure to do this means the new config will exist in the repo but never be inst
 .
 ├── .copilot/
 │   ├── instructions/      # installed to ~/.copilot/instructions
-│   └── skills/            # installed to ~/.copilot/skills
-│       └── ...            # first-party and ignored local skills
+│   └── skills -> ../skills
+├── skills/                # first-party and ignored local skills; installed to ~/.copilot/skills
 ├── .mattpocock.skills/    # submodule; engineering/ and productivity/ skills installed to ~/.copilot/skills
 ├── .bashrc                # installed to ~/.bashrc
 ├── .vimrc                 # installed to ~/.vimrc
