@@ -236,9 +236,10 @@ echo ""
 # --- Items to install ---
 # Format: source path (relative to repo) -> destination path (relative to $HOME)
 
-install_item "$REPO_DIR/.bashrc"           "$HOME_DIR/.bashrc"
-install_item "$REPO_DIR/.vimrc"            "$HOME_DIR/.vimrc"
-install_item "$REPO_DIR/.cows/custom-cows" "$HOME_DIR/.cows/custom-cows"
+install_item "$REPO_DIR/.bashrc"            "$HOME_DIR/.bashrc"
+install_item "$REPO_DIR/.vimrc"             "$HOME_DIR/.vimrc"
+install_item "$REPO_DIR/.cows/custom-cows"  "$HOME_DIR/.cows/custom-cows"
+install_item "$REPO_DIR/.cows/messages.txt" "$HOME_DIR/.cows/messages.txt"
 
 
 # Fetch the latest skill submodules; keep the current checkouts if offline.
