@@ -1,7 +1,7 @@
 # Git scope
 
-Use for diff requests, staged reviews, and repository requests without a target. A
-pasted paragraph or a selection needs none of this.
+Use for diff requests and repository requests without a target. A pasted paragraph or a
+selection needs none of this.
 
 ## Resolve what to review
 
@@ -22,7 +22,7 @@ pasted paragraph or a selection needs none of this.
 Inspect added, changed, and removed writing in every file type, including headers,
 shell, configuration, and build files. Treat contiguous comments as blocks. For deleted
 text, check for lost requirements or dangling references; a deliberate deletion is not
-permission to restore it.
+permission to restore it. Read every new document in full.
 
 ## Inspect versus edit
 
@@ -31,6 +31,5 @@ the target still matches what you inspected and preserve unrelated staged and un
 changes. Never reset, checkout, or stash to make the worktree match.
 
 A staged-only rewrite does not authorize index changes; propose a patch unless the user
-also authorizes the destination. The exception is a pre-commit review inside an
-authorized commit, which edits the working files and restages only its fixes. Cleanup
-alone never authorizes staging, committing, or pushing.
+also authorizes the destination. Cleanup alone never authorizes staging, committing, or
+pushing.

@@ -1,7 +1,7 @@
 ---
 name: deslop
-description: "Draft, rewrite, or audit prose, documentation, comments, docstrings, messages, and plans, or answer and explain in this style without an existing draft. Use for deslop, humanize, de-AI, tightening, natural voice, plain language, ISO 24495-1, document necessity, and pre-commit writing checks. Changes executable code only when explicitly asked. Audit-only requests never authorize edits."
-argument-hint: "[respond|draft|rewrite|audit] [writing|code] [question, text, path, or base..head]"
+description: "Draft, rewrite, or audit prose, documentation, comments, docstrings, messages, and plans, or answer and explain in this style without an existing draft. Use for deslop, humanize, de-AI, tightening, natural voice, plain language, ISO 24495-1, and document necessity. Never changes executable code. Audit-only requests never authorize edits."
+argument-hint: "[respond|draft|rewrite|audit] [question, text, path, or base..head]"
 ---
 
 # Deslop
@@ -11,9 +11,8 @@ meaning and contract. Style patterns are leads, never proof of AI authorship.
 
 ## Mode and scope
 
-- **Writing** is the default and covers comments and docstrings. It never changes
-  executable code. Use **code** mode only when the user explicitly asks for code
-  cleanup; a source filename or "deslop this diff" is not enough.
+- **Text only:** Cover prose, documentation, comments, docstrings, messages, and plans.
+  Never change executable code, even when given a source file or diff.
 - **Respond** when asked to answer or explain in this style. Apply the rules to your own
   answer. Explaining code is a response, not permission to edit it.
 - **Draft** new writing. **Rewrite** when asked to deslop, humanize, tighten, or improve.
@@ -23,7 +22,7 @@ meaning and contract. Style patterns are leads, never proof of AI authorship.
   edits inside that scope; an attachment or path alone does not. Return rewritten
   pasted text in chat without creating a file.
 
-For diffs, staged reviews, or repository requests without a target, read
+For diffs or repository requests without a target, read
 [git-scope.md](./references/git-scope.md). If a requested path, ref, or version cannot
 be resolved, report `scope mismatch` instead of substituting another. Preserve
 unrelated changes.
@@ -64,21 +63,6 @@ temporary status. Do not create unnecessary documents. In authorized cleanup, re
 unnecessary agent-authored document instead of polishing it. For audits, required
 documents, or user-owned writing, report the concern instead of deleting.
 
-## Pre-commit review
-
-Use when requested or required by instructions.
-
-1. Run `scripts/find_tells.py --staged`, then read the exact staged writing: added,
-   changed, and removed comments and docs in any file type, and every new document in
-   full. The working tree or PR description alone does not count.
-2. Check document necessity, then apply the writing workflow.
-3. Apply only authorized fixes, restage only those, and recheck the staged result.
-4. Report the reviewed scope and result before committing. If nothing staged is prose,
-   say so; that does not permit code cleanup.
-
-Loading this skill or passing formatters and tests is not a pass. Stop before committing
-if the review cannot finish or a material finding is unresolved.
-
 ## Writing workflow
 
 1. Establish audience, purpose, medium, and required content. Ask only when missing
@@ -102,12 +86,12 @@ if the review cannot finish or a material finding is unresolved.
 **Comments:** Remove narration the code already shows. Keep non-obvious contracts,
 invariants, numerical constraints, and workaround reasons.
 
-**Audits, staged reviews, and file or diff rewrites:** First run `scripts/find_tells.py`
+**Audits and file or diff rewrites:** First run `scripts/find_tells.py`
 on the target (paths, `--staged`, `--diff BASE..HEAD`, or `--commits RANGE`). Each hit is
 a lead to confirm, not an instruction; skip quoted or discussed wording. A clean run is
 not a pass. Then read [catalog.md](./references/catalog.md) before reporting or editing,
 and [examples.md](./references/examples.md) when a change involves a length target,
-evidence gap, requirement, comment, narrative voice, or runtime guard. For responses and
+evidence gap, requirement, comment, or narrative voice. For responses and
 short pasted rewrites, consult them only for an unresolved decision.
 
 For formal plain-language assessments, ISO claims, or high-stakes writing, use
@@ -136,15 +120,9 @@ to a voice sample.
   personified code, "not just X but Y" reveals, empty "-ing" tails, vague
   attributions, chatbot phrases, and generic conclusions.
 
-## Code mode
-
-Before executable cleanup, read [code-cleanup.md](./references/code-cleanup.md). Each
-change needs contract evidence and the same focused check passing before and after.
-Without that, keep or escalate the candidate. Code audits stay read-only.
-
 ## Validation and output
 
-After writing edits, check the diff, links, anchors, and dangling references. Run
+After file edits, check the diff, links, anchors, and dangling references. Run
 formatters or tests only where changed syntax or repository rules call for them.
 Audits use non-mutating checks. A rewrite does not authorize posting, committing, or
 pushing. Do not present editorial review as reader validation, ISO certification, or
