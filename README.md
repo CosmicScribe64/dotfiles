@@ -31,6 +31,7 @@ fetch other dependencies.
 | --- | --- |
 | [.bashrc](.bashrc), [.vimrc](.vimrc) | Matching files in `$HOME` |
 | [.cows/custom-cows/](.cows/custom-cows/) | `~/.cows/custom-cows/` |
+| [.cows/messages.txt](.cows/messages.txt) | `~/.cows/messages.txt` |
 | [.copilot/instructions/](.copilot/instructions/) | `~/.copilot/instructions/` |
 | [skills/](skills/) | `~/.copilot/skills/` |
 | [.ayghri.i-have-adhd/](.ayghri.i-have-adhd/) `skills/i-have-adhd/` | `~/.copilot/skills/i-have-adhd/` |

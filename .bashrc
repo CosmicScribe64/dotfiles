@@ -116,68 +116,12 @@ function colorize_cow {
 }
 
 function __random_cow_message {
-    printf '%s\n' \
-        "Shell ready." "Systems online." "Charting course." "Winds favorable." \
-        "Another terminal, another mission." "All hands on deck." "We are so back." \
-        "It works on my shell." "Task failed successfully." "Zero bugs, only features." \
-        "Vibes: deployed." "Ship it and blame cache." "Entering goblin mode." \
-        "Certified terminal moment." "No thoughts, just commands." "Born to grep." \
-        "Today's forecast: mostly aliases." "No context, only confidence." \
-        "All gas, no stack trace." "The shell is shelling." "Live laugh launch." \
-        "Another day, another yak." "Main character in a tmux pane." \
-        "Rawdogging production with optimism." "Grepping for meaning." \
-        "Locally sourced command line nonsense." "PRs fear this terminal." \
-        "Keyboard hot, tea hotter." "Trust the process. Verify the output." \
-        "We ball until the tests fail." "Everything is fine. Fire is just light." \
-        "Works on my machine. ¯\_(ツ)_/¯" "One sudo to rule them all." \
-        "The cloud is just someone else's computer on fire." "I think, therefore I grep." \
-        "To err is human, to ssh is divine." "Lost in the sauce, found in the logs." \
-        "Delusional but making progress." "Big Shell Energy." "POV: You forgot the semicolon." \
-        "Manifesting a successful build." "Stay humble, stay chmod." \
-        "Slaying the monolith, one script at a time." "Exit code 0. We're chilling." \
-        "Pipe it to /dev/null and forget your sins." "My spirit animal is a zombie process." \
-        "Vim: I'm still trying to leave." "Gaslight, Gatekeep, Grep." \
-        "I'm not a robot, but my cron jobs are." "It's not a bug, it's a surprise mechanic." \
-        "Code is poetry. Mine is a limerick." "99 little bugs in the code..." \
-        "LGTM (I didn't actually look at it)." "Technical debt is a gift for my future self." \
-        "Writing documentation is admitting defeat." "Running on caffeine and control + r." \
-        "Is it local time or is it just me?" "Scanning for intelligent life... 0 results." \
-        "My other computer is your computer." "I'm in. (On the third try)." \
-        "Don't touch that. It's a load-bearing comment." "Packet loss is my love language." \
-        "Delete node_modules. Start your life over." "Stress level: rm -rf /" \
-        "If you can't handle my fork bomb, you don't deserve my uptime." \
-        "Go girl, give us nothing (but exit code 0)." "I use Vim because I am trapped." \
-        "The abyss stares back, but I have syntax highlighting." \
-        "The horrors persist, but so do I." "Chat, are we cooked?" \
-        "Many such cases." "This meeting could have been a grep." \
-        "I am once again asking for a reproducible bug." \
-        "Nothing ever happens. Until prod." "We stay silly in this house." \
-        "Sending thoughts and packets." "Mood: dangerously overfit to localhost." \
-        "Hate from outside the repo can't even reach me." \
-        "Built different. Broken the same." "The pipeline yearns for violence." \
-        "What if the real stack trace was the friends we made along the way." \
-        "In my defense, the logs were vibes-based." \
-        "This shell has seen things." "All my homies love idempotence." \
-        "I did it for the bit and now the bit is in production." \
-        "Skill issue. Terminal issue. User issue. Cosmic issue." \
-        "Runtime is temporary. Screenshots are forever." \
-        "You're telling me a script fried this rice?" \
-        "Screaming, crying, throwing semicolons." \
-        "We got observability at home." "The bug was inside us all along." \
-        "Too locked in to log off." "I support women's wrongs and broken builds." \
-        "This environment is cursed but stable." \
-        "Respectfully, what is going on." "Terminally online, literally." \
-        "I have the opportunity to do the funniest thing." \
-        "This commit has bad energy." "Who up tracing they root cause." \
-        "I bring a sort of shell energy that production fears." \
-        "I am not built for this timezone." \
-        "The code compiles and that is between it and God." \
-        "All natural, locally sourced artisanal technical debt." \
-        "First try? We don't do that here." "No weapon formed against me shall prosper, except YAML." \
-        "Cowabunga it is." "You ever just inherit a codebase and blink a lot?" \
-        "This is my emotional support terminal." \
-        "I know what you are: a race condition." \
-        "On my worst behavior and best branch." | shuf -n 1
+    local messages_file="$HOME/.cows/messages.txt"
+    if [ -s "$messages_file" ]; then
+        shuf -n 1 "$messages_file"
+    else
+        printf '%s\n' "Shell ready."
+    fi
 }
 
 function __random_startup_cow {
