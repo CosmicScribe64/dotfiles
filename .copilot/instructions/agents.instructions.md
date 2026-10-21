@@ -42,7 +42,7 @@ While writing:
 - Follow the repository's release and dependency policies without unrelated version or lockfile churn, and run its formatter on changed files only.
 
 ## Git and pre-commit
-- Before every commit (including amendments and review-fix commits), run the `deslop` skill's pre-commit review on the exact staged diff, report the reviewed scope and findings, and stop if a material finding needs approval.
+- Before every commit (including amendments and review-fix commits), run the `deslop` skill on the exact staged diff, report the reviewed scope and findings, and stop if a material finding needs approval.
 - Before claiming commit, push, or PR work is complete:
   1. Check `git status --short --branch` and the diff against the target base branch.
   2. Verify the commit includes every intended change and excludes unrelated working docs, local config, generated output, and pre-existing edits.

@@ -1,6 +1,6 @@
 # Pattern catalog
 
-Read before an audit, staged review, or file rewrite. Each entry says what to fix and
+Read before an audit or a file or diff rewrite. Each entry says what to fix and
 when to keep the wording. The full pattern list is in
 [tells.json](../scripts/tells.json); `find_tells.py --list-rules` prints it.
 

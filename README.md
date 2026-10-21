@@ -40,7 +40,7 @@ fetch other dependencies.
 
 | Skill | Purpose |
 | --- | --- |
-| [deslop](skills/deslop/) | Draft, rewrite, or audit prose; optionally apply its plain-language style to answers and explanations. Includes `scripts/find_tells.py`, which lists likely AI-writing tells for review. Simplify code only when explicitly requested. |
+| [deslop](skills/deslop/) | Draft, rewrite, or audit prose; optionally apply its plain-language style to answers and explanations. Includes `scripts/find_tells.py`, which lists likely AI-writing tells for review. |
 | [llm-wiki](skills/llm-wiki/) | Set up a project wiki with a Kanban ticket board. |
 | [org-braindump](skills/org-braindump/) | Organize a loose braindump into topic buckets, next actions, and open questions. |
 | [project-setup](skills/project-setup/) | Set up a repository with an orchestrator workflow, Dockerized tooling, an LLM wiki ticket board, and Matt Pocock skills. |

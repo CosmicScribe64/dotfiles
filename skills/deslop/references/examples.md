@@ -57,8 +57,8 @@ fact," compress faithfully or explain the conflict.
 ++retry_count;
 ```
 
-Delete this comment in writing mode; the code stays. Keep this one, which the
-arithmetic alone does not show:
+Delete this comment; the code stays. Keep this one, which the arithmetic alone does
+not show:
 
 ```cpp
 // Convert ENU (east, north, up) to NED (north, east, down).
@@ -72,22 +72,7 @@ Keep the suspense, fragments, and aside. Do not add a next step. The style rules
 apply: "Nothing — then the second reply arrived" becomes "Nothing. Then the second reply
 arrived."
 
-## 8. Keep a guard when the runtime contract is unknown
-
-```typescript
-export function upperCaseName(name: string): string {
-  if (typeof name !== "string") {
-    throw new TypeError("name must be a string");
-  }
-  return name.toUpperCase();
-}
-```
-
-"Deslop this file" permits writing edits only. Even in code mode, the annotation does
-not bind untyped callers, and the guard defines an error. Keep it without boundary
-evidence and a passing baseline.
-
-## 9. Replace dashes and hinge colons
+## 8. Replace dashes and hinge colons
 
 Before: "The cache is invalidated on deploy — every node drops its entries. The fix is
 simple: warm the cache before traffic shifts."
@@ -95,7 +80,7 @@ simple: warm the cache before traffic shifts."
 After: "Each deploy clears the cache on every node. Warm the cache before shifting
 traffic."
 
-## 10. Expand compressed notes
+## 9. Expand compressed notes
 
 Before: "Retry w/ backoff → max 5, then DLQ. No dup writes (idempotency key)."
 
