@@ -64,6 +64,7 @@ While writing:
 
 ## PRs and stacked PRs
 - Update PR descriptions with `gh api` using `## Why`, `## What`, `## How`, and `## How to Test` (leave test boxes unchecked unless actually run).
+- Open `## What` with a small Mermaid graph of the change (data flow, call flow or components), shading new or changed parts. Render it once (for example `minlag/mermaid-cli` in Docker) before posting.
 - For stacked PRs, check GitHub's [stacked PR overview](https://docs.github.com/en/pull-requests/get-started/about-stacked-prs) and [workflow docs](https://docs.github.com/en/pull-requests/how-tos/stacked-pull-requests):
   - Keep layers small and buildable in one repo; bottom PR targets trunk, each later PR targets its predecessor, and dependencies stay in the same or lower layer. Register with `gh stack` or the REST stack API; report a blocker if unavailable.
   - Fix the owning layer, restack descendants, and push rewritten branches with `--force-with-lease`. Merge only when requested after checking approvals, CI, and upper-PR merge scope; reverify stack order, bases, diffs, and remote parity after changes.
