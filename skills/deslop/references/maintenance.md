@@ -45,4 +45,4 @@ Judge actions and retained meaning, not whether a response repeats a rule.
 | S16  | House style requires Title Case, or user keeps em dashes          | Follow it; a voice sample alone does not override the defaults.                       |
 | S17  | "Leverage" in prose / "attack vector" in security docs            | Replace the first; keep the second.                                                   |
 | S18  | find_tells flags quoted or discussed wording / reports no hits    | Leave quoted wording; a clean run is not a pass.                                      |
-| S19  | ISO or reader-success claim without reader evidence               | Editorial assessment only; no certification claim.                                    |
+| S19  | Standard or reader-success claim without reader evidence          | Editorial assessment only; no certification claim.                                    |

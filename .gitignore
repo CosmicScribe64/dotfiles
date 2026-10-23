@@ -5,3 +5,4 @@ __pycache__/
 docs/
 .worktrees/
 /scratch/
+/.copilot/instructions/i-have-adhd.instructions.md

@@ -1,27 +1,20 @@
 # Plain-language assessment
 
-Use for formal reader-outcome assessments, ISO 24495-1 questions, and high-stakes
-writing. Ordinary rewrites use the core workflow.
+Use for formal reader-outcome assessments and high-stakes writing. Ordinary rewrites
+use the core workflow.
 
-## ISO 24495-1 basics
+## Basics
 
-ISO 24495-1:2023, _Plain language - Part 1: Governing principles and guidelines_, is a
-14-page guidance standard. Its definition: wording, structure, and design work together
-so intended readers can find, understand, and use what they need. Its four principles:
+Plain language means wording, structure, and design work together so intended readers
+can find, understand, and use what they need. Four principles:
 
 1. **Relevant:** readers get what they need.
 2. **Findable:** readers can easily find it.
 3. **Understandable:** readers can easily understand it.
 4. **Usable:** readers can easily use it.
 
-The full text was not available when this skill was written. Attribute to ISO only the
-title, scope, definition, these four principles, and the public structure; present
-specific techniques as supporting practice. Do not rename the principles. Part 1
-certifies no document, plain language is not accessibility conformance (pair it with
-WCAG for web content), and it differs from easy language for readers with comprehension
-difficulties. Recheck the [ISO catalog](https://www.iso.org/standard/78907.html) before
-claiming anything about later parts or certification. Other sources:
-[IPLF](https://www.iplfederation.org/iso-standard/) and
+Plain language is not accessibility conformance (pair it with WCAG for web content),
+and it differs from easy language for readers with comprehension difficulties. Source:
 [Digital.gov](https://digital.gov/guides/plain-language).
 
 ## Assessment
@@ -41,8 +34,8 @@ typography, and accessibility remain untested.
 
 For each formal finding, give the outcome, severity (high: task failure, lost rights,
 unsafe action; medium: avoidable effort; low: friction), and basis: `Observed`,
-`Assumed`, `Source claim`, `Reader evidence`, or `Cannot assess`. Give no ISO or
-authenticity score.
+`Assumed`, `Source claim`, `Reader evidence`, or `Cannot assess`. Give no compliance
+or authenticity score.
 
 ## High-stakes text
 
