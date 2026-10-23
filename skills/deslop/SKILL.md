@@ -1,6 +1,6 @@
 ---
 name: deslop
-description: "Draft, rewrite, or audit prose, documentation, comments, docstrings, messages, and plans, or answer and explain in this style without an existing draft. Use for deslop, humanize, de-AI, tightening, natural voice, plain language, ISO 24495-1, and document necessity. Never changes executable code. Audit-only requests never authorize edits."
+description: "Draft, rewrite, or audit prose, documentation, comments, docstrings, messages, and plans, or answer and explain in this style without an existing draft. Use for deslop, humanize, de-AI, tightening, natural voice, plain language, and document necessity. Never changes executable code. Audit-only requests never authorize edits."
 argument-hint: "[respond|draft|rewrite|audit] [question, text, path, or base..head]"
 ---
 
@@ -94,7 +94,7 @@ and [examples.md](./references/examples.md) when a change involves a length targ
 evidence gap, requirement, comment, or narrative voice. For responses and
 short pasted rewrites, consult them only for an unresolved decision.
 
-For formal plain-language assessments, ISO claims, or high-stakes writing, use
+For formal plain-language assessments or high-stakes writing, use
 [plain-language.md](./references/plain-language.md).
 
 ## Default style rules
@@ -125,7 +125,7 @@ to a voice sample.
 After file edits, check the diff, links, anchors, and dangling references. Run
 formatters or tests only where changed syntax or repository rules call for them.
 Audits use non-mutating checks. A rewrite does not authorize posting, committing, or
-pushing. Do not present editorial review as reader validation, ISO certification, or
+pushing. Do not present editorial review as reader validation, certification, or
 accessibility conformance.
 
 - **Respond:** Give the answer in this style, not an audit or editing narrative.

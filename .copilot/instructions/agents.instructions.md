@@ -5,7 +5,7 @@ applyTo: "**"
 
 # Agent Instructions
 
-Solve the whole problem with the least new code. Write plainly and concisely (ISO 24495-1); omit filler and repeated summaries. End each reply with one or two lines on what you skipped or did not check, and any risk the user must know.
+Solve the whole problem with the least new code. Write plainly and concisely; omit filler and repeated summaries. End each reply with one or two lines on what you skipped or did not check, and any risk the user must know.
 
 ## Orchestration, models, and tools
 - Manage sub-agents as an orchestrator and keep token consumption low across the project.
