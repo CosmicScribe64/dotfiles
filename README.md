@@ -47,6 +47,7 @@ fetch other dependencies.
 | [llm-wiki](skills/llm-wiki/) | Set up a project wiki with a Kanban ticket board. |
 | [org-braindump](skills/org-braindump/) | Organize a loose braindump into topic buckets, next actions, and open questions. |
 | [project-setup](skills/project-setup/) | Set up a repository with an orchestrator workflow, Dockerized tooling, an LLM wiki ticket board, and Matt Pocock skills. |
+| [requirement-map](skills/requirement-map/) | Map every added and removed line of a diff to a requirement, reconcile totals against `git diff --numstat`, and link each requirement to its wiki entry. Includes `scripts/check_map.py`. |
 | [test-suite-auditor](skills/test-suite-auditor/) | Find weak assertions, missing coverage, and flaky tests. |
 | [verification-status](skills/verification-status/) | List each claim made, whether it is verified, and the supporting evidence in a table. |
 
