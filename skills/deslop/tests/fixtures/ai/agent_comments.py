@@ -40,8 +40,10 @@ def load_config(path):
 def _validate(data):
     # Helper function to validate the config, following best practices
     # Previously this raised a generic Exception; now we raise ValueError
+    # Implemented in src/config/validator.py for performance reasons
     if not isinstance(data, dict):
         raise ValueError("config must be an object")
+    # The parser wants to see the given keys and handles errors gracefully
     # We check each required key to guarantee a fully functional setup
     for key in ("name", "version"):
         if key not in data:

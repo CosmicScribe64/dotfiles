@@ -3,14 +3,6 @@
 
 Every hit is a lead for review under the deslop skill, not a verdict. The script
 never edits files. Rules live in tells.json next to this file.
-
-Usage:
-  find_tells.py PATH...            scan files or directories (git-tracked files in a repo)
-  find_tells.py -                  scan stdin
-  find_tells.py --staged           scan lines added in the index
-  find_tells.py --diff REF         scan lines added since REF (or in A..B)
-  find_tells.py --commits RANGE    scan commit messages in RANGE (for example main..HEAD)
-Options: --no-weak, --skip ID[,ID], --json, --list-rules
 """
 
 import argparse
@@ -22,20 +14,68 @@ import sys
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
-PROSE_EXTS = {".md", ".markdown", ".mdx", ".txt", ".rst", ".adoc", ""}
+PROSE_EXTS = {".md", ".markdown", ".mdx", ".txt", ".rst", ".adoc", ".commit", ""}
 HASH_EXTS = {".py", ".sh", ".bash", ".zsh", ".rb", ".pl", ".yaml", ".yml", ".toml", ".conf", ".cfg", ".ini", ".r"}
 SLASH_EXTS = {".js", ".mjs", ".cjs", ".jsx", ".ts", ".tsx", ".go", ".rs", ".c", ".h", ".cc", ".cpp", ".hpp",
               ".java", ".kt", ".swift", ".cs", ".scala", ".dart", ".php", ".css", ".scss"}
-NOTATION_CATEGORIES = {"notation"}  # terse notation is conventional in tables
+SINGLE_QUOTE_STR_EXTS = {".js", ".mjs", ".cjs", ".jsx", ".ts", ".tsx", ".php", ".css", ".scss"}
+SHELL_NAMES = {".bashrc", ".bash_profile", ".profile", ".zshrc", ".zprofile", "makefile", "gnumakefile",
+               "dockerfile", "containerfile"}
+SKIP_NAMES = {".vimrc", ".gvimrc", ".editorconfig", ".gitignore", ".gitattributes", ".prettierignore", ".dockerignore"}
+NOTATION_CATEGORIES = {"notation"}  # terse notation is conventional in tables and commit subjects
+STOPWORDS = {"the", "a", "an", "in", "on", "at", "to", "for", "of", "with", "by", "from", "as", "is", "are", "be",
+             "no", "not", "do", "if", "when", "how", "why", "what", "where", "this", "that", "these", "those",
+             "it", "its", "or", "and"}
 
 HEADING = re.compile(r"^(#{1,6})\s+(.*?)\s*#*\s*$")
 LIST_ITEM = re.compile(r"^\s*(?:[-*+]|\d+[.)])\s+")
 TABLE_ROW = re.compile(r"^\s*\|")
-FENCE = re.compile(r"^\s*(```|~~~)")
+FENCE_OPEN = re.compile(r"^\s*(`{3,}|~{3,})[^`~]*$")
 BREAK = re.compile(r"^\s*(?:-\s*){3,}$|^\s*(?:\*\s*){3,}$|^\s*(?:_\s*){3,}$")
-SENTENCE_END = re.compile(r"(?<=[.!?])[\"')\]]*\s+(?=[A-Z0-9\"'(\[])")
+SENTENCE_END = re.compile(r"(?<=[.!?])[\"')\]*]*\s+(?=[A-Z0-9\"'(\[`*])")
 WORD = re.compile(r"[A-Za-z][A-Za-z'-]*")
+TOKEN = re.compile(r"[A-Za-z0-9][A-Za-z0-9'-]*")
 ORDINAL = re.compile(r"(?:(?:The|A|My|Our) (?:first|second|third|fourth|fifth|sixth|final|last) \w+|(?:First|Second|Third|Fourth|Fifth|Finally|Lastly),)")
+
+
+def shebang_ext(text):
+    first = text.split("\n", 1)[0].lower()
+    if "python" in first:
+        return ".py"
+    if re.search(r"\b(node|deno|bun|ts-node)\b", first):
+        return ".js"
+    if "ruby" in first:
+        return ".rb"
+    if "perl" in first:
+        return ".pl"
+    return ".sh"
+
+
+def classify_ext(path_str, text=""):
+    p = Path(path_str)
+    name = p.name.lower()
+    if name in SKIP_NAMES:
+        return None
+    if name in SHELL_NAMES or name.startswith(".env"):
+        return ".sh"
+    ext = p.suffix.lower()
+    if ext:
+        return ext if ext in PROSE_EXTS | HASH_EXTS | SLASH_EXTS else None
+    if text.startswith("#!"):
+        return shebang_ext(text)
+    if name.startswith("."):
+        return None
+    return ""
+
+
+def step_fence(line, fence):
+    if fence is None:
+        m = FENCE_OPEN.match(line)
+        return ((m.group(1)[0], len(m.group(1))) if m else None), bool(m)
+    ch, count = fence
+    if re.match(rf"^\s*{re.escape(ch)}{{{count},}}\s*$", line):
+        return None, True
+    return fence, True
 
 
 # ---------------------------------------------------------------- masking
@@ -47,14 +87,26 @@ def blank(text, start, end):
 
 def mask_spans(text, pattern, group=0):
     for m in reversed(list(pattern.finditer(text))):
-        text = blank(text, m.start(group), m.end(group))
+        if m.start(group) != -1:
+            text = blank(text, m.start(group), m.end(group))
+    return text
+
+
+def mask_quotes(text):
+    pat = re.compile(r'(?<!\w)"((?:[^"\n]|\n(?![ \t]*(?:\n|[-*+#>|]|\d+[.)]))){1,300}?)"|“((?:[^”\n]|\n(?![ \t]*(?:\n|[-*+#>|]|\d+[.)]))){1,300}?)”')
+    for m in reversed(list(pat.finditer(text))):
+        g = 1 if m.start(1) != -1 else 2
+        s, e = m.start(g), m.end(g)
+        if e > s and text[e - 1] in ".!?":
+            e -= 1
+        text = blank(text, s, e)
     return text
 
 
 def mask_prose(text, ext=".md"):
-    """Return (base, full) masks. base hides code, URLs, and markup; full also hides quotations."""
+    """Return (raw, base, full) masks. raw hides code/quotes blocks; base also hides URLs/tags; full hides quotes."""
     lines = text.split("\n")
-    out, in_fence, in_front = [], False, bool(lines and lines[0].strip() == "---")
+    out, fence, in_front = [], None, bool(lines and lines[0].strip() == "---")
     literal_indent = None  # reStructuredText literal block after "::" or a code directive
     for i, line in enumerate(lines):
         if ext == ".rst":
@@ -73,42 +125,69 @@ def mask_prose(text, ext=".md"):
             if i > 0 and line.strip() == "---":
                 in_front = False
             continue
-        if FENCE.match(line):
-            in_fence = not in_fence
-            out.append(" " * len(line))
-        elif in_fence or line.lstrip().startswith(">"):
+        fence, is_fenced = step_fence(line, fence)
+        if is_fenced or line.lstrip().startswith(">"):
             out.append(" " * len(line))
         else:
             out.append(line)
-    base = "\n".join(out)
-    for pat in (r"``[^\n]*?``|`[^`\n]+`", r"\]\([^)\n]*\)", r"<[^>\n]+>", r"https?://\S+", r"<!--.*?-->"):
-        base = mask_spans(base, re.compile(pat, re.S))
-    # Quoted words are mentioned or quoted, both protected; keep the marks themselves.
-    full = mask_spans(base, re.compile(r"\"([^\"\n]|\n(?!\s*\n)){1,300}?\"|“[^”]{1,300}?”"))
-    return base, full
+    raw = "\n".join(out)
+    raw = mask_spans(raw, re.compile(r"<!--.*?-->", re.S))
+    for pat in (r"``([^\n]*?)``", r"`([^`\n]+)`"):
+        raw = mask_spans(raw, re.compile(pat), group=1)
+    base = raw
+    for pat in (r"\]\([^)\n]*\)", r"</?[A-Za-z!][^>\n]*>", r"https?://\S+"):
+        base = mask_spans(base, re.compile(pat))
+    full = mask_quotes(base)
+    return raw, base, full
 
 
 def mask_code(text, ext):
     """Keep only comment and docstring text; everything else becomes spaces."""
     keep = [False] * len(text)
-    if ext in HASH_EXTS:
-        line_comment = re.compile(r"(?<![$'\"\w{])#(?![!{])[^\n]*")
-    else:
-        line_comment = re.compile(r"(?<![:'\"])//[^\n]*")
-    spans = [m.span() for m in line_comment.finditer(text)]
-    if ext in SLASH_EXTS:
-        spans += [m.span() for m in re.finditer(r"/\*.*?\*/", text, re.S)]
     if ext == ".py":
-        spans += [m.span() for m in re.finditer(r"(\"\"\"|''').*?\1", text, re.S)]
-    for s, e in spans:
+        token = re.compile(r'(""".*?"""|\'\'\'.*?\'\'\'|#(?![!{])[^\n]*)|"(?:\\.|[^"\\\n])*"|\'(?:\\.|[^\'\\\n])*\'', re.S)
+    elif ext in HASH_EXTS:
+        token = re.compile(r'(#(?![!{])[^\n]*)|"(?:\\.|[^"\\\n])*"|\'(?:\\.|[^\'\\\n])*\'')
+    elif ext in SINGLE_QUOTE_STR_EXTS:
+        token = re.compile(r'(/\*.*?\*/|//[^\n]*)|"(?:\\.|[^"\\\n])*"|(?<!\w)\'(?:\\.|[^\'\\\n])*\'|`(?:\\.|[^`\\])*`', re.S)
+    else:
+        token = re.compile(r'(/\*.*?\*/|//[^\n]*)|"(?:\\.|[^"\\\n])*"|(?<!\w)\'(?:\\[^\'\\\n]+|[^\'\\\n])\'|`[^`]*`', re.S)
+    inline_lines = set()
+    spans = []
+    for m in token.finditer(text):
+        if not m.group(1):
+            continue
+        s, e = m.start(1), m.end(1)
+        frag = text[s:e]
+        if frag.startswith(('"""', "'''")):
+            spans.append((s + 3, e - 3, "doc"))
+        elif frag.startswith("/*"):
+            spans.append((s + 2, e - 2, "block"))
+        else:
+            line_start = text.rfind("\n", 0, s) + 1
+            if text[line_start:s].strip():
+                inline_lines.add(text.count("\n", 0, s) + 1)
+            prefix = len(frag) - len(frag.lstrip("#/"))
+            spans.append((s + prefix, e, "line"))
+    for s, e, kind in spans:
         for k in range(s, e):
             keep[k] = True
     masked = "".join(c if keep[i] or c == "\n" else " " for i, c in enumerate(text))
-    masked = re.sub(r"(//+|/\*+|\*+/|^\s*\*|#+|\"\"\"|''')", lambda m: " " * len(m.group()), masked, flags=re.M)
-    return masked, masked
+    for s, e, kind in spans:
+        if kind == "block":
+            sub = re.sub(r"^\s*\*+", lambda m: " " * len(m.group()), masked[s:e], flags=re.M)
+            masked = masked[:s] + sub + masked[e:]
+    raw = masked
+    for pat in (r"``([^\n]*?)``", r"`([^`\n]+)`"):
+        raw = mask_spans(raw, re.compile(pat), group=1)
+    base = raw
+    for pat in (r"\]\([^)\n]*\)", r"</?[A-Za-z!][^>\n]*>", r"https?://\S+"):
+        base = mask_spans(base, re.compile(pat))
+    full = mask_quotes(base)
+    return raw, base, full, inline_lines
 
 
-def flatten(text):
+def flatten(text, no_join_lines=()):
     """Join soft-wrapped lines with spaces (same length) so phrases can span line breaks."""
     lines = text.split("\n")
     chars = list(text)
@@ -116,7 +195,9 @@ def flatten(text):
     for i, line in enumerate(lines[:-1]):
         pos += len(line)
         nxt = lines[i + 1]
-        joinable = (line.strip() and nxt.strip() and not HEADING.match(line) and not HEADING.match(nxt)
+        joinable = (line.strip() and nxt.strip()
+                    and (i + 1) not in no_join_lines and (i + 2) not in no_join_lines
+                    and not HEADING.match(line) and not HEADING.match(nxt)
                     and not LIST_ITEM.match(nxt) and not TABLE_ROW.match(line) and not TABLE_ROW.match(nxt)
                     and not BREAK.match(nxt))
         if joinable:
@@ -142,14 +223,20 @@ class Scanner:
         c = self.checks[check_id]
         return check_id not in self.skip and (self.include_weak or not c.get("weak"))
 
-    def scan(self, text, ext):
+    def scan(self, text, ext, allowed=None):
+        if ext == "" and text.startswith("#!"):
+            ext = shebang_ext(text)
         if ext in PROSE_EXTS or ext not in HASH_EXTS | SLASH_EXTS:
-            base, full = mask_prose(text, ext)
+            raw, base, full = mask_prose(text, ext)
+            no_join = ()
             prose = True
         else:
-            base, full = mask_code(text, ext)
+            raw, base, full, no_join = mask_code(text, ext)
             prose = False
-        base, full = flatten(base), flatten(full)
+        unflat_lines = full.split("\n")
+        raw_flat = flatten(raw, no_join)
+        orig_flat = flatten(text, no_join) if prose else raw_flat
+        base, full = flatten(base, no_join), flatten(full, no_join)
         line_starts = [0] + [m.end() for m in re.finditer("\n", text)]
         table_lines = {i + 1 for i, l in enumerate(text.split("\n")) if TABLE_ROW.match(l)}
         hits = []
@@ -173,18 +260,21 @@ class Scanner:
         for rule, pat in self.rules:
             if rule.get("scope") == ("prose" if not prose else "comments"):
                 continue
-            source = base if rule["id"] == "curly-quote" else full
+            source = raw_flat if rule["id"] == "citation-artifact" else (base if rule["id"] == "curly-quote" else full)
             for m in pat.finditer(source):
                 if m.end() == m.start():
                     continue
-                if rule["category"] in NOTATION_CATEGORIES and locate(m.start())[0] in table_lines:
+                line_no = locate(m.start())[0]
+                if rule["category"] in NOTATION_CATEGORIES and (line_no in table_lines or (ext == ".commit" and line_no == 1)):
                     continue
                 hit(rule["id"], m.start(), m.end(), rule["hint"], rule.get("weak"))
 
-        if prose and ext not in (".rst", ".adoc"):
+        if prose and ext not in (".rst", ".adoc", ".commit"):
             self.structure(text, hit)
-        self.sentences(full, hit, prose)
-        return hits, len(WORD.findall(full))
+        self.sentences(full, orig_flat, hit, prose)
+        word_count = (sum(len(WORD.findall(l)) for i, l in enumerate(unflat_lines, 1) if i in allowed)
+                      if allowed is not None else len(WORD.findall(full)))
+        return hits, word_count
 
     def structure(self, text, hit):
         c = self.checks
@@ -196,15 +286,17 @@ class Scanner:
         front_end = -1
         if lines and lines[0].strip() == "---":
             front_end = next((k for k in range(1, len(lines)) if lines[k].strip() == "---"), -1)
-        in_fence, prev_level, bold_run, breaks = False, 0, [], []
+        fence, prev_level, bold_run, breaks = None, 0, [], []
         heading_lines = []
         for i, line in enumerate(lines):
             if i <= front_end:
                 continue
-            if FENCE.match(line):
-                in_fence = not in_fence
-                continue
-            if in_fence:
+            fence, is_fenced = step_fence(line, fence)
+            if is_fenced:
+                if len(bold_run) >= 3 and self.enabled("bold-bullet-run"):
+                    s = offsets[bold_run[0]]
+                    hit("bold-bullet-run", s, s + len(lines[bold_run[0]]), c["bold-bullet-run"]["hint"], c["bold-bullet-run"].get("weak"))
+                bold_run = []
                 continue
             off = offsets[i]
             h = HEADING.match(line)
@@ -212,7 +304,7 @@ class Scanner:
                 level, title = len(h.group(1)), h.group(2)
                 heading_lines.append((i, level))
                 words = [w for w in WORD.findall(re.sub(r"`[^`]*`", "", title))]
-                later = [w for w in words[1:] if len(w) > 3 and not w.isupper()]
+                later = [w for w in words[1:] if len(w) > 3 and not w.isupper() and not any(ch.isupper() for ch in w[1:])]
                 caps = [w for w in later if w[0].isupper()]
                 if self.enabled("title-case-heading") and len(caps) >= 2 and len(caps) == len(later):
                     hit("title-case-heading", off, off + len(line), c["title-case-heading"]["hint"], c["title-case-heading"].get("weak"))
@@ -232,11 +324,11 @@ class Scanner:
             m = re.match(r"^(\s*(?:[-*+]|\d+[.)])\s+)\*\*([^*\n]+?)\*\*\s*[:.—-]?\s*(.*)$", line)
             if m:
                 bold_run.append(i)
-                label = WORD.findall(m.group(2).lower())
-                after = WORD.findall(m.group(3).lower())[:3]
+                label = [w for w in WORD.findall(m.group(2).lower()) if len(w) > 2 and w not in STOPWORDS]
+                after = WORD.findall(m.group(3).lower())[:4]
                 if self.enabled("bold-label-restate") and label and after and label[0] in after:
                     hit("bold-label-restate", off, off + len(line), c["bold-label-restate"]["hint"], c["bold-label-restate"].get("weak"))
-            elif LIST_ITEM.match(line) or (line.strip() and not line.startswith(" ")):
+            elif not line.strip() or LIST_ITEM.match(line) or not line.startswith(" "):
                 if len(bold_run) >= 3 and self.enabled("bold-bullet-run"):
                     s = offsets[bold_run[0]]
                     hit("bold-bullet-run", s, s + len(lines[bold_run[0]]), c["bold-bullet-run"]["hint"], c["bold-bullet-run"].get("weak"))
@@ -253,7 +345,7 @@ class Scanner:
             if self.enabled("empty-heading") and nlevel > level and all(not lines[k].strip() for k in range(i + 1, j)):
                 hit("empty-heading", offsets[i], offsets[i] + len(lines[i]), c["empty-heading"]["hint"], c["empty-heading"].get("weak"))
 
-    def sentences(self, full, hit, prose):
+    def sentences(self, full, raw_flat, hit, prose):
         c = self.checks
         seen = {}
         pos = 0
@@ -273,23 +365,25 @@ class Scanner:
             sents = [(s, e) for s, e in sents if body[s:e].strip()]
             info = []
             for s, e in sents:
+                abs_s, abs_e = body_start + s, body_start + e
                 words = WORD.findall(body[s:e])
-                info.append((body_start + s, body_start + e, words))
+                raw_tokens = TOKEN.findall(raw_flat[abs_s:abs_e].lower())
+                info.append((abs_s, abs_e, words, raw_tokens))
                 if self.enabled("long-sentence") and len(words) > 40:
-                    hit("long-sentence", body_start + s, body_start + e, c["long-sentence"]["hint"], c["long-sentence"].get("weak"))
-                key = " ".join(w.lower() for w in words)
-                if prose and len(words) >= 6 and self.enabled("duplicate-sentence"):
+                    hit("long-sentence", abs_s, abs_e, c["long-sentence"]["hint"], c["long-sentence"].get("weak"))
+                key = " ".join(raw_tokens)
+                if prose and len(words) >= 6 and len(raw_tokens) >= 6 and self.enabled("duplicate-sentence"):
                     if key in seen:
-                        hit("duplicate-sentence", body_start + s, body_start + e, c["duplicate-sentence"]["hint"], c["duplicate-sentence"].get("weak"))
+                        hit("duplicate-sentence", abs_s, abs_e, c["duplicate-sentence"]["hint"], c["duplicate-sentence"].get("weak"))
                     else:
                         seen[key] = True
-            ordinals = [(s, e) for s, e, w in info if w and ORDINAL.match(full[s:e].lstrip())]
+            ordinals = [(s, e) for s, e, w, _ in info if w and ORDINAL.match(full[s:e].lstrip())]
             if self.enabled("ordinal-enumeration") and len(ordinals) >= 3:
                 check = c["ordinal-enumeration"]
                 hit("ordinal-enumeration", ordinals[0][0], ordinals[0][1], check["hint"], check.get("weak"))
-            self.runs(info, "fragment-run", lambda w: 0 < len(w) <= 4, hit)
-            self.runs(info, "anaphora", lambda w: len(w) >= 3, hit,
-                      key=lambda w: " ".join(x.lower() for x in w[:2]))
+            self.runs(info, "fragment-run", lambda item: 0 < len(item[2]) <= 4, hit)
+            self.runs(info, "anaphora", lambda item: len(item[2]) >= 3 and len(item[3]) >= 3, hit,
+                      key=lambda item: " ".join(item[3][:2]))
 
     def runs(self, info, check_id, qualifies, hit, key=None):
         """Report each maximal run of three or more qualifying sentences once."""
@@ -299,8 +393,8 @@ class Scanner:
         k = 0
         while k < len(info):
             j = k
-            while (j < len(info) and qualifies(info[j][2])
-                   and (key is None or key(info[j][2]) == key(info[k][2]))):
+            while (j < len(info) and qualifies(info[j])
+                   and (key is None or key(info[j]) == key(info[k]))):
                 j += 1
             if j - k >= 3:
                 hit(check_id, info[k][0], info[j - 1][1], check["hint"], check.get("weak"))
@@ -317,7 +411,8 @@ def git(*args, cwd=None):
 
 def added_lines(diff_args):
     """Map path -> set of added line numbers from `git diff -U0`."""
-    out = git("diff", "-U0", "--no-color", "--diff-filter=AMR", *diff_args)
+    out = git("diff", "-U0", "--no-color", "--no-ext-diff", "--src-prefix=a/", "--dst-prefix=b/",
+              "--diff-filter=AMR", *diff_args)
     result, path = {}, None
     for line in out.splitlines():
         if line.startswith("+++ "):
@@ -339,7 +434,7 @@ def walk(paths):
             except (subprocess.CalledProcessError, FileNotFoundError):
                 files = [f for f in path.rglob("*") if f.is_file() and ".git" not in f.parts]
             for f in sorted(files):
-                if f.suffix.lower() in PROSE_EXTS | HASH_EXTS | SLASH_EXTS and f.is_file():
+                if f.is_file() and classify_ext(f) is not None:
                     yield f
         else:
             yield path
@@ -383,8 +478,12 @@ def main():
         for entry in log.split("\x01"):
             if "\x00" in entry:
                 sha, msg = entry.strip("\n").split("\x00", 1)
-                msg = "\n".join(l for l in msg.splitlines() if not re.match(r"(?i)(co-authored-by|signed-off-by):", l))
-                targets.append((f"commit {sha}", msg, ".txt", None))
+                lines = [l for l in msg.splitlines()
+                         if not re.match(r"(?i)(co-authored-by|signed-off-by|reviewed-by|acked-by|tested-by|reported-by|suggested-by|helped-by|cc|fixes|closes|refs|see-also|change-id):", l)]
+                if lines:
+                    lines[0] = re.sub(r"^(?:(?:fixup|squash|amend)!\s+)*(?:[a-z]+(?:\([^)\n]+\))?!?: )?",
+                                      lambda m: " " * len(m.group()), lines[0])
+                targets.append((f"commit {sha}", "\n".join(lines), ".commit", None))
     elif args.staged or args.diff:
         if args.paths:
             sys.exit("find_tells: use paths or --staged/--diff, not both")
@@ -395,9 +494,6 @@ def main():
             if args.diff and ".." in args.diff:
                 head = re.split(r"\.\.\.?", args.diff, maxsplit=1)[1] or "HEAD"
             for rel, lines in sorted(added_lines(diff_args).items()):
-                ext = Path(rel).suffix.lower()
-                if ext not in PROSE_EXTS | HASH_EXTS | SLASH_EXTS:
-                    continue
                 if args.staged:
                     text = git("show", f":{rel}", cwd=root)
                 elif head:
@@ -405,7 +501,9 @@ def main():
                 else:
                     text = read_text(Path(root) / rel)
                 if text is not None:
-                    targets.append((rel, text, ext, lines))
+                    ext = classify_ext(rel, text)
+                    if ext is not None:
+                        targets.append((rel, text, ext, lines))
         except subprocess.CalledProcessError as e:
             sys.exit(f"find_tells: git failed: {e.stderr.strip()}")
     elif args.paths == ["-"]:
@@ -414,14 +512,16 @@ def main():
         for f in walk(args.paths):
             text = read_text(f)
             if text is not None:
-                targets.append((str(f), text, f.suffix.lower(), None))
+                ext = classify_ext(f, text)
+                if ext is not None:
+                    targets.append((str(f), text, ext, None))
     else:
         ap.print_help()
         return 2
 
     all_hits, words = [], 0
     for name, text, ext, allowed in targets:
-        hits, n = scanner.scan(text, ext)
+        hits, n = scanner.scan(text, ext, allowed)
         words += n
         for h in hits:
             if allowed is None or any(l in allowed for l in range(h["line"], h["end_line"] + 1)):

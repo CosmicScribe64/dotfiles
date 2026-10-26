@@ -17,12 +17,39 @@ sys.path.insert(0, str(HERE.parent / "scripts"))
 import find_tells  # noqa: E402
 
 
+def check_regressions(scanner):
+    def rules(text, ext=".md", allowed=None):
+        hits, words = scanner.scan(text, ext, allowed=allowed)
+        return {h["rule"] for h in hits}, words
+
+    assert "citation-artifact" in rules("See [x](https://a.com/?utm_source=chatgpt.com) <mark>y</mark>.")[0]
+    assert "ai-vocab" in rules("Use ```foo``` first.\n\nWe delve into the tapestry.\n")[0]
+    assert not rules("````md\n```\nLet's delve into the tapestry.\n```\n````\n")[0]
+    assert "ai-vocab" in rules("When a < b and we delve into c > d.\n")[0]
+    assert "significance" in rules('A 15" screen.\nIt is a testament to design, "quoted" here.\n')[0]
+    assert "step-comment" in rules("fn f<'a>(x: &'a str) {\n // Step 1: don't delve\n}\n", ".rs")[0]
+    assert "step-comment" in rules("int n = 1'000; // Step 1: don't delve\n", ".cpp")[0]
+    assert not rules('# Ignore "it is worth noting" and https://example.com/delve\n', ".py")[0]
+    assert "long-sentence" not in rules("\n".join(f"x{i} = {i}  # sets item {i} in table" for i in range(8)), ".py")[0]
+    assert "step-comment" in rules('"""Summary.\nStep 1: check cache.\nAdded retry.\n"""\n', ".py")[0]
+    assert "bold-label-restate" not in rules("- **The fix:** Check the logs.\n")[0]
+    assert "title-case-heading" not in rules("## Use GitHub Actions for CI\n")[0]
+    assert "duplicate-sentence" not in rules(
+        "Run `server-a` to start the primary local development service. "
+        "Run `server-b` to start the primary local development service.\n")[0]
+    assert "not-x-but-y" not in rules("If the file isn't found, it's created. It doesn't block. It is fast.\n")[0]
+    assert "metaphor-noun-weak" not in rules("Keep the API surface and attack surface small.\n")[0]
+    assert rules("One two three four.\nFive six.\n", ".md", allowed={2})[1] == 2
+    assert "copula-dodge" in rules('#!/usr/bin/env python3\n"""This serves as a hub."""\nx = "seamless"\n', "")[0]
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--show", choices=["human", "ai"], help="print strong hits for one corpus")
     args = ap.parse_args()
     data = json.loads((HERE.parent / "scripts" / "tells.json").read_text())
     scanner = find_tells.Scanner(data, include_weak=True, skip=set())
+    check_regressions(scanner)
     for corpus in ("human", "ai"):
         words = strong = weak = 0
         by_rule = {}
