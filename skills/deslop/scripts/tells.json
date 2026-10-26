@@ -3,22 +3,26 @@
   "sources": [
     "https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing",
     "https://tropes.fyi",
+    "https://graphite.io/five-percent/research/ai-tells",
     "https://github.com/cursor/plugins/tree/main/pstack/skills/unslop",
     "https://github.com/sam-paech/antislop-sampler (Apache-2.0)",
-    "Kobak et al., 'Delving into LLM-assisted writing in biomedical publications through excess vocabulary', 2024/2025"
+    "https://github.com/AgriciDaniel/anti-slop (Apache-2.0)",
+    "https://github.com/Syntaf/vale-llm-slop (MIT)",
+    "https://github.com/dteirney/vale-agent-prose",
+    "Kobak et al., 'Delving into LLM-assisted writing in biomedical publications through excess vocabulary', Science Advances, 2025"
   ],
   "rules": [
     {
       "id": "em-dash",
       "category": "punctuation",
-      "pattern": "\u2014|(?<=\\w) -- (?=\\w)",
+      "pattern": "\u2014",
       "hint": "Em dash in prose; end the sentence or use a comma."
     },
     {
       "id": "spaced-dash",
       "category": "punctuation",
-      "pattern": "(?<=\\w) [\u2013-] (?=\\w)",
-      "hint": "En dash or hyphen standing in for an em dash.",
+      "pattern": "(?<=\\w) (?:[\u2013-]|--) (?=\\w)",
+      "hint": "En dash, hyphen, or double hyphen standing in for an em dash.",
       "weak": true
     },
     {
@@ -62,21 +66,21 @@
     {
       "id": "ai-vocab",
       "category": "vocabulary",
-      "pattern": "(?<!\\w)(?:additionally|bolster(?:s|ed|ing)?|crucial(?:ly)?|delv(?:e|es|ed|ing)|deep dive|enduring|foster(?:s|ed|ing)?|garner(?:s|ed|ing)?|interplay|intricate(?:ly)?|intricacies|meticulous(?:ly)?|pivotal|showcas(?:e|es|ed|ing)|tapestr(?:y|ies)|testament|underscor(?:ed|ing)|underscores? (?:the|its|his|her|their|a|an|how|that|why|our)|vibrant|realm|multifaceted|commendable|invaluable|paramount|holistic(?:ally)?|synerg(?:y|ies|istic)|ever-(?:evolving|changing)|everchanging|embark(?:s|ed|ing)?|bustling|nestled|kaleidoscope|symphony|moreover|furthermore|notably|resonat(?:e|es|ed|ing) with|align(?:s|ed)? with|in the realm of|in today's (?:digital|fast-paced) (?:age|world))(?!\\w)",
-      "hint": "AI vocabulary; name the action or property meant (catalog.md)."
+      "pattern": "(?<!\\w)(?:additionally|bolster(?:s|ed|ing)?|crucial(?! (?:role|moment|step|part)\\b)|crucially|delv(?:e|es|ed|ing)|deep dive|enduring|foster(?:s|ed)?|(?<!, )(?<!, thereby )(?<!, further )(?<!, ultimately )fostering|garner(?:s|ed|ing)?|interplay|intricate(?:ly)?|intricacies|meticulous(?:ly)?|pivotal(?! (?:role|moment|part)\\b)|showcas(?:e|es|ed)|(?<!, )(?<!, thereby )(?<!, further )(?<!, ultimately )showcasing|tapestr(?:y|ies)|(?<!a )testament(?! to\\b)|underscor(?:ed)|(?<!, )(?<!, thereby )(?<!, further )(?<!, ultimately )underscoring|underscores? (?:the|its|his|her|their|a|an|how|that|why|our)|vibrant|realm|multifaceted|commendable|invaluable|paramount|holistic(?:ally)?|synerg(?:y|ies|istic)|ever-(?:evolving|changing)|everchanging|embark(?:s|ed|ing)?|bustling|nestled|kaleidoscope|symphony|moreover|furthermore|notably|resonat(?:e|es|ed|ing) with|align(?:s|ed)? with|in the realm of)(?!\\w)",
+      "hint": "AI vocabulary; name the action or property meant."
     },
     {
       "id": "ai-vocab-weak",
       "category": "vocabulary",
-      "pattern": "(?<!\\w)(?:enhanc(?:e|es|ed|ing)|emphasiz(?:e|es|ed|ing)|highlight(?:s|ed|ing)|landscape|robust|valuable|comprehensive|nuanced|dynamic|journey|navigat(?:e|es|ed|ing)|key|vital|profound(?:ly)?|rich|diverse array|daunting|tailored|underpin(?:s|ned|ning)?|insights?|streamlin(?:e|es|ed|ing)|intuitive|powerful)(?!\\w)",
+      "pattern": "(?<!\\w)(?:enhanc(?:e|es|ed|ing)|emphasiz(?:e|es|ed|ing)|highlight(?:s|ed|ing)|landscape|robust|valuable|comprehensive|nuanced|dynamic|journey|navigat(?:e|es|ed|ing)|key|vital|profound(?:ly)?|rich|diverse array|daunting|tailored|underpin(?:s|ned|ning)?|insights?|streamlin(?:e|es|ed|ing)|intuitive|powerful|dependable|deliberate|steady|thoughtful|meaningful|conversely|adds another layer|what comes next|looking ahead)(?!\\w)",
       "hint": "Often AI vocabulary; keep only the literal or technical sense.",
       "weak": true
     },
     {
       "id": "promo",
       "category": "vocabulary",
-      "pattern": "(?<!\\w)(?:seamless(?:ly)?|cutting-edge|groundbreaking|game[- ]chang(?:er|ing)|unlock(?:s|ed|ing)?|unleash(?:es|ed|ing)?|elevat(?:e|es|ed|ing)|empower(?:s|ed|ing)?|revolutioni[sz](?:e|es|ed|ing)|revolutionary|unprecedented|unparalleled|world-class|best-in-class|state-of-the-art|next-generation|all-in-one|supercharg(?:e|es|ed|ing)|effortless(?:ly)?|renowned|breathtaking|stunning|must-have|in the heart of|natural beauty|rich (?:cultural )?heritage|transformative|reshap(?:e|es|ed|ing))(?!\\w)",
-      "hint": "Promotional language; state the checkable fact instead (catalog.md)."
+      "pattern": "(?<!\\w)(?:seamless(?:ly)?|cutting-edge|groundbreaking|game[- ]chang(?:er|ing)|unlock(?:s|ed|ing)?|unleash(?:es|ed|ing)?|elevat(?:e|es|ed|ing)|empower(?:s|ed|ing)?|revolutioni[sz](?:e|es|ed|ing)|revolutionary|unprecedented|unparalleled|world[- ]class|best-in-class|state-of-the-art|next-generation|all-in-one|supercharg(?:e|es|ed|ing)|effortless(?:ly)?|renowned|breathtaking|stunning|must-have|in the heart of|natural beauty|rich (?:cultural )?heritage|transformative|reshap(?:e|es|ed|ing)|fantastic|unmatched|drastically)(?!\\w)",
+      "hint": "Promotional language; state the checkable fact instead."
     },
     {
       "id": "magic-adverb",
@@ -108,39 +112,39 @@
     {
       "id": "fancy-word",
       "category": "wording",
-      "pattern": "(?<!\\w)(?:utili[sz](?:e|es|ed|ing|ation)|leverag(?:e|es|ed|ing)|facilitat(?:e|es|ed|ing)|numerous|commenc(?:e|es|ed|ing)|endeavou?r(?:s)?|ascertain(?:s|ed)?|plethora|myriad|a (?:wide|diverse) (?:range|variety|array) of|in order to|due to the fact that|at this point in time|in the event that|has the ability to|conduct an? \\w+ation|when it comes to|moving forward|going forward|at the end of the day|prior to)(?!\\w)",
-      "hint": "Filler or inflated word; use the plain version (catalog.md table)."
+      "pattern": "(?<!\\w)(?:utili[sz](?:e|es|ed|ing|ation)|leverag(?:e|es|ed|ing)|facilitat(?:e|es|ed|ing)|numerous|commenc(?:e|es|ed|ing)|endeavou?r(?:s)?|ascertain(?:s|ed)?|plethora|myriad|a (?:wide|diverse) (?:range|variety|array) of|due to the fact that|at this point in time|in the event that|has the ability to|conduct an? \\w+ation|moving forward|going forward|at the end of the day)(?!\\w)",
+      "hint": "Filler or inflated word; use the plain version."
     },
     {
       "id": "metaphor-noun",
       "category": "wording",
-      "pattern": "(?<!\\w)(?:substrate|wedge|locus|vantage|nexus|bedrock|modality|paradigm(?:s)?|endgame|north star|flywheel|ratchet(?:s|ing)?|gold-plating|evacuat(?:e|es|ed|ing)|linchpin|cornerstone|keystone|lynchpin|double-edged sword|silver bullet|low-hanging fruit|moving parts|secret sauce)(?!\\w)",
+      "pattern": "(?<!\\w)(?:substrate|wedge|locus|vantage|nexus|bedrock|modality|paradigm(?:s)?|endgame|north star|flywheel|ratchet(?:s|ing)?|gold-plating|linchpin|cornerstone|keystone|lynchpin|double-edged sword|silver bullet|low-hanging fruit|moving parts|secret sauce|dial worth turning|earns its keep|grain[- ]matched|first[- ]class (?:citizen|concept))(?!\\w)",
       "hint": "Metaphor noun; use the concrete word unless it is the technical term."
     },
     {
       "id": "metaphor-noun-weak",
       "category": "wording",
-      "pattern": "(?<!\\w)(?:vector|primitives?|surface area|(?:API|attack) surface|harness(?:es|ed|ing)?|scaffold(?:ing)?|lens|pillar(?:s)?|backbone|ecosystem|canvas|blueprint|roadmap|guardrails?)(?!\\w)",
+      "pattern": "(?<!\\w)(?:vector|primitives?|(?<!API )(?<!attack )(?<!road )(?<!earth's )(?<!water )(?<!table )surface(?: area)?|harness(?:es|ed|ing)?|scaffold(?:ing)?|lens|pillar(?:s)?|backbone|ecosystem|canvas|blueprint|roadmap|guardrails?|load[- ]bearing(?! (?:wall|walls|beam|beams|column|columns|member|members|structure|capacity))|gated|gating|the \\w+ story)(?!\\w)",
       "hint": "Possible metaphor noun; keep it only as the established technical term.",
       "weak": true
     },
     {
       "id": "significance",
       "category": "claims",
-      "pattern": "(?<!\\w)(?:a testament to|(?:is|as) a (?:reminder|testament)|(?:pivotal|key|crucial|defining) moment|(?:key |major )?turning point|evolving landscape|focal point|indelible mark|deeply rooted|setting the stage for|paving the way (?:for|to)|(?:marks|represents|signals) a (?:shift|new era)|reflects? (?:a )?broader|broader (?:trends?|movement|implications)|plays? an? (?:crucial|pivotal|vital|key|significant|important|central) role|cannot be overstated|more (?:important|relevant) than ever|a new era|(?:a |an )?(?:significant|major|big|giant|important|huge) (?:step|leap) forward)(?!\\w)",
-      "hint": "Inflated significance; state the specific fact or cut it (catalog.md)."
+      "pattern": "(?<!\\w)(?:a testament to|(?:is|as) a (?:reminder|testament)|(?:pivotal|key|crucial|defining) moment|(?:key |major )?turning point|evolving landscape|focal point|indelible mark|deeply rooted|setting the stage for|paving the way (?:for|to)|(?:marks|represents|signals) a (?:shift|new era)|reflects? (?:a )?broader|broader (?:trends?|movement|implications)|plays? an? (?:crucial|pivotal|vital|key|significant|important|central) role|cannot be overstated|more (?:important|relevant) than ever|a new era|(?:a |an )?(?:significant|major|big|giant|important|huge) (?:step|leap) forward|(?:this|that) distinction matters|matters because|why (?:this|that|it) matters|the single most important)(?!\\w)",
+      "hint": "Inflated significance; state the specific fact or cut it."
     },
     {
       "id": "ing-tail",
       "category": "claims",
-      "pattern": ",\\s+(?:thereby |further |ultimately )?(?:highlighting|underscoring|emphasizing|ensuring|reflecting|symbolizing|contributing to|cultivating|fostering|encompassing|enhancing|showcasing|solidifying|reinforcing|cementing|marking|paving the way|demonstrating|illustrating|signaling|creating a|offering a|providing a)\\b",
-      "hint": "Trailing -ing analysis; say what the clause claims or cut it (catalog.md)."
+      "pattern": ",\\s+(?:thereby |further |ultimately )?(?:highlighting|underscoring|emphasizing|ensuring|reflecting|symbolizing|contributing to|cultivating|fostering|encompassing|enhancing|showcasing|solidifying|reinforcing|cementing|marking|demonstrating|illustrating|signaling|creating a|offering a|providing a)\\b",
+      "hint": "Trailing -ing analysis; say what the clause claims or cut it."
     },
     {
       "id": "vague-attribution",
       "category": "claims",
       "pattern": "(?<!\\w)(?:experts? (?:say|says|argue|argues|believe|agree|suggest|note)|industry (?:reports|experts|observers)|observers (?:have )?(?:noted|cited|argued)|(?:some|many) (?:critics|observers|analysts|scholars) (?:argue|say|believe|note)|studies (?:show|suggest|have shown)|research (?:shows|suggests)|it is widely (?:believed|recognized|acknowledged|regarded)|(?:is|are) widely (?:regarded|considered|seen) as|many (?:people )?(?:believe|argue|say|feel) that|according to (?:some|many|several)|described in scholarship|several (?:sources|publications|reports))(?!\\w)",
-      "hint": "Vague attribution; name the source or cut the claim (catalog.md)."
+      "hint": "Vague attribution; name the source or cut the claim."
     },
     {
       "id": "notability",
@@ -158,14 +162,14 @@
     {
       "id": "knowledge-gap",
       "category": "claims",
-      "pattern": "(?<!\\w)(?:as of my (?:last )?(?:knowledge|training) (?:cutoff|update)|up to my last (?:training|knowledge) update|while (?:specific )?details are (?:limited|scarce)|not widely (?:available|documented|disclosed|known)|based on (?:the )?available information|in the (?:provided|available) (?:sources|search results))(?!\\w)",
-      "hint": "Knowledge-limit disclaimer or speculation about gaps; keep unknowns unknown (catalog.md)."
+      "pattern": "(?<!\\w)(?:as of my (?:last )?(?:knowledge|training) (?:cutoff|update)|up to my last (?:training|knowledge) update|while (?:specific )?details are (?:limited|scarce)|not widely (?:available|documented|disclosed|known)|based on (?:the )?available information|in the (?:provided|available) (?:sources|search results)|should be (?:treated|presented|viewed|understood|read) as [^.?!\\n]{1,50}? rather than|does not (?:by itself )?establish)(?!\\w)",
+      "hint": "Knowledge-limit disclaimer or corrective framing; keep unknowns unknown."
     },
     {
       "id": "not-x-but-y",
       "category": "structure",
-      "pattern": "\\bnot (?:just|only|merely|simply|about)\\b[^.!?\\n]{1,80}?(?:\\bbut\\b|[,;\u2014] ?(?:it's|it is|they're|this is|that's)\\b)|\\b(?:isn't|is not|wasn't|was not|aren't|are not|doesn't|don't)\\b[^.!?\\n]{1,60}[.;,\u2014] (?:It's|it's|It is|it is|They're|they're|This is|this is|That's|that's)\\b",
-      "hint": "Negative parallelism; state the positive claim unless the exclusion is a contract."
+      "pattern": "\\bnot (?:just|only|merely|simply|about)\\b[^.!?\\n]{1,80}?(?:\\bbut\\b|[,;\u2014] ?(?:it's|it is|they're|this is|that's)\\b)|\\b(?:it's|it is|this is|that's|that is|they're|they are) not\\b[^.!?\\n]{1,50}[.;,\u2014] (?:it's|it is|they're|they are|this is|that's|that is)\\b|\\b(?<!if )(?<!when )(?<!because )(?<!since )(?<!unless )(?:isn't|is not|wasn't|was not|aren't|are not) (?:a |an |the |about |\\w+ing\\b)[^.!?\\n]{1,45}[.;\u2014] (?:it's|it is|they're|they are|this is|that's|that is)\\b|\\bless like (?:a |an |the )?[^.!?\\n]{1,40}? and more like\\b|\\bis more than (?:just )?(?:a |an )?[^.!?\\n]{1,40}?[,;.\u2014-] (?:it's|it is|they're|they are)\\b|\\brather than (?:merely|simply) \\w+ing\\b|\\bthe (?:question|problem|issue|answer|goal|point|challenge|bottleneck) (?:isn't|is not|wasn't|was not)\\b[^.!?\\n]{1,60}[.;,\u2014] (?:it's|it is|the \\w+ is)\\b",
+      "hint": "Negative parallelism or contrastive reframe; state the positive claim unless the exclusion is a contract."
     },
     {
       "id": "not-not-just",
@@ -177,7 +181,7 @@
     {
       "id": "question-reveal",
       "category": "structure",
-      "pattern": "(?:^|[.!] )(?:The|And the|But the|What's|The real)\\b[^.?!\\n]{1,40}\\? [A-Z][^.?!\\n]{0,50}[.!]",
+      "pattern": "(?:^|[.!] )(?:The|And the|But the|What's)\\b[^.?!\\n]{1,40}\\? [A-Z][^.?!\\n]{0,50}[.!]",
       "hint": "'The X? A Y.' setup; state it directly.",
       "case_sensitive": true
     },
@@ -185,18 +189,18 @@
       "id": "announcement",
       "category": "structure",
       "pattern": "(?<!\\w)(?:here'?s (?:the thing|the kicker|the catch|the deal|the truth|the problem|what|why|how)|let'?s (?:dive|delve|break (?:this|it) down|unpack|explore|take a (?:closer )?look|talk about)|let me (?:break|walk you through|explain)|quick note|it'?s worth (?:noting|mentioning|pointing out)|worth noting|(?:it is|it's) (?:important|critical|crucial|essential) to (?:note|remember|consider|understand|recognize)|importantly,|interestingly,|needless to say|it goes without saying|that said,|with that in mind)(?!\\w)",
-      "hint": "Announcement before the point; cut it (catalog.md)."
+      "hint": "Announcement before the point; cut it."
     },
     {
       "id": "staged-candor",
       "category": "structure",
       "pattern": "(?<!\\w)(?:full stop|let that sink in|make no mistake|honestly\\?|real talk|and yes,|let'?s be honest|to be (?:honest|frank|fair)|i'?ll be honest|this is not a rant|hot take|spoiler(?: alert)?:?)(?!\\w)",
-      "hint": "Manufactured emphasis or candor (catalog.md)."
+      "hint": "Manufactured emphasis or candor."
     },
     {
       "id": "reasoning-leak",
       "category": "structure",
-      "pattern": "(?<!\\w)(?:i want to be (?:clear|exact|precise|honest|explicit)|to be clear|i should (?:be clear|note|mention|point out)|let me be (?:clear|honest|precise)|worth being precise about|i'?ll (?:now )?(?:start|begin) by|first,? i'?ll|now,? let'?s)(?!\\w)",
+      "pattern": "(?<!\\w)(?:i want to be (?:clear|exact|precise|honest|explicit)|to be clear|i should (?:be clear|note|mention|point out)|i (?:need|have) to (?:note|mention|clarify|point out)|let me be (?:clear|honest|precise)|worth being precise about|i'?ll (?:now )?(?:start|begin) by|first,? i'?ll|now,? let'?s|i can (?:see|tell) (?:that|the|this|your)|let me (?:check|verify|examine|analyze|analyse|look up|pull up)|i'?m going to (?:check|verify|examine|analyze|analyse)|honest caveat:)(?!\\w)",
       "hint": "Narration of the writer's process; do the thing instead."
     },
     {
@@ -229,7 +233,7 @@
       "id": "analogy-opener",
       "category": "structure",
       "pattern": "(?<!\\w)(?:think of (?:it|this|them|that) (?:as|like)|imagine (?:a world|if|it as|this)|picture this|it'?s like (?:a|an|having)|a (?:classic|textbook) (?:case|example))(?!\\w)",
-      "hint": "Stock analogy or 'imagine' opener; keep only if it clarifies (catalog.md).",
+      "hint": "Stock analogy or 'imagine' opener; keep only if it clarifies.",
       "weak": true
     },
     {
@@ -262,27 +266,33 @@
     {
       "id": "stock-phrase",
       "category": "wording",
-      "pattern": "(?<!\\w)(?:whether you'?re (?:a |an )?[\\w -]{1,40} or|at (?:its|their) core|in essence|the key takeaways?|the (?:reality|truth) is|let'?s face it|shed(?:s|ding)? (?:some |new )?light on|a stark reminder|at the intersection of|the power of|harness(?:es|ing)? the power|unlock(?:s|ing)? the (?:full )?potential|(?:a )?delicate balance|treasure trove|(?:a )?beacon of|meticulously crafted|without further ado|buckle up|in a world where|simply put|dive (?:deeper|into)|navigat(?:e|es|ing) the complexit(?:y|ies)|look no further|take (?:it|your [\\w-]+) to the next level|the best of both worlds|a wealth of|rapidly (?:evolving|changing)|fast-paced|say goodbye to|stands? the test of time|a force to be reckoned with|(?:plays|played) (?:a )?(?:crucial|pivotal) part)(?!\\w)",
-      "hint": "Stock phrase; say the specific thing (catalog.md)."
+      "pattern": "(?<!\\w)(?:whether you'?re (?:a |an )?[\\w -]{1,40} or|at (?:its|their) core|in essence|the key takeaways?|the (?:reality|truth) is|let'?s face it|shed(?:s|ding)? (?:some |new )?light on|a stark reminder|at the intersection of|the power of|harness(?:es|ing)? the power|unlock(?:s|ing)? the (?:full )?potential|(?:a )?delicate balance|treasure trove|(?:a )?beacon of|meticulously crafted|without further ado|buckle up|in a world where|in today'?s (?:digital|fast[- ]paced) (?:age|world)|simply put|dive (?:deeper|into)|navigat(?:e|es|ing) the complexit(?:y|ies)|look no further|take (?:it|your [\\w-]+) to the next level|the best of both worlds|a wealth of|rapidly (?:evolving|changing)|(?<!today's )(?<!todays )fast[- ]paced(?: world)?|say goodbye to|stands? the test of time|a force to be reckoned with|(?:plays|played) (?:a )?(?:crucial|pivotal) part|half the battle|bridges? the gap|heavy lifting|gold standard)(?!\\w)",
+      "hint": "Stock phrase; say the specific thing."
     },
     {
       "id": "stock-phrase-weak",
       "category": "wording",
-      "pattern": "(?<!\\w)(?:essentially|in other words|sheer|embrac(?:e|es|ed|ing)|stands? out|crafted|curated|what'?s more|not to mention|feel free to|commitment to|whether it'?s|stark contrast|a deep understanding)(?!\\w)",
-      "hint": "Often a stock phrase; keep only if it carries meaning.",
+      "pattern": "(?<!\\w)(?:essentially|in other words|sheer|embrac(?:e|es|ed|ing)|stands? out|crafted|curated|what'?s more|not to mention|feel free to|commitment to|whether it'?s|stark contrast|a deep understanding|in order to|prior to|when it comes to|without (?:sacrificing|compromising)|crystal clear)(?!\\w)",
+      "hint": "Often a stock phrase or wordy construction; keep only if it carries meaning.",
       "weak": true
     },
     {
       "id": "code-hype",
       "category": "vocabulary",
-      "pattern": "(?<!\\w)(?:production[- ]ready|enterprise[- ]grade|battle[- ]tested|blazing(?:ly)?[- ]fast|lightning[- ]fast|rock[- ]solid|bulletproof|fully (?:functional|featured|tested)|industry[- ]standard|robust and scalable|highly scalable|comprehensive (?:test suite|solution|guide|overview|set of|coverage)|key features:?|summary of changes|follows? (?:industry )?best practices|clean(?:er)? and maintainable|maintainable and scalable|elegant solution|world[- ]class)(?!\\w)",
+      "pattern": "(?<!\\w)(?:production[- ]ready|enterprise[- ]grade|battle[- ]tested|blazing(?:ly)?[- ]fast|lightning[- ]fast|rock[- ]solid|bulletproof|fully (?:functional|featured|tested)|industry[- ]standard|robust and scalable|highly scalable|comprehensive (?:test suite|solution|guide|overview|set of|coverage)|key features:?|summary of changes|follows? (?:industry )?best practices|clean(?:er)? and maintainable|maintainable and scalable|elegant solution)(?!\\w)",
       "hint": "Hype in technical writing; state the measured property or cut it."
     },
     {
       "id": "vague-change-summary",
       "category": "claims",
-      "pattern": "(?:^|(?<=\\s\\s))(?:Enhanc|Refin|Improv|Updat|Streamlin|Optimiz|Revamp|Overhaul|Polish)(?:e|es|ed|ing)?\\b[^\\n.]{0,80}?\\b(?:with|for|by|through) (?:additional|improved|enhanced|better|comprehensive|clearer|more robust|more detailed|detailed|various)\\b",
+      "pattern": "(?:^|(?<=[.!?]\\s)|(?<=[-*+]\\s)|(?<=\\d[.)]\\s)|(?<=\\s\\s))(?:Enhanc|Refin|Improv|Updat|Streamlin|Optimiz|Revamp|Overhaul|Polish)(?:e|es|ed|ing)?\\b[^\\n.]{0,80}?\\b(?:with|for|by|through) (?:additional|improved|enhanced|better|comprehensive|clearer|more robust|more detailed|detailed|various)\\b",
       "hint": "Change summary that says 'improved' without saying what changed; name the change."
+    },
+    {
+      "id": "preserved-boilerplate",
+      "category": "claims",
+      "pattern": "(?<!\\w)(?:while (?:preserving|retaining|maintaining) (?:the )?(?:original|existing|current) (?:meaning|structure|behavior|behaviour|functionality|logic|api|semantics|technical details)|(?:ensured|ensuring) (?:full )?(?:compliance|adherence) with)(?!\\w)",
+      "hint": "Canned assurance about what was not changed or policy compliance; state what changed."
     },
     {
       "id": "this-change",
@@ -294,15 +304,15 @@
     {
       "id": "edit-narration",
       "category": "residue",
-      "pattern": "(?:^|(?<=\\s\\s))(?:Added|Updated|Changed|Modified|Fixed|Refactored|Removed|Replaced|Moved|Renamed|Switched|Previously|Changed from|Now (?:we|it|this|uses|handles|returns|supports)|New(?:ly added)? (?:implementation|version|approach|logic|helper)|(?:NEW|UPDATED|FIXED|CHANGED|ADDED):)\\b|\\binstead of the old\\b",
-      "hint": "Comment narrates the edit history; describe the code as it is now (catalog.md).",
+      "pattern": "(?:^|(?<=[.!?]\\s)|(?<=\\s\\s))(?:Added|Updated|Changed|Modified|Fixed|Refactored|Removed|Replaced|Moved|Renamed|Switched|Previously|Changed from|Now (?:we|it|this|uses|handles|returns|supports)|New(?:ly added)? (?:implementation|version|approach|logic|helper)|(?:NEW|UPDATED|FIXED|CHANGED|ADDED):)\\b|\\binstead of the old\\b",
+      "hint": "Comment narrates the edit history; describe the code as it is now.",
       "case_sensitive": true,
       "scope": "comments"
     },
     {
       "id": "step-comment",
       "category": "residue",
-      "pattern": "(?:^|(?<=\\s\\s))Step \\d+\\s*[:.)-]",
+      "pattern": "(?:^|(?<=[.!?]\\s)|(?<=\\s\\s))Step \\d+\\s*[:.)-]",
       "hint": "Step-by-step narration in a comment; keep only non-obvious reasons.",
       "case_sensitive": true,
       "scope": "comments"
@@ -310,10 +320,48 @@
     {
       "id": "comment-narration",
       "category": "residue",
-      "pattern": "(?:^|(?<=\\s\\s))(?:This (?:function|method|class|helper|code|block|line|loop) (?:is|will|handles|does|takes|returns)|Helper (?:function|method) (?:to|for|that)|Here we\\b|We (?:now |then |first )?(?:need to|check|create|call|use|loop|iterate|return)\\b|Let'?s\\b|Now,? (?:we|let'?s)\\b)|\\b(?:was|were) (?:previously|originally)\\b",
+      "pattern": "(?:^|(?<=[.!?]\\s)|(?<=\\s\\s))(?:This (?:function|method|class|helper|code|block|line|loop) (?:is|will|handles|does|takes|returns)|Helper (?:function|method) (?:to|for|that)|Here we\\b|We (?:now |then |first )?(?:need to|check|create|call|use|loop|iterate|return)\\b|Let'?s\\b|Now,? (?:we|let'?s)\\b)|\\b(?:was|were) (?:previously|originally)\\b",
       "hint": "Comment paraphrases the code; keep only what the code cannot say.",
       "weak": true,
       "case_sensitive": true,
+      "scope": "comments"
+    },
+    {
+      "id": "self-praise",
+      "category": "claims",
+      "pattern": "(?<!\\w)(?:for (?:better )?readability|ensur(?:es|ing) correctness|handles? (?:this|it|the case|errors?) gracefully|(?:properly|correctly) handles?|is the (?:cleanest|simplest|most elegant) way)(?!\\w)",
+      "hint": "Comment rates the code instead of explaining it; state what breaks without it.",
+      "scope": "comments"
+    },
+    {
+      "id": "vague-reason",
+      "category": "claims",
+      "pattern": "(?<!\\w)(?:for (?:various|obvious|a variety of|performance|safety|legacy) reasons|due to the nature of|this is by design)(?!\\w)",
+      "hint": "Non-reason in a comment; give the actual reason or admit it is unknown.",
+      "scope": "comments"
+    },
+    {
+      "id": "empty-qualifier",
+      "category": "wording",
+      "pattern": "(?<!\\w)(?:the (?:given|specified|appropriate|relevant|proper|desired|corresponding|requested|provided|underlying) \\w+|as (?:appropriate|needed)|if applicable)(?!\\w)",
+      "hint": "Qualifier in a comment that narrows nothing; name the constraint.",
+      "weak": true,
+      "scope": "comments"
+    },
+    {
+      "id": "anthropomorphism",
+      "category": "wording",
+      "pattern": "(?<!\\w)(?:(?:knows?|knew) (?:about|how to)|is aware of|(?:wants?|prefers?|likes?) to|is happy to|will complain|doesn'?t like|cares about)(?!\\w)",
+      "hint": "Personified code in a comment; state the actual behavior.",
+      "weak": true,
+      "scope": "comments"
+    },
+    {
+      "id": "source-path-comment",
+      "category": "residue",
+      "pattern": "\\b(?:defined|implemented|declared|located|see) in [\\w./-]+\\.(?:py|js|ts|tsx|jsx|go|rs|c|cc|cpp|h|hpp|java|rb|sh)\\b",
+      "hint": "Source file path in a comment rots on rename; describe the contract instead.",
+      "weak": true,
       "scope": "comments"
     },
     {
@@ -325,14 +373,14 @@
     {
       "id": "citation-artifact",
       "category": "residue",
-      "pattern": "contentReference|oaicite|oai_citation|turn\\d+(?:search|news|view)\\d+|attributableIndex|\\[cite: ?\\d+|\\[span_\\d+\\]|\\(start_span\\)|\\(end_span\\)|grok_card|grok_render|\\[attached_file:\\d+\\]|\\[web:\\d+\\]|ppl-ai-file-upload|utm_source=(?:chatgpt\\.com|openai|copilot)|:::writing|\u3010\\d+[^\u3011]*\u3011",
-      "hint": "Chatbot citation or markup artifact; remove and cite properly.",
+      "pattern": "contentReference|oaicite|oai_citation|turn\\d+(?:search|news|view)\\d+|attributableIndex|\\[cite: ?\\d+|\\[cite_start\\]|\\[span_\\d+\\]|\\(start_span\\)|\\(end_span\\)|grok_card|grok-card|grok_render|\\[attached_file:\\d+\\]|\\[web:\\d+\\]|ppl-ai-file-upload|utm_source=(?:chatgpt\\.com|chatgpt|openai|copilot(?:\\.com)?|perplexity(?:\\.ai)?|grok\\.com|claude\\.ai)|referrer=(?:grok\\.com|chatgpt\\.com|openai\\.com|perplexity\\.ai)|:::writing|<mark>|</mark>|<think>|</think>|\u3010\\d+[^\u3011]*\u3011",
+      "hint": "Chatbot citation, highlight, or markup artifact; remove and cite properly.",
       "case_sensitive": true
     },
     {
       "id": "placeholder",
       "category": "residue",
-      "pattern": "\\[(?:Your|Insert|Company|Client|Recipient|Product) [^\\]]{1,30}\\]|\\bINSERT_[A-Z_]+|\\[(?:Name|Date|Title|Link|URL)\\]",
+      "pattern": "\\[(?:Your|Insert|Company|Client|Recipient|Product|Entertainer's|Author's) [^\\]]{1,30}\\]|\\b(?:INSERT|PASTE)_[A-Z0-9_]{2,}|\\[(?:Name|Date|Title|Link|URL)\\]|\\b20\\d\\d-(?:XX|xx)-(?:XX|xx)\\b|\\b20XX\\b|\\bTODO:?\\s*(?:add )?quote\\b|\\[\\s*(?:quote|citation|source|page) needed\\s*\\]",
       "hint": "Unfilled template placeholder.",
       "case_sensitive": true
     }
@@ -369,7 +417,7 @@
     },
     {
       "id": "bold-label-restate",
-      "hint": "Bold label the line then restates; convert to prose (catalog.md)."
+      "hint": "Bold label the line then restates; convert to prose."
     },
     {
       "id": "bold-bullet-run",
