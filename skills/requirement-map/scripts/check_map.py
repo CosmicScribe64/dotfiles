@@ -2,7 +2,13 @@
 """Check or initialize a requirement-map CSV against git diff and a wiki page.
 
 usage: check_map.py MAP.csv BASE [HEAD] [--repo PATH] [--wiki-page WIKI_REL_PATH]
-                    [--no-wiki] [--init-csv] [--link-style {chat,wiki}]
+                    [--no-wiki] [--init-csv [--carry-from OLD.csv]]
+                    [--link-style {chat,wiki,pr} [--names NAMES.csv]]
+
+--carry-from copies every row of an earlier map whose (file, hunk) still matches the diff,
+including split rows. New or changed hunks come out as TODO.
+--link-style pr prints a shareable table: no links or IDs, one plain name per requirement
+(from NAMES.csv columns id,name, else the wiki heading title), NONE shown as 'Unrelated'.
 
 MAP.csv columns: file,requirement,kind,added,removed[,hunk]
   - kind is 'prod' or 'test' (consistent per file)
@@ -203,12 +209,35 @@ def parse_wiki_headings(wiki_file: Path) -> tuple[dict[str, tuple[int, str, str]
     return (section_reqs if had_req_section else all_reqs), had_req_section
 
 
+def load_carry(old_csv: Path) -> tuple[dict, dict]:
+    """Return old rows keyed by (file, hunk) and hunkless rows keyed by file."""
+    by_hunk: dict[tuple[str, str], list[dict]] = collections.defaultdict(list)
+    by_file: dict[str, list[dict]] = collections.defaultdict(list)
+    with old_csv.open(encoding="utf-8", newline="") as handle:
+        for row in csv.DictReader(handle):
+            if (row.get("requirement") or "TODO").strip() == "TODO":
+                continue
+            hunk = (row.get("hunk") or "").strip()
+            if hunk:
+                by_hunk[(row["file"], hunk)].append(row)
+            else:
+                by_file[row["file"]].append(row)
+    return by_hunk, by_file
+
+
+def counts(rows: list[dict]) -> tuple[int, int]:
+    return sum(int(r["added"]) for r in rows), sum(int(r["removed"]) for r in rows)
+
+
 def write_initial_csv(
     map_csv: Path,
     numstat: dict[str, tuple[int, int]],
     hunks_by_file: dict[str, list[tuple[str, int, int]]],
+    carry_from: Path | None = None,
 ) -> int:
     fieldnames = ["file", "requirement", "kind", "added", "removed", "hunk"]
+    old_hunks, old_files = load_carry(carry_from) if carry_from else ({}, {})
+    carried = todo = 0
     handle = (
         sys.stdout
         if str(map_csv) == "-"
@@ -219,7 +248,20 @@ def write_initial_csv(
         writer.writeheader()
         for path in sorted(numstat):
             kind = infer_kind(path)
+            # A collapsed (hunkless) old file carries over only if its totals are unchanged.
+            if path in old_files and counts(old_files[path]) == numstat[path]:
+                for row in old_files[path]:
+                    writer.writerow({k: row.get(k, "") for k in fieldnames})
+                carried += len(hunks_by_file[path])
+                continue
             for hunk_range, added, removed in hunks_by_file[path]:
+                old_rows = old_hunks.get((path, hunk_range), [])
+                if old_rows and counts(old_rows) == (added, removed):
+                    for row in old_rows:
+                        writer.writerow({**{k: row.get(k, "") for k in fieldnames}, "hunk": hunk_range})
+                    carried += 1
+                    continue
+                todo += 1
                 writer.writerow(
                     {
                         "file": path,
@@ -230,7 +272,16 @@ def write_initial_csv(
                         "hunk": hunk_range,
                     }
                 )
+    if carry_from:
+        print(f"carried {carried} hunks from {carry_from}; {todo} TODO", file=sys.stderr)
     return 0
+
+
+def load_names(names_csv: Path | None) -> dict[str, str]:
+    if not names_csv:
+        return {}
+    with names_csv.open(encoding="utf-8", newline="") as handle:
+        return {r["id"].strip(): r["name"].strip() for r in csv.DictReader(handle)}
 
 
 def main() -> int:
@@ -242,8 +293,12 @@ def main() -> int:
     parser.add_argument("--wiki-page", default=None)
     parser.add_argument("--no-wiki", action="store_true")
     parser.add_argument("--init-csv", action="store_true")
-    parser.add_argument("--link-style", choices=("chat", "wiki"), default="chat")
+    parser.add_argument("--carry-from", type=Path, default=None)
+    parser.add_argument("--link-style", choices=("chat", "wiki", "pr"), default="chat")
+    parser.add_argument("--names", type=Path, default=None)
     args = parser.parse_args()
+    if args.carry_from and not args.init_csv:
+        parser.error("--carry-from needs --init-csv")
 
     repo = args.repo.resolve()
     diff_args = resolve_diff_args(args.base, args.head)
@@ -251,7 +306,7 @@ def main() -> int:
     hunks_by_file = git_hunks(repo, diff_args, numstat)
 
     if args.init_csv:
-        return write_initial_csv(args.map_csv, numstat, hunks_by_file)
+        return write_initial_csv(args.map_csv, numstat, hunks_by_file, args.carry_from)
 
     errors: list[str] = []
 
@@ -415,6 +470,29 @@ def main() -> int:
     tot_test = sum(v["test_a"] for _, v in ordered)
     tot_rem = sum(v["rem"] for _, v in ordered)
     tot_add = tot_prod + tot_test
+
+    if args.link_style == "pr":
+        names = load_names(args.names)
+        head_ref = args.head if args.head and not args.head.startswith("--") else None
+        if head_ref:
+            rev = subprocess.run(
+                ["git", "-C", str(repo), "rev-parse", "--short", head_ref],
+                capture_output=True, text=True, check=False,
+            ).stdout.strip()
+            print(
+                "Each added and removed line in this PR is counted once, and the totals "
+                f"match `git diff --numstat` for `{rev or head_ref}`.\n"
+            )
+        print("| Requirement | Production | Tests | Added | Removed |")
+        print("|---|---|---|---|---|")
+        for req, v in ordered:
+            default = "Unrelated" if req == "NONE" else (wiki_reqs.get(req, (0, "", ""))[1] or req)
+            label = names.get(req, default)
+            total_a = v["prod_a"] + v["test_a"]
+            print(f"| {label} | {v['prod_a']} | {v['test_a']} | **{total_a}** | {v['rem']} |")
+        print(f"| **Total** | {tot_prod} | {tot_test} | **{tot_add}** | {tot_rem} |")
+        print(f"OK: {len(numstat)} files, +{tot_add}/-{tot_rem} reconciled.", file=sys.stderr)
+        return 0
 
     print("| Requirement | Production | Tests | Total added | Removed |")
     print("|---|---|---|---|---|")
