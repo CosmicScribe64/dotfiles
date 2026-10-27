@@ -33,6 +33,15 @@ Account for every added and removed line in a diff by assigning it to one requir
 
    Done when no `TODO` rows remain in the CSV and you can cite every `NONE` change by `[file:line](path#Lline)` (using the surviving anchor line in `<head>` or the deleted file path for pure deletions).
 
+   **When the head moves after mapping** (a fix commit, rebase or restack), re-seed from the earlier map instead of reclassifying, then classify only the `TODO` rows:
+
+   ```bash
+   python3 <this skill's folder>/scripts/check_map.py scratch/<slug>-requirement-map-<new-head>.csv <base> <new-head> \
+     --repo <checkout> --init-csv --carry-from scratch/<slug>-requirement-map.csv
+   ```
+
+   It copies every row whose `(file, hunk)` still matches, including all split rows of a shared hunk, and marks a hunk `TODO` when it is new or its counts changed. Do not carry rows with a hand-written script; keeping one row per key drops the other splits of a shared hunk, and the totals still reconcile, so the check does not catch it.
+
 3. **Verify reconciliation and wiki links.** Run (omit `--wiki-page` when the repo has no `wiki/`, or pass `--no-wiki` to skip wiki checks):
 
    ```bash
@@ -48,3 +57,15 @@ Account for every added and removed line in a diff by assigning it to one requir
    - The reconciled summary table and top file contributors from `check_map.py` (plus any unmapped wiki requirements with 0 lines in the diff).
    - Every `NONE` change with its link, what it changes, and whether to drop it or split it into its own PR.
    - The boundary rules used for ambiguous hunks and how many lines shift under the alternative reading.
+
+5. **PR descriptions and other shared text.** Reviewers do not have the wiki, so the shared table has no `wiki/` links and no internal IDs:
+   - Write `scratch/<slug>-requirement-names.csv` (`id,name`) with one short plain phrase per requirement that a reviewer understands without the ticket, such as `Per-scan summary: one RadarScanSummary per scan, counting every drop reason`. Name `NONE` as `Unrelated: <what it changes>`.
+   - Regenerate the table for the PR's current head, after any new commit:
+
+     ```bash
+     python3 <this skill's folder>/scripts/check_map.py scratch/<slug>-requirement-map.csv <base> <head> \
+       --repo <checkout> --wiki-page wiki/<page>.md --link-style pr --names scratch/<slug>-requirement-names.csv
+     ```
+
+     It prints one sentence naming the head commit, then the table with only names and counts. Without `--names` it falls back to the wiki heading titles.
+   - Paste it under its own heading (for example `## Lines by requirement`) and check the posted body contains no `wiki/` or local paths.
