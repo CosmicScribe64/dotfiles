@@ -45,7 +45,6 @@ fetch other dependencies.
 | [change-walkthrough](skills/change-walkthrough/) | Explain a PR, branch or diff as a plain story with the changed code quoted beside each idea, enough to review it. Includes `scripts/check_quotes.py`, which checks every quote against the checkout and the base. |
 | [deslop](skills/deslop/) | Draft, rewrite, or audit prose; optionally apply its plain-language style to answers and explanations. Includes `scripts/find_tells.py`, which lists likely AI-writing tells for review. |
 | [llm-wiki](skills/llm-wiki/) | Set up a project wiki with a Kanban ticket board. |
-| [org-braindump](skills/org-braindump/) | Organize a loose braindump into topic buckets, next actions, and open questions. |
 | [project-setup](skills/project-setup/) | Set up a repository with an orchestrator workflow, Dockerized tooling, an LLM wiki ticket board, and Matt Pocock skills. |
 | [requirement-map](skills/requirement-map/) | Map every added and removed line of a diff to a requirement, reconcile totals against `git diff --numstat`, and link each requirement to its wiki entry. Includes `scripts/check_map.py`. |
 | [test-suite-auditor](skills/test-suite-auditor/) | Find weak assertions, missing coverage, and flaky tests. |
