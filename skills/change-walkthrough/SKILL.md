@@ -1,6 +1,6 @@
 ---
 name: change-walkthrough
-description: 'Walkthrough of a code change: a short plain spoken story on top, then a breakdown with the changed code quoted beside each idea and linked to file:line, so the reader can understand and review it. Use when the user wants to understand or review a PR, branch, commit range or diff, or asks to explain or walk through code changes.'
+description: 'Walkthrough of a code change: a short plain spoken story on top, then a breakdown with the changed code quoted beside each idea and linked to file:line, so the reader can understand and review it. Use when the user wants to understand or review a PR, branch, commit range or diff, or asks to explain or walk through code changes, or wants an explainer video of one.'
 ---
 
 # Change walkthrough
@@ -40,6 +40,8 @@ Tell the change as a story the reader follows top to bottom, with the changed co
    - Close with one sentence naming the trivial changes and remaining tests you left out, and one next action that links the densest spot to read in context.
 
 5. **Check the quotes.** Run `python3 <this skill's folder>/scripts/check_quotes.py /tmp/walkthrough.md <base> <head> --repo <reader's checkout>`. Fix each failure; most are a range a few lines off, so look up the first quoted line's real number in the checkout. When it reports under half of the production lines shown, add the missing changed units or name them in the closing sentence. Done when it reports 0 quote failures and 0 diff warnings; then show the walkthrough to the reader.
+
+6. **Offer an explainer video.** When you show the walkthrough, ask the reader whether they also want a voiced 3Blue1Brown-style animation of the story, about 3 minutes long and rendered locally. If they say yes, or asked for one up front, follow [VIDEO.md](VIDEO.md). Done when the reader has answered.
 
 ## Style
 
