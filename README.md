@@ -42,6 +42,7 @@ fetch other dependencies.
 
 | Skill | Purpose |
 | --- | --- |
+| [adversarial-review](skills/adversarial-review/) | Fresh subagents try to break a change: trace each changed value through unchanged producers and consumers, sweep a defect-class checklist, prove findings by running code, and re-review every push. |
 | [change-walkthrough](skills/change-walkthrough/) | Explain a PR, branch or diff as a plain story with the changed code quoted beside each idea, enough to review it. Includes `scripts/check_quotes.py`, which checks every quote against the head commit and the diff, with self-tests in `scripts/test_check_quotes.py`. |
 | [deslop](skills/deslop/) | Draft, rewrite, or audit prose; optionally apply its plain-language style to answers and explanations. Includes `scripts/find_tells.py`, which lists likely AI-writing tells for review. |
 | [llm-wiki](skills/llm-wiki/) | Set up a project wiki with a Kanban ticket board. |
