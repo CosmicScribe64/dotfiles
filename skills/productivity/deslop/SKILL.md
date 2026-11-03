@@ -6,7 +6,7 @@ argument-hint: "[respond|draft|rewrite|audit] [question, text, path, or base..he
 
 # Deslop
 
-Make writing plain, direct, and human while keeping every meaning it must carry. Style patterns are leads, never proof of AI authorship.
+Make writing clear and concise. Say each thing once, in the fewest plain words that keep its meaning, and sound like a person wrote it. Style patterns are leads, never proof of AI authorship.
 
 ## Modes
 
@@ -19,7 +19,7 @@ Edit prose only; executable code stays as it is. Work on the exact text, paths, 
 
 ## What stays
 
-Keep claims, attribution, cause, negation, numbers and units, bounds, order, error behavior, obligations, warnings, workaround reasons, actionable TODOs, and real qualifiers ("may," "up to," "only," "not yet"). Leave quotations, mandated wording, licenses, generated notices, identifiers, commands, output, code, directives, link targets, and anchors unchanged unless asked. Add no details, sources, people, mentions, links, or experiences the source lacks. Tightening keeps every distinct claim; an explicit length target may drop side details if you name them. Paraphrase sources and quote any copied phrase.
+Keep claims, attribution, cause, negation, numbers and units, bounds, order, error behavior, obligations, warnings, workaround reasons, actionable TODOs, and real qualifiers ("may," "up to," "only," "not yet"). Leave quotations, mandated wording, licenses, generated notices, identifiers, commands, output, code, directives, link targets, and anchors unchanged unless asked. Add no details, sources, people, mentions, links, or experiences the source lacks. Keeping a meaning never means keeping its wording, so say it in fewer words. Tightening keeps every distinct claim; an explicit length target may drop side details if you name them. Paraphrase sources and quote any copied phrase.
 
 Before writing or reviewing a new document, name its reader, the task it serves, and what it adds over existing docs and code. A document that repeats declarations, narrates the implementation, or records temporary status is unnecessary. Delete it if an agent wrote it and cleanup is authorized, otherwise report it.
 
@@ -35,6 +35,7 @@ Before writing or reviewing a new document, name its reader, the task it serves,
    - Check that each authority ("experts argue," "studies show," a source hung on a trailing "-ing" clause) supports both the claim and the implied number of sources. Flag what it doesn't.
    - In comments and docstrings, cut narration of the next line, step labels, diff history, self-praise ("handles gracefully"), non-reasons ("for legacy reasons"), personified code, and hardcoded paths. Keep contracts, caller obligations, invariants, bounds, and workaround reasons.
 5. Rewrite awkward passages whole instead of swapping words. Compare the result with the source, not the last draft, and drop anything an earlier pass added without support.
+6. Do a concise pass on the whole text. Try each sentence in fewer words, merge sentences that share a point, and cut any that repeat one. Prefer the short common word and the short sentence. Done when every further cut would lose something from "What stays".
 
 ## Style
 
@@ -50,7 +51,7 @@ These apply to every draft and response. Audits flag breaks unless protected tex
 
 ## Output
 
-- **Respond**: the answer, with no editing narrative.
+- **Respond**: the answer, as short as it can be while complete, with no editing narrative.
 - **Draft or rewrite**: the finished text. For file edits, check the diff, links, and anchors, then list substantive changes, assumptions, and omissions.
 - **Audit**: one numbered paragraph per location (lines, problem, consequence, exact fix), noting any heading anchor change, or say nothing needs changing. In a combined review and rewrite, findings come first.
 
