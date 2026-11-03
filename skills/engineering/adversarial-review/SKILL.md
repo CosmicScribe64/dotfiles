@@ -52,10 +52,10 @@ Everything else the author believes stays out: summaries of what the PR does, fo
 
 ### 5. Triage
 
-1. Redispatch any area whose report lacks a Traced line for a changed value or a verdict for a checklist class.
+1. Redispatch any area whose report lacks a Traced line for a changed value or a verdict for a checklist class. Also redispatch, to a new reviewer, any report written by an agent that wrote or fixed code in the range, and any report with a holds or sound verdict that names no input it tried.
 2. **Suspected** items: reproduce each one (failing test, script, data query) or trace its trigger input to the code that produces it, then mark it Confirmed or dropped with that evidence. A dismissal as "misconfiguration", "user error" or "unlikely" cites the producer file:line showing the input cannot arise; when the change's own code writes that input, the item is Confirmed.
 3. Show the user every Confirmed item as the reviewer wrote it, plus the pass SHA, range and report paths.
 
 ### 6. Loop
 
-Each fix lands with the item's regression test. Push, then return to step 1 with fresh reviewers. Done means an incremental pass with no Confirmed items, followed by one fresh full pass that is also clean. A finding in the full pass restarts the loop.
+Each fix lands with the item's regression test. Push, then return to step 1 with fresh reviewers. Fixes for another reviewer's comments (agent or human) count too: run the incremental pass on that push before requesting the next external review, since code added by fix commits is where later findings cluster. Done means an incremental pass with no Confirmed items, followed by one fresh full pass that is also clean. A finding in the full pass restarts the loop.
