@@ -6,7 +6,7 @@ My Bash, Vim, and agent skill configuration.
 
 Copy [.bashrc](.bashrc), [.vimrc](.vimrc), and [.cows/](.cows/) into `$HOME`.
 
-For skills, point an agent at this repo and ask it to install or update them. The [setup-personal-skills](skills/productivity/setup-personal-skills/) skill copies these skills into the running agent's skills directory and installs [mattpocock/skills](https://github.com/mattpocock/skills) and [ayghri/i-have-adhd](https://github.com/ayghri/i-have-adhd) by their own instructions.
+For skills, point an agent at this repo and ask it to install or update them. The [setup-personal-skills](skills/productivity/setup-personal-skills/) skill installs globally for the running agent. It copies these skills into the agent's user-level skills directory, and installs [mattpocock/skills](https://github.com/mattpocock/skills) and [ayghri/i-have-adhd](https://github.com/ayghri/i-have-adhd) with their own install steps. Run `/setup-matt-pocock-skills` once in each repo where you use his engineering skills.
 
 ## Skills
 
