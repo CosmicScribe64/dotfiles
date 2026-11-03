@@ -75,7 +75,7 @@ A "Set?" cell that says "only when X" cites where X is set in that mode, or the 
 | Raise, early return, skip, drop or empty result the change adds | file:line | Valid producer output that reaches it (producer file:line) |
 |---|---|---|
 
-List every one. A row whose rejected input a real producer can emit as valid data is a finding; a row with no producer citation is a Minor finding.
+List every one. A row whose rejected input a real producer can emit as valid data is a finding; a row with no producer citation is a Minor finding. The finding is the lost data, not the message about it: state what the user no longer sees, and mark the drop intended only by citing the requirement that asks for it.
 
 ## Checked and sound
 - <what you checked, where, how>
