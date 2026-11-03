@@ -23,6 +23,7 @@ Skills are grouped in bucket folders, following [mattpocock/skills](https://gith
 | [pr-workflow](skills/engineering/pr-workflow/) | Pre-commit checks, PR description format, and stacked PRs. |
 | [requirement-map](skills/engineering/requirement-map/) | Map every added and removed line of a diff to a requirement and reconcile totals against `git diff --numstat`. |
 | [test-suite-auditor](skills/engineering/test-suite-auditor/) | Find weak assertions, missing coverage, and flaky tests. |
+| [user-run-commands](skills/engineering/user-run-commands/) | Give the user one paste-and-run command block that writes a report to `/tmp`, then read it back. |
 | [verification-status](skills/engineering/verification-status/) | Table each claim made, whether it is verified, and the evidence. |
 
 ### Productivity
