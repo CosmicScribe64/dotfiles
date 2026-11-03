@@ -1,19 +1,16 @@
 ---
 name: setup-personal-skills
-description: "Install or update my skills: this dotfiles repo's skills plus mattpocock/skills and i-have-adhd. Use when asked to install, update, or sync my skills."
+description: "Install or update my skills for whichever agent is running: this dotfiles repo's skills plus mattpocock/skills and i-have-adhd. Use when asked to install, update, or sync my skills."
 disable-model-invocation: true
 ---
 
 # Setup personal skills
 
-Install copies, never symlinks, so installed skills keep working when a checkout moves or changes.
-
-1. Pick the target: `~/.copilot/skills/` unless the user names another skills directory.
-2. Gather the sources into a fresh temp directory:
-   - This repo: the checkout the user points at (default `~/Repos/dotfiles`), else clone `https://github.com/CosmicScribe64/dotfiles`. Take every skill folder under `skills/engineering/`, `skills/productivity/`, and `skills/personal/`. `personal/` is gitignored and exists only on machines that have it.
-   - `https://github.com/mattpocock/skills`: every skill folder under `skills/engineering/` and `skills/productivity/`.
-   - `https://github.com/ayghri/i-have-adhd`: `skills/i-have-adhd/`.
-3. If two sources ship a skill with the same name, stop and ask which wins.
-4. Replace each target skill folder with its source folder as a whole, so deleted files go too. Skip `__pycache__/`.
-5. List installed skills that no source provides. Ask before removing any; the user may keep others there.
-6. Check `diff -r` between every source folder and its installed copy is clean, then report skills added, updated, unchanged, and left alone.
+1. Find the skills directory for the agent you are: its user-level (global) skills directory, such as `~/.copilot/skills/`, `~/.claude/skills/`, or `~/.agents/skills/`. Use the user's choice if they name one; ask if you can't tell.
+2. Install the external skill sets by their own instructions, for this agent. Each upstream keeps its install steps current, including plugin installs that update themselves:
+   - mattpocock/skills: step 1 under "Installation" in `https://github.com/mattpocock/skills/blob/main/README.md`. Skip step 2: `setup-matt-pocock-skills` configures one repo at a time, so the user runs it per project.
+   - i-have-adhd: `https://github.com/ayghri/i-have-adhd/blob/main/AGENTS.md`.
+3. Copy this repo's skills into the skills directory as plain copies, never symlinks. The source is the checkout the user points at (default `~/Repos/dotfiles`), else a fresh clone of `https://github.com/CosmicScribe64/dotfiles`. Take every folder with a `SKILL.md` under `skills/engineering/`, `skills/productivity/`, and `skills/personal/`; `personal/` is gitignored and exists only on machines that have it. Replace each installed folder as a whole so deleted files go too, and skip `__pycache__/`.
+4. If two sources provide a skill with the same name, stop and ask which wins. This includes plugin-installed skills.
+5. List skills in the directory that no source provides, including copies left from an earlier install that a plugin now supplies. Ask before removing any; the user may keep others there.
+6. Check `diff -r` between each of this repo's skill folders and its installed copy is clean. Report what each upstream installer did, and which of this repo's skills were added, updated, unchanged, or left alone.
