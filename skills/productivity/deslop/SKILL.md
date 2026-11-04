@@ -15,7 +15,7 @@ Make prose clear, short, and human. Clear comes first: cut what the reader doesn
 
 ## Cut what the reader doesn't need
 
-Name the reader and their task. Remove context they already have, how the text or code got here, narration of the implementation, restated declarations, and temporary status. Delete those sentences rather than tightening them. If a doc is organized around internals, reorganize it around what the reader does, and name headings by their task.
+Name the reader and their task. Keep a sentence only if it tells them something they can't see from the code or the rest of the text, and they need it. Remove context they already have, how the text or code got here, narration of the implementation, restated declarations, and temporary status. Say each fact once, where the reader will look for it. Delete what fails rather than tightening it. If a doc is organized around internals, reorganize it around what the reader does, and name headings by their task. Keep the existing headings otherwise; don't add new ones.
 
 ## Write plainly
 
@@ -34,7 +34,7 @@ Return the text. When drafts need approval, show them plus one line per decision
 
 ## Keep every fact
 
-Check the output against the source. Every number, unit, date and time anchor ("as of this morning"), condition, warning, identifier, link, and the ask must still be there and still true. Invent nothing; mark unknowns as `<placeholder>` or ask.
+Check the output against the source. Cutting a sentence the reader doesn't need is fine, but every number, unit, date and time anchor ("as of this morning"), condition, warning, identifier, link, and ask that the reader does need must still be there and still true. Invent nothing; mark unknowns as `<placeholder>` or ask.
 
 ## Example
 
