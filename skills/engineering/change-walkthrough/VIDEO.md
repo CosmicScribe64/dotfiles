@@ -17,17 +17,26 @@ A 3Blue1Brown-style animated explainer of the walkthrough's story, voiced. Make 
 
    `narrate.py` waits for the server, writes `sN_k.wav` per paragraph, and skips clips whose text hasn't changed. Done when every paragraph has a clip.
 
-4. **Write the scene.** Copy `scripts/explainer.py` next to `scene.py` and subclass `Explainer`: `ttl()` sets the title, `cap()` the caption, `clear_body()` empties the stage, and `say("s3_1")` waits for the previous beat to finish and then starts the next clip, so the animation never cuts off the voice. Call `say()` just before the visual it describes; call `sync()` before clearing a section. Use `MathTex` for formulas. Keep text at font size 22 or more, and build column labels as `baseline(tx("word|"))` so different words share a baseline.
+4. **Write the scene.** Copy `scripts/explainer.py` and `scripts/render.py` next to `scene.py` and subclass `Explainer`. List the section methods in order in `SECTIONS = ["s1_title", "s2_problem", ...]`; the prefix before `_` must match the narration file, and every section must call `say()` at least once. `ttl()` sets the title, `cap()` the caption, `clear_body()` waits for the beat and empties the stage, `say("s3_1")` waits for the previous beat to finish and then starts the next clip, and `when("phrase")` waits until roughly when that phrase is spoken in the current beat. Call `say()` just before the visual it describes, and `when()` to show a number as it is said. Each section renders as its own scene, so it starts on an empty stage and must not rely on objects from an earlier section. Use `MathTex` for formulas. Keep text at font size 22 or more, and build column labels as `baseline(tx("word|"))` so different words share a baseline.
 
-5. **Render in Docker**, detached, because a 1080p render takes several minutes and a shared terminal can kill it:
+   Check layout with stills, not videos. This takes about 20 seconds and writes `stills/<beat>.png` (the stage as each beat starts) and `stills/<beat>_end.png` (before each clear):
 
    ```
-   (setsid nohup bash -c 'docker run --rm --user "$(id -u):$(id -g)" -v "$PWD":/manim manimcommunity/manim@sha256:af29da8765a26ab1f9f1d61d401e95d50520753634ed8e343fd5c05283a459e7 manim -qh scene.py <Scene> -o video.mp4 > render.log 2>&1; echo $? > render.done' > /dev/null 2>&1 < /dev/null &)
+   docker run --rm --user "$(id -u):$(id -g)" -v "$PWD":/manim -e STILLS=1 -e CUES=/tmp/cues.json manimcommunity/manim@sha256:af29da8765a26ab1f9f1d61d401e95d50520753634ed8e343fd5c05283a459e7 manim -ql -s --media_dir /tmp/media scene.py <Scene>
    ```
 
-   Iterate at `-ql`. `-qh` writes `media/videos/scene/1080p60/video.mp4`; copy it to `video.mp4` beside `scene.py`, which the next steps use.
+   Fix overlaps and off-screen text from the stills before rendering video. `view_image` caches by path, so move or rename `stills/` between rounds.
 
-6. **Add subtitles.** `say()` logs each clip's start to `cues.json`. Build the subtitles and add them as a track the viewer can switch on:
+5. **Render** with `python3 render.py <Scene>`, detached, so a shared terminal can't kill it. It renders every section in its own Docker container in parallel at 1080p30, joins them into `video.mp4` and writes `cues.json` with each clip's time in the joined video. The PR 6 video (11 sections, 238 s) took 42 seconds.
+
+   ```
+   (setsid nohup bash -c 'python3 render.py <Scene> > render.log 2>&1; echo $? > render.done' > /dev/null 2>&1 < /dev/null &)
+   tail --pid=$(pgrep -f "render.py <Scene>" | head -1) -f /dev/null; cat render.done render.log
+   ```
+
+   The second line blocks until the render exits, without polling. After a fix, `--only s3,s7` re-renders just those sections and rejoins the rest. A failing section's log is `sections/<section>.log`. The agent that started a render waits for it and runs the remaining steps; don't hand a render in progress to a subagent.
+
+6. **Add subtitles.** Build the subtitles from `cues.json` and add them as a track the viewer can switch on:
 
    ```
    python3 <this skill's folder>/scripts/captions.py cues.json narration video.srt

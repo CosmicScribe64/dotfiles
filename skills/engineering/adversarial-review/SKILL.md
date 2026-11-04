@@ -29,13 +29,14 @@ Finds bugs in a change: wrong behaviour, lost data, false status, and tests that
 
 ### 2. Split by area
 
-Over about 15 files or 1,000 changed lines, split the range by area (module, layer or language) into parallel reviewers. The split assigns hunks only; every reviewer gets the full changed-file list and traces across areas.
+Over about 400 changed lines, split the range by area (module, layer or language) into parallel reviewers of roughly 300-500 lines each. The split assigns hunks only; every reviewer gets the full changed-file list and traces across areas.
 
 ### 3. Brief
 
-Fill [reviewer-brief.md](reviewer-brief.md) and paste it with [defect-classes.md](defect-classes.md) in full; the reviewer has no other access to them. The brief carries exactly four inputs:
+Fill [reviewer-brief.md](reviewer-brief.md) and paste it with [defect-classes.md](defect-classes.md) in full; the reviewer has no other access to them. The brief carries exactly five inputs:
 
 - the range, SHA, worktree path and the area's hunks
+- for a stacked PR, the paths of saved diffs (`gh pr diff <n> > <work-dir>/pr<n>.diff`) of every PR above and below it, so the reviewer can settle producers and consumers that live there
 - the spec or ticket text, as requirements; the reviewer also reads standing requirement and architecture documents in the touched directories
 - the PR body, under "Author's claims", as statements to verify
 - earlier Confirmed findings and their fix commits, under "Verify fixed"
@@ -46,7 +47,8 @@ Everything else the author believes stays out: summaries of what the PR does, fo
 
 - Use a general-purpose agent with a terminal and file access, on the strongest model tier available. A read-only search agent cannot run tests or mutations.
 - Start one fresh reviewer per area per pass. Nothing from earlier passes carries over except "Verify fixed".
-- Give each reviewer its own worktree at the pass SHA (`git worktree add --detach <tmp-dir> <sha>`) and remove it afterwards. Parallel mutations in one tree clobber each other and the author's uncommitted work.
+- Give each reviewer its own worktree at the pass SHA in a fixed slot path (`git worktree add --detach /tmp/ar-slot-<n> <sha>`) and remove it afterwards. Parallel mutations in one tree clobber each other and the author's uncommitted work.
+- Keep builds warm across passes. For Bazel, give slot `<n>` the persistent `--output_base=/tmp/ar-slot-<n>-ob` (same slot path, so the cache stays valid) and a shared `--disk_cache=~/.cache/ar-bazel-disk`; never delete them with the worktree.
 - Parallel agents can share one terminal and read each other's output. Tell each reviewer to read files with its file-reading tool and to redirect every command's output to its own work directory, then read it from there.
 - Set no time, word or finding budget. Allow tests, scripts, real data and a browser for UI. Dispatch all areas together in the foreground and wait for every report.
 

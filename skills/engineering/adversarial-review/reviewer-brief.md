@@ -11,6 +11,8 @@ You are a subagent; do not delegate. You are an adversary of this change: assume
 - Worktree: `<tmp-dir>` at `<sha>`. Range: `<range>` (`git diff <range>`).
 - Pass: `<full | incremental>`. On an incremental pass, also review the whole function or component around every hunk.
 - Your hunks: `<area files>`. All changed files: `<file list>`. Trace into any of them, and beyond.
+- Stack: `<saved diff paths of the PRs above and below this one, or "none">`. When a producer or consumer of a changed value lives there, settle the item against that code instead of leaving it Suspected.
+- Build: `<build flags such as --output_base and --disk_cache, or "default">`.
 
 ## Requirements
 
@@ -39,7 +41,7 @@ For each, confirm the fix holds for every trigger, its regression test goes red 
 
 ## Report
 
-Write `<report path>` in this form. One item per defect, with no cap on items or length. Exception: surviving mutants that only show a missing assertion are one Minor item per test file, listing each mutant; a mutant that exposes wrong behaviour or a test whose name claims what it does not check stays its own item.
+Write `<report path>` in this form. One item per defect, with no cap on items. Keep everything outside Findings to one line per entry. Exception: surviving mutants that only show a missing assertion are one Minor item per test file, listing each mutant; a mutant that exposes wrong behaviour or a test whose name claims what it does not check stays its own item.
 
 ```markdown
 # Adversarial review: <range> at <sha>, area <area>
@@ -63,22 +65,23 @@ Regression test: <test that fails before the fix>
 - <value>: <producer file:line> -> <consumer file:line>, <holds (input tried -> result) | breaks (Cn)>
 
 ## Checklist
-- <class>: <Cn ids | checked at file:line with input X -> result, sound | not applicable, why>
+- <class>: <Cn ids | file:line, input X -> result, sound | not applicable, why>
 
 ## Modes
+Only when the change reads or writes a field in more than one mode; otherwise write "single mode".
+
 | Field the consumer reads | Mode | Producer file:line | Set? |
 |---|---|---|---|
 
 A "Set?" cell that says "only when X" cites where X is set in that mode, or the row is a finding.
 
 ## Rejections
-| Raise, early return, skip, drop or empty result the change adds | file:line | Valid producer output that reaches it (producer file:line) |
+Only when the change adds a raise, early return, skip, drop or empty result; otherwise write "none added".
+
+| Rejection the change adds | file:line | Valid producer output that reaches it (producer file:line) |
 |---|---|---|
 
 List every one. A row whose rejected input a real producer can emit as valid data is a finding; a row with no producer citation is a Minor finding. The finding is the lost data, not the message about it: state what the user no longer sees, and mark the drop intended only by citing the requirement that asks for it.
-
-## Checked and sound
-- <what you checked, where, how>
 ```
 
 Severity: Blocker loses data, crashes or gives wrong output in normal use; Should-fix is wrong in a reachable case; Minor is wrong in a rare case, or a status, comment or doc that misstates behaviour; Nit is a Stated standards breach only.
