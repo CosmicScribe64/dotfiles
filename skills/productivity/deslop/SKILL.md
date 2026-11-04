@@ -22,6 +22,7 @@ Name the reader and their task. Keep a sentence only if it tells them something 
 - Lead with the point, in active voice.
 - One idea per sentence. Use "so," "but," or "because" instead of em dashes or mid-sentence colons.
 - Use plain words, without filler ("key," "it's worth noting," "the next step is"), hype, or stacked hedges. Hedge only real uncertainty.
+- Prefer plain terms to internal names. Say what happens ("the camera records it"), then give the internal name once if the reader will meet it.
 - Call each thing by one exact name, and give the number instead of "significantly."
 - Match the shape to the content: a list for separate steps or cases, a table for name-and-meaning pairs, a sentence for one point. Add no headings or lists that repeat each other. In chat, write plain paragraphs, and keep a short reply to one.
 - Code comments say only what the code can't: contracts, invariants, bounds, and workaround reasons.
