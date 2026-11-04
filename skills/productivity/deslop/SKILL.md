@@ -17,11 +17,13 @@ Make writing clear and concise. Say each thing once, in the fewest plain words t
 
 Edit prose only; executable code stays as it is. Work on the exact text, paths, or refs given, and return rewritten pasted text in chat. With no target in a repo, use `HEAD` against its merge base on the remote default branch, or the staged and unstaged changes if that diff is empty.
 
+## What goes
+
+Before writing, rewriting, or reviewing a document, a section, or a paragraph of a response, name its reader, the task it serves, and what it adds over existing docs, code, and what the reader already knows. Cut text that repeats declarations, narrates the implementation, explains what the reader already knows, or records temporary status; tightening it is the wrong fix. If it holds a non-obvious reason the code can't show, move that reason into a one-line comment. Delete a whole document only if an agent wrote it and cleanup is authorized; otherwise report it.
+
 ## What stays
 
-Keep claims, attribution, cause, negation, numbers and units, bounds, order, error behavior, obligations, warnings, workaround reasons, actionable TODOs, and real qualifiers ("may," "up to," "only," "not yet"). Leave quotations, mandated wording, licenses, generated notices, identifiers, commands, output, code, directives, link targets, and anchors unchanged unless asked. Add no details, sources, people, mentions, links, or experiences the source lacks. Keeping a meaning never means keeping its wording, so say it in fewer words. Tightening keeps every distinct claim; an explicit length target may drop side details if you name them. Paraphrase sources and quote any copied phrase.
-
-Before writing or reviewing a new document, name its reader, the task it serves, and what it adds over existing docs and code. A document that repeats declarations, narrates the implementation, or records temporary status is unnecessary. Delete it if an agent wrote it and cleanup is authorized, otherwise report it.
+Of the text that remains, keep claims, attribution, cause, negation, numbers and units, bounds, order, error behavior, obligations, warnings, workaround reasons, actionable TODOs, and real qualifiers ("may," "up to," "only," "not yet"). Leave quotations, mandated wording, licenses, generated notices, identifiers, commands, output, code, directives, link targets, and anchors unchanged unless asked. Add no details, sources, people, mentions, links, or experiences the source lacks. Keeping a meaning never means keeping its wording, so say it in fewer words. Tightening keeps every distinct claim; an explicit length target may drop side details if you name them. Paraphrase sources and quote any copied phrase.
 
 ## Workflow
 
@@ -41,7 +43,7 @@ Before writing or reviewing a new document, name its reader, the task it serves,
 
 These apply to every draft and response. Audits flag breaks unless protected text, the user, or a house style overrides them. The full pattern list is [tells.json](scripts/tells.json) (`find_tells.py --list-rules`).
 
-**Sound like a person.** Write like a colleague talking to someone they work with. Keep it short by default, concrete, and willing to say what you think. Hedge only where something is uncertain ("I think," "as far as I know"), and keep separate hedges when they cover different unknowns. In chat, write plain paragraphs without headers, bold, or bullets; a document keeps its headings and lists. State a correction directly, with the distinction and what it changes. Fragments and comma splices are fine; leave the prose loose instead of polished, without manufacturing typos or casual filler. Keep cause and effect as separate steps, in order, rather than compressing them into shorthand the reader must decode.
+**Sound like a person.** Write like a colleague talking to someone they work with. Keep it short by default, concrete, and willing to say what you think. Explain why only when the reader would otherwise get it wrong. Hedge only where something is uncertain ("I think," "as far as I know"), and keep separate hedges when they cover different unknowns. In chat, write plain paragraphs without headers, bold, or bullets; a document keeps its headings and lists. State a correction directly, with the distinction and what it changes. Fragments and comma splices are fine; leave the prose loose instead of polished, without manufacturing typos or casual filler. Keep cause and effect as separate steps, in order, rather than compressing them into shorthand the reader must decode.
 
 **Punctuation and format.** End the sentence or use a comma where an em dash would go; keep ranges, minus signs, and flags. Use a colon only before a list, example, quotation, label, or time. Use straight quotes, sentence-case headings, no decorative emoji, and bold only for what readers must not miss. Turn bullets whose bold label restates the line into prose. Keep reference tables as tables.
 
