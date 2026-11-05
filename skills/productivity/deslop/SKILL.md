@@ -10,12 +10,12 @@ Make prose clear, short, and human. Clear comes first: cut what the reader doesn
 
 - **respond**: answer in this style, answer first.
 - **draft**: write from the facts you have, and ask for any that are missing.
-- **rewrite**: edit the given text. In a diff, edit only the lines it adds or changes. AI text is usually too wordy, so look for cuts before rewording. If the result isn't shorter, check again; text that's already tight can stay as it is.
+- **rewrite**: edit the given text. In a diff, edit only the lines it adds or changes.
 - **audit**: list only findings worth fixing, most important first, as location, problem, fix. For files or diffs, run `scripts/find_tells.py` (`--help` for options); its hits are leads, not verdicts. In procedures, check each step says when it's done and what to do if it fails. "Nothing to fix" is a fine result.
 
 ## Cut what the reader doesn't need
 
-Name the reader and their task. Keep a sentence only if it tells them something they can't see from the code or the rest of the text, and they need it. Remove context they already have, how the text or code got here, narration of the implementation, restated declarations, and temporary status. Drop what the reader will notice the first time they use the thing. Cut inside sentences too: drop clauses, qualifiers, and list items the reader doesn't need, not just whole sentences. Say each fact once, where the reader will look for it. Delete what fails rather than tightening it. If a doc is organized around internals, reorganize it around what the reader does, and name headings by their task. Keep the existing headings otherwise; don't add new ones.
+Name the reader and their task. Keep a sentence only if it tells them something they can't see from the code or the rest of the text, and they need it. Remove context they already have, how the text or code got here, narration of the implementation, restated declarations, and temporary status. Say each fact once, where the reader will look for it. Delete what fails rather than tightening it. If a doc is organized around internals, reorganize it around what the reader does, and name headings by their task. Keep the existing headings otherwise; don't add new ones.
 
 ## Write plainly
 
@@ -35,7 +35,7 @@ Return the text. When drafts need approval, show them plus one line per decision
 
 ## Keep every fact
 
-Check the output against the source. Cutting a fact the reader doesn't need is fine, but every number, unit, date and time anchor ("as of this morning"), condition, warning, identifier, link, and ask that the reader does need must still be there and still true. Invent nothing; mark unknowns as `<placeholder>` or ask.
+Check the output against the source. Cutting a sentence the reader doesn't need is fine, but every number, unit, date and time anchor ("as of this morning"), condition, warning, identifier, link, and ask that the reader does need must still be there and still true. Invent nothing; mark unknowns as `<placeholder>` or ask.
 
 ## Example
 
