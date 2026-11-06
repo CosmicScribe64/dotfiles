@@ -20,6 +20,7 @@ Skills are grouped in bucket folders, following [mattpocock/skills](https://gith
 | [change-walkthrough](skills/engineering/change-walkthrough/) | Explain a PR, branch, or diff as a plain story with the changed code quoted beside each idea. `scripts/check_quotes.py` checks every quote against the head commit and the diff. |
 | [check-overengineering](skills/engineering/check-overengineering/) | Keep a change to the smallest complete diff, or flag overbuilt parts of a plan or diff. |
 | [cpp-style](skills/engineering/cpp-style/) | My C++ naming, constant, and header-doc conventions. |
+| [deepwiki](skills/engineering/deepwiki/) | DeepWiki-style code pages in an LLM wiki: plan, generate, and update cited architecture pages per repo. `scripts/deepwiki.py` finds stale pages and checks citations. |
 | [pr-workflow](skills/engineering/pr-workflow/) | Pre-commit checks, PR description format, and stacked PRs. |
 | [requirement-map](skills/engineering/requirement-map/) | Map every added and removed line of a diff to a requirement and reconcile totals against `git diff --numstat`. |
 | [test-suite-auditor](skills/engineering/test-suite-auditor/) | Find weak assertions, missing coverage, and flaky tests. |
