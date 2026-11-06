@@ -3,8 +3,8 @@
 
 Commands:
   stale  <wiki.json>              JSON report: pages to write, pages whose sources changed, uncovered files
-  check  <wiki.json>              broken links, out-of-range line citations, structure errors (exit 1 if any)
-  stamp  <wiki.json> SLUG...|--all  record the repo's HEAD as the commit each page was written against
+  check  <wiki.json>              broken links and citations, out-of-range line ranges, structure errors (exit 1 if any)
+  stamp  <wiki.json> SLUG...|--all  record HEAD (and any uncommitted source edits) as what each page was written against
   index  <wiki.json>              write index.md, the numbered page tree
 """
 
@@ -19,6 +19,8 @@ from urllib.parse import unquote
 
 LINK = re.compile(r"\]\(([^)\s]+)\)")
 LINE_RANGE = re.compile(r"L(\d+)(?:-L(\d+))?")
+# `software/a/b.cpp:12-40`: a repo-root citation for wikis that forbid links out of the wiki.
+PLAIN_CITE = re.compile(r"`([\w.+-]+(?:/[\w.+-]+)+):(\d+)(?:-(\d+))?`")
 
 
 def load(manifest):
@@ -32,6 +34,13 @@ def git(repo, *args):
     return subprocess.run(
         ["git", "-C", str(repo), *args], check=True, capture_output=True, text=True
     ).stdout
+
+
+def content_hash(repo, file):
+    """Blob hash of the working-tree file, or None if it doesn't exist."""
+    if not (repo / file).is_file():
+        return None
+    return git(repo, "hash-object", "--", file).strip()
 
 
 def matches(file, patterns):
@@ -60,7 +69,12 @@ def cmd_stale(args):
         except subprocess.CalledProcessError:
             report["stale"][slug] = [f"commit {page['commit']} not found; rewrite against HEAD"]
             continue
-        hits = sorted({f for f in changed + untracked if matches(f, page["sources"])})
+        stamped_dirty = page.get("dirty", {})
+        hits = sorted(
+            f for f in set(changed + untracked)
+            if matches(f, page["sources"])
+            and not (f in stamped_dirty and content_hash(repo, f) == stamped_dirty[f])
+        )
         if hits:
             report["stale"][slug] = hits
     ignore = data.get("ignore", [])
@@ -89,6 +103,13 @@ def cmd_check(args):
         if extra.stem not in slugs and extra.name != "index.md":
             problems.append(f"{extra.name}: page not in wiki.json")
     line_counts = {}
+
+    def check_range(where, label, resolved, start, end):
+        if resolved not in line_counts:
+            line_counts[resolved] = len(resolved.read_bytes().splitlines())
+        if not 1 <= start <= end <= line_counts[resolved]:
+            problems.append(f"{where}: {label} outside 1-{line_counts[resolved]}")
+
     for slug in slugs:
         page = root / f"{slug}.md"
         if not page.exists():
@@ -98,6 +119,7 @@ def cmd_check(args):
         if "Sources:" not in text:
             problems.append(f"{slug}.md: no Sources: lines")
         for number, line in enumerate(text.splitlines(), 1):
+            where = f"{slug}.md:{number}"
             for match in LINK.finditer(line):
                 target = match.group(1)
                 if re.match(r"[a-zA-Z][a-zA-Z0-9+.-]*:", target):
@@ -106,21 +128,19 @@ def cmd_check(args):
                 if not file_part:
                     continue
                 resolved = (page.parent / unquote(file_part)).resolve()
-                where = f"{slug}.md:{number}"
                 if not resolved.exists():
                     problems.append(f"{where}: broken link {target}")
                     continue
                 lines = LINE_RANGE.fullmatch(fragment)
-                if not lines or not resolved.is_file():
+                if lines and resolved.is_file():
+                    check_range(where, target, resolved, int(lines.group(1)), int(lines.group(2) or lines.group(1)))
+            for match in PLAIN_CITE.finditer(line):
+                file_part, start, end = match.groups()
+                resolved = repo / file_part
+                if not resolved.is_file():
+                    problems.append(f"{where}: cited file not in repo: {file_part}")
                     continue
-                start = int(lines.group(1))
-                end = int(lines.group(2) or start)
-                if resolved not in line_counts:
-                    line_counts[resolved] = len(resolved.read_bytes().splitlines())
-                if not 1 <= start <= end <= line_counts[resolved]:
-                    problems.append(
-                        f"{where}: {target} outside 1-{line_counts[resolved]}"
-                    )
+                check_range(where, match.group(0), resolved, int(start), int(end or start))
     for problem in problems:
         print(problem)
     print(f"{len(problems)} problem(s)", file=sys.stderr)
@@ -141,7 +161,11 @@ def cmd_stamp(args):
             page["commit"] = head
             touched = [f for f in dirty if matches(f, page["sources"])]
             if touched:
-                print(f"warning: {page['slug']} sources have uncommitted changes: {', '.join(touched)}", file=sys.stderr)
+                # The page describes these uncommitted edits; stale ignores them until they change again.
+                page["dirty"] = {f: content_hash(repo, f) for f in touched}
+                print(f"note: {page['slug']} written against uncommitted {', '.join(touched)}", file=sys.stderr)
+            else:
+                page.pop("dirty", None)
     path.write_text(json.dumps(data, indent=2, ensure_ascii=False) + "\n")
     print(f"stamped {head[:12]}")
 

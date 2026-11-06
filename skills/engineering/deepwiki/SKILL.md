@@ -22,6 +22,8 @@ Pages follow topics (subsystems, flows, concepts), not directories. Each page's 
 
 If the wiki doesn't exist yet, set it up with the `llm-wiki` skill first. When adding a repo, link `code/<repo-name>/index.md` from the wiki's `index.md` and add this rule to its schema: "Pages under `code/` are maintained with the deepwiki skill."
 
+The wiki's schema wins over PAGE.md: follow its front matter, required sections, log format and link rules. If it forbids links out of the wiki, write citations as backticked repo-root paths (`` `src/engine/loop.py:40-88` ``, or `` `./README.md:1-10` `` for a file at the root) instead of links; `check` validates both forms.
+
 ## wiki.json
 
 A superset of Devin's `.devin/wiki.json`. If the repo has one, import its `repo_notes` and `pages` as the starting plan (titles become slugs; parent titles become parent slugs).
@@ -50,15 +52,15 @@ A superset of Devin's `.devin/wiki.json`. If the repo has one, import its `repo_
 - `repo_notes`, `page_notes`: steering from the user. Follow them in every page they apply to.
 - `ignore`: files no page needs to explain.
 - `pages`: reading order. `parent` is a slug. `sources` entries are file paths, directory paths, or fnmatch globs (`*` crosses `/`).
-- `commit`: written by `stamp` only.
+- `commit`, `dirty`: written by `stamp` only.
 
 ## Script
 
 `python3 <this skill's folder>/scripts/deepwiki.py <command> <wiki.json>`:
 
 - `stale`: JSON listing `missing` pages (never written), `stale` pages with the changed files behind each, `empty_sources` pages whose sources match nothing, and `uncovered` files no page or `ignore` entry covers.
-- `check`: broken links, citation line ranges past the end of the file, pages missing from disk or from `wiki.json`, unknown parents. Exit 1 on any problem.
-- `stamp <slug>... | --all`: record HEAD as each page's `commit`. Warns when a page's sources have uncommitted changes.
+- `check`: broken links and cited files, citation line ranges past the end of the file, pages missing from disk or from `wiki.json`, unknown parents. Exit 1 on any problem.
+- `stamp <slug>... | --all`: record HEAD as each page's `commit`. If a page's sources have uncommitted edits, it also records their content in `dirty`, so `stale` flags them only once they change again.
 - `index`: rewrite `index.md` from `wiki.json`.
 
 ## Plan
@@ -74,7 +76,7 @@ One page: read PAGE.md and the page's `wiki.json` entry, read its source files, 
 
 Bulk: hand pages to subagents in batches of 2 to 5. Give each the absolute paths of `wiki.json`, PAGE.md and the repo, plus its slugs. Subagents read files with file tools, write only their own pages with file-creation tools, and leave `wiki.json` alone.
 
-Then finish: run `check` and fix until it reports 0 problems, `stamp` the written slugs, run `index`, and append to the wiki's `log.md`: `## [YYYY-MM-DD] deepwiki generate | <repo-name>: <slugs>`.
+Then finish: run `check` and fix until it reports 0 problems, `stamp` the written slugs, run `index`, and append a log entry in the wiki's format naming the repo and slugs.
 
 ## Update
 
@@ -84,7 +86,7 @@ Then finish: run `check` and fix until it reports 0 problems, `stamp` the writte
    - `missing`: generate the page.
    - `empty_sources`: merge the page into a neighbour or delete it, and repoint links to it.
    - `uncovered`: add the file to the right page's `sources` and update that page, add a new page, or add it to `ignore`.
-4. Finish as in Generate, with `deepwiki update` in the log line.
+4. Finish as in Generate.
 
 When the user asks for a full regenerate, or the tree no longer fits the code, rerun Plan, keep the slugs that survive, and regenerate every page.
 

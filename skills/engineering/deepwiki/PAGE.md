@@ -22,7 +22,7 @@ Point to neighbours: "For how jobs are queued, see [Scheduler](scheduler.md).">
 Sources: [src/engine/loop.py:40-88](<repo>/src/engine/loop.py#L40-L88), [src/engine/config.py:12](<repo>/src/engine/config.py#L12)
 ```
 
-`<repo>` is the manifest's `repo` value. Pages sit beside `wiki.json`, so the same prefix works on every page.
+`<repo>` is the manifest's `repo` value. Pages sit beside `wiki.json`, so the same prefix works on every page. If the wiki's schema forbids links out of the wiki, cite as `` `path:start-end` `` from the repo root instead (see SKILL.md).
 
 ## Rules
 
