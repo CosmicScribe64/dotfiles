@@ -19,6 +19,7 @@ Skills are grouped in bucket folders, following [mattpocock/skills](https://gith
 | [adversarial-review](skills/engineering/adversarial-review/) | Fresh subagents try to break a change: trace each changed value through unchanged producers and consumers, sweep a defect-class checklist, prove findings by running code, and re-review every push. |
 | [change-walkthrough](skills/engineering/change-walkthrough/) | Explain a PR, branch, or diff as a plain story with the changed code quoted beside each idea. `scripts/check_quotes.py` checks every quote against the head commit and the diff. |
 | [check-overengineering](skills/engineering/check-overengineering/) | Keep a change to the smallest complete diff, or flag overbuilt parts of a plan or diff. |
+| [codemap](skills/engineering/codemap/) | Map how some code works for one question: numbered traces of file:line nodes with verbatim code lines, a Mermaid map, and trace guides. `scripts/check_codemap.py` checks every snippet against the source. |
 | [cpp-style](skills/engineering/cpp-style/) | My C++ naming, constant, and header-doc conventions. |
 | [deepwiki](skills/engineering/deepwiki/) | DeepWiki-style code pages in an LLM wiki: plan, generate, and update cited architecture pages per repo. `scripts/deepwiki.py` finds stale pages and checks citations. |
 | [pr-workflow](skills/engineering/pr-workflow/) | Pre-commit checks, PR description format, and stacked PRs. |
