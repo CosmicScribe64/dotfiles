@@ -9,9 +9,8 @@ A request to commit never authorizes a push or PR, and approving wording never a
 
 ## Commit
 
-1. Run the `deslop` skill on the exact staged diff before every commit, including amends and review fixes. Report the scope reviewed and the findings; stop if a material finding needs approval.
-2. Check `git status --short --branch` and the diff against the target base branch.
-3. Confirm the commit holds every intended change and none of: working docs, local config, generated output, or edits that were there before you started.
+1. Check `git status --short --branch` and the diff against the target base branch.
+2. Confirm the commit holds every intended change and none of: working docs, local config, generated output, or edits that were there before you started.
 
 ## PR description
 

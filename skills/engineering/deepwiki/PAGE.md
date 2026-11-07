@@ -33,5 +33,5 @@ Sources: [src/engine/loop.py:40-88](<repo>/src/engine/loop.py#L40-L88), [src/eng
 - **Tables.** Use for config keys, CLI flags, message types, and function or class summaries (name, role, file).
 - **Code.** Quote a short excerpt only when its exact shape is the point. Otherwise describe it and cite it.
 - **Links.** Link other pages by file name (`scheduler.md`). Link the parent and every child at least once.
-- **Prose.** Plain and direct. If the deslop skill is installed, follow it.
+- **Prose.** Plain and direct.
 - **Length.** Write concisely.

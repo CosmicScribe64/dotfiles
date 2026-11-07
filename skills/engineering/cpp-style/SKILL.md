@@ -5,7 +5,7 @@ description: "My C++ style: naming, constants, string_view, optional, const, and
 
 # C++ style
 
-The repo's own style guide wins where it disagrees. Write comments and docs in the `deslop` style.
+The repo's own style guide wins where it disagrees.
 
 - Use descriptive identifiers, except obvious local indices and coordinates.
 - Prefix enum values and namespace-scope constants with `k` (`kFollowing`, `kMaxTrackIndex`).

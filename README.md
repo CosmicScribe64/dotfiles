@@ -22,6 +22,7 @@ Skills are grouped in bucket folders, following [mattpocock/skills](https://gith
 | [codemap](skills/engineering/codemap/) | Map how some code works for one question: numbered traces of file:line nodes with verbatim code lines, a Mermaid map, and trace guides. `scripts/check_codemap.py` checks every snippet against the source. |
 | [cpp-style](skills/engineering/cpp-style/) | My C++ naming, constant, and header-doc conventions. |
 | [deepwiki](skills/engineering/deepwiki/) | DeepWiki-style code pages in an LLM wiki: plan, generate, and update cited architecture pages per repo. `scripts/deepwiki.py` finds stale pages and checks citations. |
+| [docker-tooling](skills/engineering/docker-tooling/) | Prefer Docker over host installs where possible, to keep the host clean. |
 | [pr-workflow](skills/engineering/pr-workflow/) | Pre-commit checks, PR description format, and stacked PRs. |
 | [requirement-map](skills/engineering/requirement-map/) | Map every added and removed line of a diff to a requirement and reconcile totals against `git diff --numstat`. |
 | [test-suite-auditor](skills/engineering/test-suite-auditor/) | Find weak assertions, missing coverage, and flaky tests. |
@@ -32,6 +33,14 @@ Skills are grouped in bucket folders, following [mattpocock/skills](https://gith
 
 | Skill | Purpose |
 | --- | --- |
-| [deslop](skills/productivity/deslop/) | Draft, rewrite, or audit prose in a plain, human style. `scripts/find_tells.py` lists likely AI-writing tells for review. |
+| [humanizer](skills/productivity/humanizer/) | Write or rewrite prose without the signs of AI writing from Wikipedia's [Signs of AI writing](https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing). |
 | [llm-wiki](skills/productivity/llm-wiki/) | Set up a project wiki with a Kanban ticket board. |
 | [setup-personal-skills](skills/productivity/setup-personal-skills/) | Install or update all of the above plus the external skill sets. |
+
+### Deprecated
+
+Benched skills. Setup doesn't install them.
+
+| Skill | Purpose |
+| --- | --- |
+| [deslop](skills/deprecated/deslop/) | Draft, rewrite, or audit prose in a plain, human style. `scripts/find_tells.py` lists likely AI-writing tells for review. |
