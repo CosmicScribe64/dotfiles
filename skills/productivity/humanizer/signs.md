@@ -26,19 +26,14 @@ Full "words to watch" from Wikipedia's [Signs of AI writing](https://en.wikipedi
 
 ## Style and formatting
 
-- **Promotional (older models, still common on request):** boasts a, vibrant, rich, profound, enhancing, showcasing, exemplifies, commitment to, natural beauty, nestled, in the heart of, groundbreaking, renowned, featuring, diverse array.
-- **Summary closers:** In summary, In conclusion, Overall.
 - **Templated personal pages:** About Me, My Interests, Let's Connect!, with emoji and bold.
-- **Elegant variation:** a new synonym for the same thing in each sentence ("Soviet artistic constraints… state-imposed artistic norms… the constraints imposed by the regime").
 
 ## Communication meant for the user
 
 - **Collaborative framing:** I hope this helps, Of course!, Certainly!, You're absolutely right!, Would you like…, is there anything else, let me know, more detailed breakdown, here is a…, check/verify/confirm… before publishing/submitting.
 - **Gap and usage disclaimers:** While specific details are limited/scarce, not widely available/documented/disclosed, in the provided/available sources, based on available information, [claim] should be treated as… rather than…, does not by itself establish, should not be confused with, it is important to note.
-- **Model self-reference:** as an AI language model, as of my last knowledge update, I cannot offer medical advice, but I can…
 - **Placeholders:** [Name], [Year], 20XX-XX-XX, INSERT_SOURCE_URL_HERE, example.com/source1, (Add your URL here), "Add if available".
 - **Service-desk register:** I understand your concerns, I have carefully reviewed, apologies for any inconvenience this may have caused, I am writing to…, I hope this message finds you well, if there are specific issues please point them out.
-- **Truncation:** text that stops mid-sentence at the end of a long output.
 
 ## Citations
 
@@ -53,6 +48,17 @@ Full "words to watch" from Wikipedia's [Signs of AI writing](https://en.wikipedi
 - **Procedural statements:** preserved/preserving, retained/retaining, avoided/avoiding, ensured/ensuring, aimed to.
 - **Process over content:** added sourced/verified content, added coverage/citations, improved attribution, with independent/secondary sources; itemized parameter and template names with their markup.
 - The more distinct "improvements" stacked in one summary, the stronger the sign. A short, specific summary with ordinary abbreviations ("ce", "typo") reads as human.
+
+## Older signs
+
+The page files these under "Historical indicators": common in older models, rare in new output.
+
+- **Promotional (2023–2025; still appears on request):** boasts a, vibrant, rich, profound, enhancing, showcasing, exemplifies, commitment to, natural beauty, nestled, in the heart of, groundbreaking, renowned, featuring, diverse array.
+- **Summary closers:** In summary, In conclusion, Overall.
+- **Em dashes (2022–Sept 2026):** spaced "—" for emphasis where a comma, colon, or parentheses fits. Newer models are tuned to avoid them; uniform commas and periods are now the sign.
+- **Elegant variation:** a new synonym for the same thing in each sentence ("Soviet artistic constraints… state-imposed artistic norms… the constraints imposed by the regime").
+- **Knowledge cutoffs and refusals:** as an AI language model, as of my last knowledge update, I cannot offer medical advice, but I can…
+- **Abrupt cut-offs:** text that stops mid-sentence at the end of a long output.
 
 ## Not signs on their own
 

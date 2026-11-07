@@ -1,6 +1,6 @@
 ---
 name: humanizer
-description: "Write or rewrite prose that is specific and plain, free of the signs of AI writing (puffery, AI vocabulary, negative parallelisms, chatbot framing, canned summaries). Use when writing docs, READMEs, code comments, commit or PR text, or chat replies, or when asked to humanize a draft."
+description: "Rewrite text to remove the signs of AI writing listed on Wikipedia's Signs of AI writing page (puffery, AI vocabulary, negative parallelisms, chatbot framing, canned summaries). Use only when the user asks to humanize text or make it sound less AI-written."
 ---
 
 # Humanizer
@@ -28,11 +28,20 @@ Done when every group has been checked, each hit is rewritten to a specific stat
 - **Plain verbs.** is, are, has; used, wrote, moved, tried, died.
 - **Definite claims when true.** "the first", "the only", "one of the best", with the evidence.
 - **Honest qualifiers.** very, perhaps, tends to, where the uncertainty is real.
-- **One name per thing.** Repeat the same noun; cycling synonyms for one referent reads as evasive.
 - **Varied rhythm.** Sentence length and punctuation (commas, parentheses, colons, a dash) follow the thought. Overcorrecting into uniform short sentences joined only by periods is its own sign.
 - Formal, polished, or mixed-register prose is fine. Perfect grammar and an occasional "Additionally" are not signs on their own.
 
 ## The signs
+
+As of October 2026 the page names these as the most common signs in new AI text. Check them first:
+
+1. Markdown where it won't render (see "Wrong markup").
+2. Canned change summaries (see "Change summaries").
+3. Gap disclaimers and corrective framing about sources.
+4. Vague association ("associated with", "connected to").
+5. Stressing how records or profiles "identify" someone (see "Notability by coverage").
+
+"Older signs" at the end lists what the page now files as historical.
 
 ### Content
 
@@ -56,9 +65,6 @@ Done when every group has been checked, each hit is rewritten to a specific stat
 - **Bold and lists.** Bold scattered through prose; inline-header bullets ("**Speed**: …") for what is really a paragraph → write the paragraph.
 - **Emoji** on headings or bullets.
 - **Wrong markup for the target.** Markdown where it won't render, prose in a code fence, `---` dividers, curly quotes in code or commit messages.
-- **Em dashes as punch.** Spaced "—" to dramatize a clause → a comma, colon, or parentheses. Some dashes are fine.
-- **Summary closers.** "In summary", "Overall", "In conclusion" restating the paragraph → stop.
-- **Promotional tone.** "nestled in the heart of", "boasts", "rich", "groundbreaking", "renowned".
 
 ### Communication meant for the user
 
@@ -79,3 +85,14 @@ Done when every group has been checked, each hit is rewritten to a specific stat
 - **Canned assurances.** "Improved clarity, flow, and consistency" → "Split install steps by OS; fixed the wrong flag in the example."
 - **What you didn't do.** "while preserving existing behaviour", "avoided breaking changes" → mention only what a reviewer would otherwise assume changed.
 - **Process over content.** "Added comprehensive tests", "addressed reviewer feedback" → "Test that empty input returns 400", "Rename `cfg` per review".
+
+### Older signs
+
+The page lists these as historical: common in older models, rare in new output. Fix them if they appear, but text without them can still read as AI-written.
+
+- **Promotional tone** (2023–2025). "nestled in the heart of", "boasts", "rich", "groundbreaking", "renowned". Still appears when a user asks for promotional copy.
+- **Summary closers.** "In summary", "Overall", "In conclusion" restating the paragraph → stop.
+- **Em dashes as punch** (2022–Sept 2026). Spaced "—" to dramatize a clause → a comma, colon, or parentheses. Newer models avoid dashes entirely, and prose held to commas and periods is now the sign (see "Varied rhythm").
+- **Elegant variation.** A new synonym for the same thing in each sentence → repeat the noun.
+- **Model self-reference.** "As an AI language model", "as of my last knowledge update", refusals → cut.
+- **Abrupt cut-offs.** Output that stops mid-sentence → finish or cut the sentence.
